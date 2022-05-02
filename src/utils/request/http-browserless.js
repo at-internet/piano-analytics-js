@@ -1,6 +1,6 @@
 import * as https from 'https';
 
-const request = {
+const http = {
     post: function (url, data, callback) {
         const bodyContent = data;
         const _url = new URL(url);
@@ -22,4 +22,4 @@ const request = {
     }
 };
 
-export {request};
+export {http};

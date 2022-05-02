@@ -3,5 +3,7 @@ function sendBeacon(url, data) {
         window.navigator.sendBeacon(url, data);
     }
 }
-
-export {sendBeacon};
+const http = {
+    post: sendBeacon
+};
+export {http};

@@ -1,4 +1,4 @@
-function cloneObject(original, delUndefined) {
+const cloneObject = function (original, delUndefined) {
     if (typeof original !== 'object' || original === null || original instanceof Date) {
         return original;
     }
@@ -11,6 +11,6 @@ function cloneObject(original, delUndefined) {
         }
     }
     return copy;
-}
+};
 
 export {cloneObject};

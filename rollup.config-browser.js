@@ -18,8 +18,13 @@ export default {
     output: [
         {
             file: 'dist/browser/piano-analytics.js',
-            format: 'iife'
+            format: 'iife',
+            name: 'pianoAnalytics'
+        },
+        {
+            file: 'dist/browser/piano-analytics.umd.js',
+            format: 'umd',
+            name: 'pianoAnalytics'
         }
-    ],
-    external: ['https']
+    ]
 };

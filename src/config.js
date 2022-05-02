@@ -23,7 +23,7 @@ export default {
     ],
     'storageVisitor': 'pa_vid',
     'storageUser': 'pa_user',
-    'version': '6.0.0',
+    'version': '6.1.0',
     'minHeartbeat': 5,
     'minBufferingHeartbeat': 1,
     'privacy': {
@@ -42,26 +42,26 @@ export default {
                         'visitor_privacy_consent': true,
                         'visitor_privacy_mode': 'optin'
                     },
-                    'whitelist': {
+                    'allowed': {
                         '*': {
                             '*': true
                         }
                     },
-                    'blacklist': {
+                    'forbidden': {
                         '*': {}
                     }
                 },
                 'storage': {
-                    'whitelist': {
+                    'allowed': {
                         '*': true
                     },
-                    'blacklist': {}
+                    'forbidden': {}
                 },
                 'events': {
-                    'whitelist': {
+                    'allowed': {
                         '*': true
                     },
-                    'blacklist': {}
+                    'forbidden': {}
                 }
             },
             'optout': {
@@ -72,25 +72,25 @@ export default {
                         'visitor_privacy_consent': false,
                         'visitor_privacy_mode': 'optout'
                     },
-                    'whitelist': {
+                    'allowed': {
                         '*': {}
                     },
-                    'blacklist': {
+                    'forbidden': {
                         '*': {}
                     }
                 },
                 'storage': {
-                    'whitelist': {
+                    'allowed': {
                         'pa_vid': true,
                         'pa_privacy': true
                     },
-                    'blacklist': {}
+                    'forbidden': {}
                 },
                 'events': {
-                    'whitelist': {
+                    'allowed': {
                         '*': true
                     },
-                    'blacklist': {}
+                    'forbidden': {}
                 }
             },
             'noConsent': {
@@ -101,24 +101,24 @@ export default {
                         'visitor_privacy_consent': false,
                         'visitor_privacy_mode': 'no-consent'
                     },
-                    'whitelist': {
+                    'allowed': {
                         '*': {}
                     },
-                    'blacklist': {
+                    'forbidden': {
                         '*': {}
                     }
                 },
                 'storage': {
-                    'whitelist': {},
-                    'blacklist': {
+                    'allowed': {},
+                    'forbidden': {
                         '*': true
                     }
                 },
                 'events': {
-                    'whitelist': {
+                    'allowed': {
                         '*': true
                     },
-                    'blacklist': {}
+                    'forbidden': {}
                 }
             },
             'noStorage': {
@@ -129,26 +129,26 @@ export default {
                         'visitor_privacy_consent': false,
                         'visitor_privacy_mode': 'no-storage'
                     },
-                    'whitelist': {
+                    'allowed': {
                         '*': {
                             '*': true
                         }
                     },
-                    'blacklist': {
+                    'forbidden': {
                         '*': {}
                     }
                 },
                 'storage': {
-                    'whitelist': {},
-                    'blacklist': {
+                    'allowed': {},
+                    'forbidden': {
                         '*': true
                     }
                 },
                 'events': {
-                    'whitelist': {
+                    'allowed': {
                         '*': true
                     },
-                    'blacklist': {}
+                    'forbidden': {}
                 }
             },
             'exempt': {
@@ -158,7 +158,7 @@ export default {
                         'visitor_privacy_consent': false,
                         'visitor_privacy_mode': 'exempt'
                     },
-                    'whitelist': {
+                    'allowed': {
                         '*': {
                             'app_crash': true,
                             'app_crash_class': true,
@@ -250,31 +250,31 @@ export default {
                             'src_webmail': true
                         }
                     },
-                    'blacklist': {
+                    'forbidden': {
                         '*': {}
                     }
                 },
                 'storage': {
-                    'whitelist': {
+                    'allowed': {
                         'pa_vid': true,
                         'pa_privacy': true
                     },
-                    'blacklist': {}
+                    'forbidden': {}
                 },
                 'events': {
-                    'whitelist': {
+                    'allowed': {
                         'click.exit': true,
                         'click.navigation': true,
                         'click.download': true,
                         'click.action': true,
                         'page.display': true
                     },
-                    'blacklist': {}
+                    'forbidden': {}
                 }
             },
             '*': {
                 'properties': {
-                    'whitelist': {
+                    'allowed': {
                         '*': {
                             'connection_type': true,
                             'device_timestamp_utc': true,
@@ -283,17 +283,17 @@ export default {
                             'ch_ua*': true
                         }
                     },
-                    'blacklist': {
+                    'forbidden': {
                         '*': {}
                     }
                 },
                 'storage': {
-                    'whitelist': {},
-                    'blacklist': {}
+                    'allowed': {},
+                    'forbidden': {}
                 },
                 'events': {
-                    'whitelist': {},
-                    'blacklist': {}
+                    'allowed': {},
+                    'forbidden': {}
                 }
             }
         }

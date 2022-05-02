@@ -4,7 +4,7 @@ import {uglify} from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
 
 export default {
-    input: 'src/core/PianoAnalytics.js',
+    input: 'src/exports.js',
     plugins: [
         eslint({
             configFile: './src/.eslintrc.json'
@@ -17,9 +17,13 @@ export default {
     ],
     output: [
         {
-            file: 'dist/universal/piano-analytics.js',
+            file: 'dist/browserless/piano-analytics.cjs.js',
             format: 'cjs',
             exports: 'auto'
+        },
+        {
+            file: 'dist/browserless/piano-analytics.esm.js',
+            format: 'es'
         }
     ],
     external: ['https']

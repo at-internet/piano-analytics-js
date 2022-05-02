@@ -3,56 +3,56 @@ describe('Privacy :', function () {
     let globalPA;
     let optinModeValue = {
         'events': {
-            'blacklist': {},
-            'whitelist': {
+            'forbidden': {},
+            'allowed': {
                 '*': true
             }
         },
         'name': 'optin',
         'properties': {
-            'blacklist': {
+            'forbidden': {
                 '*': {}
             },
             'include': {
                 'visitor_privacy_consent': true,
                 'visitor_privacy_mode': 'optin'
             },
-            'whitelist': {
+            'allowed': {
                 '*': {
                     '*': true
                 }
             }
         },
         'storage': {
-            'blacklist': {},
-            'whitelist': {
+            'forbidden': {},
+            'allowed': {
                 '*': true
             }
         }
     };
     let optoutModeValue = {
         'events': {
-            'blacklist': {},
-            'whitelist': {
+            'forbidden': {},
+            'allowed': {
                 '*': true
             }
         },
         'name': 'optout',
         'properties': {
-            'blacklist': {
+            'forbidden': {
                 '*': {}
             },
             'include': {
                 'visitor_privacy_consent': false,
                 'visitor_privacy_mode': 'optout'
             },
-            'whitelist': {
+            'allowed': {
                 '*': {}
             }
         },
         'storage': {
-            'blacklist': {},
-            'whitelist': {
+            'forbidden': {},
+            'allowed': {
                 'pa_vid': true,
                 'pa_privacy': true
             }
@@ -61,66 +61,66 @@ describe('Privacy :', function () {
     };
     let noConsentModeValue = {
         'events': {
-            'blacklist': {},
-            'whitelist': {
+            'forbidden': {},
+            'allowed': {
                 '*': true
             }
         },
         'name': 'noConsent',
         'properties': {
-            'blacklist': {
+            'forbidden': {
                 '*': {}
             },
             'include': {
                 'visitor_privacy_consent': false,
                 'visitor_privacy_mode': 'no-consent'
             },
-            'whitelist': {
+            'allowed': {
                 '*': {}
             }
         },
         'storage': {
-            'blacklist': {
+            'forbidden': {
                 '*': true
             },
-            'whitelist': {}
+            'allowed': {}
         },
         'visitorId': 'Consent-NO'
     };
     let noStorageModeValue = {
         'events': {
-            'blacklist': {},
-            'whitelist': {
+            'forbidden': {},
+            'allowed': {
                 '*': true
             }
         },
         'name': 'noStorage',
         'properties': {
-            'blacklist': {
+            'forbidden': {
                 '*': {}
             },
             'include': {
                 'visitor_privacy_consent': false,
                 'visitor_privacy_mode': 'no-storage'
             },
-            'whitelist': {
+            'allowed': {
                 '*': {
                     '*': true
                 }
             }
         },
         'storage': {
-            'blacklist': {
+            'forbidden': {
                 '*': true
             },
-            'whitelist': {}
+            'allowed': {}
         },
         'visitorId': 'no-storage'
     };
     let exemptModeValue = {
         'events': {
-            'blacklist': {},
-            'whitelist': {
+            'forbidden': {},
+            'allowed': {
                 'click.action': true,
                 'click.download': true,
                 'click.exit': true,
@@ -130,14 +130,14 @@ describe('Privacy :', function () {
         },
         'name': 'exempt',
         'properties': {
-            'blacklist': {
+            'forbidden': {
                 '*': {}
             },
             'include': {
                 'visitor_privacy_consent': false,
                 'visitor_privacy_mode': 'exempt'
             },
-            'whitelist': {
+            'allowed': {
                 '*': {
                     'app_crash': true,
                     'app_crash_class': true,
@@ -231,8 +231,8 @@ describe('Privacy :', function () {
             }
         },
         'storage': {
-            'blacklist': {},
-            'whitelist': {
+            'forbidden': {},
+            'allowed': {
                 'pa_privacy': true,
                 'pa_vid': true
             }
@@ -248,11 +248,11 @@ describe('Privacy :', function () {
     });
     describe('properties management :', function () {
         describe('include.properties :', function () {
-            it('Should add a correct list of properties into the whitelist without events/modes', function () {
+            it('Should add a correct list of properties into the allowed without events/modes', function () {
                 globalPA.privacy.include.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2']
                 );
-                expect(globalPA.privacy.modes['*'].properties.whitelist['*']).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.allowed['*']).to.deep.equal({
                     'ch_ua*': true,
                     'connection_type': true,
                     'device_timestamp_utc': true,
@@ -266,12 +266,12 @@ describe('Privacy :', function () {
                     'prop4_sub2': true
                 });
             });
-            it('Should add a correct list of properties into the whitelist with modes but no events', function () {
+            it('Should add a correct list of properties into the allowed with modes but no events', function () {
                 globalPA.privacy.include.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     ['exempt', 'optout', 'customMode']
                 );
-                expect(globalPA.privacy.modes['*'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.allowed).to.deep.equal({
                     '*': {
                         'ch_ua*': true,
                         'connection_type': true,
@@ -280,7 +280,7 @@ describe('Privacy :', function () {
                         'visitor_privacy_mode': true
                     }
                 });
-                expect(globalPA.privacy.modes['exempt'].properties.whitelist['*']).to.deep.equal({
+                expect(globalPA.privacy.modes['exempt'].properties.allowed['*']).to.deep.equal({
                     'app_crash': true,
                     'app_crash_class': true,
                     'app_crash_screen': true,
@@ -376,7 +376,7 @@ describe('Privacy :', function () {
                     'src_url_domain': true,
                     'src_webmail': true
                 });
-                expect(globalPA.privacy.modes['optout'].properties.whitelist['*']).to.deep.equal({
+                expect(globalPA.privacy.modes['optout'].properties.allowed['*']).to.deep.equal({
                     'prop1_sub1': true,
                     'prop2_sub1': true,
                     'prop2_sub2': true,
@@ -386,12 +386,12 @@ describe('Privacy :', function () {
                 });
                 expect(globalPA.privacy.modes['customMode']).to.equal(undefined);
             });
-            it('Should add a correct list of properties into the whitelist with one known mode but no events', function () {
+            it('Should add a correct list of properties into the allowed with one known mode but no events', function () {
                 globalPA.privacy.include.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     'exempt'
                 );
-                expect(globalPA.privacy.modes['*'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.allowed).to.deep.equal({
                     '*': {
                         'ch_ua*': true,
                         'connection_type': true,
@@ -400,7 +400,7 @@ describe('Privacy :', function () {
                         'visitor_privacy_mode': true
                     }
                 });
-                expect(globalPA.privacy.modes['exempt'].properties.whitelist['*']).to.deep.equal({
+                expect(globalPA.privacy.modes['exempt'].properties.allowed['*']).to.deep.equal({
                     'app_crash': true,
                     'app_crash_class': true,
                     'app_crash_screen': true,
@@ -497,12 +497,12 @@ describe('Privacy :', function () {
                     'src_webmail': true
                 });
             });
-            it('Should add a correct list of properties into the whitelist with one unknown mode but no events', function () {
+            it('Should add a correct list of properties into the allowed with one unknown mode but no events', function () {
                 globalPA.privacy.include.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     'customMode'
                 );
-                expect(globalPA.privacy.modes['*'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.allowed).to.deep.equal({
                     '*': {
                         'ch_ua*': true,
                         'connection_type': true,
@@ -512,13 +512,13 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should add a correct list of properties into the whitelist with events but no modes', function () {
+            it('Should add a correct list of properties into the allowed with events but no modes', function () {
                 globalPA.privacy.include.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     null,
                     ['page.display', 'custom.event']
                 );
-                expect(globalPA.privacy.modes['*'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.allowed).to.deep.equal({
                     '*': {
                         'ch_ua*': true,
                         'connection_type': true,
@@ -544,13 +544,13 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should add a correct list of properties into the whitelist with one event but no modes', function () {
+            it('Should add a correct list of properties into the allowed with one event but no modes', function () {
                 globalPA.privacy.include.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     null,
                     'page.display'
                 );
-                expect(globalPA.privacy.modes['*'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.allowed).to.deep.equal({
                     '*': {
                         'ch_ua*': true,
                         'connection_type': true,
@@ -568,13 +568,13 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should add a correct list of properties into the whitelist with modes and events', function () {
+            it('Should add a correct list of properties into the allowed with modes and events', function () {
                 globalPA.privacy.include.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     ['exempt', 'customMode'],
                     ['page.display', 'custom.event']
                 );
-                expect(globalPA.privacy.modes['exempt'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['exempt'].properties.allowed).to.deep.equal({
                     '*': {
                         'app_crash': true,
                         'app_crash_class': true,
@@ -683,13 +683,13 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should add a correct list of properties into the whitelist with one known mode and one event', function () {
+            it('Should add a correct list of properties into the allowed with one known mode and one event', function () {
                 globalPA.privacy.include.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     'exempt',
                     'page.display'
                 );
-                expect(globalPA.privacy.modes['exempt'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['exempt'].properties.allowed).to.deep.equal({
                     '*': {
                         'app_crash': true,
                         'app_crash_class': true,
@@ -790,7 +790,7 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should not add a list of properties into the whitelist using one unknown mode', function () {
+            it('Should not add a list of properties into the allowed using one unknown mode', function () {
                 globalPA.privacy.include.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     'customMode',
@@ -800,9 +800,9 @@ describe('Privacy :', function () {
             });
         });
         describe('include.property :', function () {
-            it('Should add a property into the whitelist without events/modes', function () {
+            it('Should add a property into the allowed without events/modes', function () {
                 globalPA.privacy.include.property('prop1_sub1');
-                expect(globalPA.privacy.modes['*'].properties.whitelist['*']).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.allowed['*']).to.deep.equal({
                     'ch_ua*': true,
                     'connection_type': true,
                     'device_timestamp_utc': true,
@@ -811,12 +811,12 @@ describe('Privacy :', function () {
                     'visitor_privacy_mode': true
                 });
             });
-            it('Should add a property into the whitelist with modes but no events', function () {
+            it('Should add a property into the allowed with modes but no events', function () {
                 globalPA.privacy.include.property(
                     'prop1_sub1',
                     ['exempt', 'customMode']
                 );
-                expect(globalPA.privacy.modes['*'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.allowed).to.deep.equal({
                     '*': {
                         'ch_ua*': true,
                         'connection_type': true,
@@ -825,7 +825,7 @@ describe('Privacy :', function () {
                         'visitor_privacy_mode': true
                     }
                 });
-                expect(globalPA.privacy.modes['exempt'].properties.whitelist['*']).to.deep.equal({
+                expect(globalPA.privacy.modes['exempt'].properties.allowed['*']).to.deep.equal({
                     'app_crash': true,
                     'app_crash_class': true,
                     'app_crash_screen': true,
@@ -917,12 +917,12 @@ describe('Privacy :', function () {
                     'src_webmail': true
                 });
             });
-            it('Should add a property into the whitelist with one known mode but no events', function () {
+            it('Should add a property into the allowed with one known mode but no events', function () {
                 globalPA.privacy.include.property(
                     'prop1_sub1',
                     'exempt'
                 );
-                expect(globalPA.privacy.modes['*'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.allowed).to.deep.equal({
                     '*': {
                         'ch_ua*': true,
                         'connection_type': true,
@@ -931,7 +931,7 @@ describe('Privacy :', function () {
                         'visitor_privacy_mode': true
                     }
                 });
-                expect(globalPA.privacy.modes['exempt'].properties.whitelist['*']).to.deep.equal({
+                expect(globalPA.privacy.modes['exempt'].properties.allowed['*']).to.deep.equal({
                     'app_crash': true,
                     'app_crash_class': true,
                     'app_crash_screen': true,
@@ -1023,12 +1023,12 @@ describe('Privacy :', function () {
                     'src_webmail': true
                 });
             });
-            it('Should add a property into the whitelist with one unknown mode but no events', function () {
+            it('Should add a property into the allowed with one unknown mode but no events', function () {
                 globalPA.privacy.include.property(
                     'prop1_sub1',
                     'customMode'
                 );
-                expect(globalPA.privacy.modes['*'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.allowed).to.deep.equal({
                     '*': {
                         'ch_ua*': true,
                         'connection_type': true,
@@ -1038,13 +1038,13 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should add a property into the whitelist with events but no modes', function () {
+            it('Should add a property into the allowed with events but no modes', function () {
                 globalPA.privacy.include.property(
                     'prop1_sub1',
                     null,
                     ['page.display', 'custom.event']
                 );
-                expect(globalPA.privacy.modes['*'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.allowed).to.deep.equal({
                     '*': {
                         'ch_ua*': true,
                         'connection_type': true,
@@ -1060,13 +1060,13 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should add a property into the whitelist with one event but no modes', function () {
+            it('Should add a property into the allowed with one event but no modes', function () {
                 globalPA.privacy.include.property(
                     'prop1_sub1',
                     null,
                     'page.display'
                 );
-                expect(globalPA.privacy.modes['*'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.allowed).to.deep.equal({
                     '*': {
                         'ch_ua*': true,
                         'connection_type': true,
@@ -1079,13 +1079,13 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should add a property into the whitelist with modes and events', function () {
+            it('Should add a property into the allowed with modes and events', function () {
                 globalPA.privacy.include.property(
                     'prop1_sub1',
                     ['exempt', 'customMode'],
                     ['page.display', 'custom.event']
                 );
-                expect(globalPA.privacy.modes['exempt'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['exempt'].properties.allowed).to.deep.equal({
                     '*': {
                         'app_crash': true,
                         'app_crash_class': true,
@@ -1184,13 +1184,13 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should add a property into the whitelist with one known mode and one event', function () {
+            it('Should add a property into the allowed with one known mode and one event', function () {
                 globalPA.privacy.include.property(
                     'prop1_sub1',
                     'exempt',
                     'page.display'
                 );
-                expect(globalPA.privacy.modes['exempt'].properties.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['exempt'].properties.allowed).to.deep.equal({
                     '*': {
                         'app_crash': true,
                         'app_crash_class': true,
@@ -1286,7 +1286,7 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should not add a property into the whitelist using one unknown mode', function () {
+            it('Should not add a property into the allowed using one unknown mode', function () {
                 globalPA.privacy.include.property(
                     'prop1_sub1',
                     'customMode',
@@ -1296,11 +1296,11 @@ describe('Privacy :', function () {
             });
         });
         describe('exclude.properties :', function () {
-            it('Should add a correct list of properties into the blacklist without events/modes', function () {
+            it('Should add a correct list of properties into the forbidden without events/modes', function () {
                 globalPA.privacy.exclude.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2']
                 );
-                expect(globalPA.privacy.modes['*'].properties.blacklist['*']).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.forbidden['*']).to.deep.equal({
                     'prop1_sub1': true,
                     'prop2_sub1': true,
                     'prop2_sub2': true,
@@ -1309,13 +1309,13 @@ describe('Privacy :', function () {
                     'prop4_sub2': true
                 });
             });
-            it('Should add a correct list of properties into the blacklist with modes but no events', function () {
+            it('Should add a correct list of properties into the forbidden with modes but no events', function () {
                 globalPA.privacy.exclude.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     ['exempt', 'customMode']
                 );
-                expect(globalPA.privacy.modes['*'].properties.blacklist).to.deep.equal({'*': {}});
-                expect(globalPA.privacy.modes['exempt'].properties.blacklist['*']).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.forbidden).to.deep.equal({'*': {}});
+                expect(globalPA.privacy.modes['exempt'].properties.forbidden['*']).to.deep.equal({
                     'prop1_sub1': true,
                     'prop2_sub1': true,
                     'prop2_sub2': true,
@@ -1324,13 +1324,13 @@ describe('Privacy :', function () {
                     'prop4_sub2': true
                 });
             });
-            it('Should add a correct list of properties into the blacklist with one known mode but no events', function () {
+            it('Should add a correct list of properties into the forbidden with one known mode but no events', function () {
                 globalPA.privacy.exclude.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     'exempt'
                 );
-                expect(globalPA.privacy.modes['*'].properties.blacklist).to.deep.equal({'*': {}});
-                expect(globalPA.privacy.modes['exempt'].properties.blacklist['*']).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.forbidden).to.deep.equal({'*': {}});
+                expect(globalPA.privacy.modes['exempt'].properties.forbidden['*']).to.deep.equal({
                     'prop1_sub1': true,
                     'prop2_sub1': true,
                     'prop2_sub2': true,
@@ -1339,20 +1339,20 @@ describe('Privacy :', function () {
                     'prop4_sub2': true
                 });
             });
-            it('Should add a correct list of properties into the blacklist with one unknown mode but no events', function () {
+            it('Should add a correct list of properties into the forbidden with one unknown mode but no events', function () {
                 globalPA.privacy.exclude.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     'customMode'
                 );
-                expect(globalPA.privacy.modes['*'].properties.blacklist).to.deep.equal({'*': {}});
+                expect(globalPA.privacy.modes['*'].properties.forbidden).to.deep.equal({'*': {}});
             });
-            it('Should add a correct list of properties into the blacklist with events but no modes', function () {
+            it('Should add a correct list of properties into the forbidden with events but no modes', function () {
                 globalPA.privacy.exclude.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     null,
                     ['page.display', 'custom.event']
                 );
-                expect(globalPA.privacy.modes['*'].properties.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.forbidden).to.deep.equal({
                     '*': {},
                     'page.display': {
                         'prop1_sub1': true,
@@ -1372,13 +1372,13 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should add a correct list of properties into the blacklist with one event but no modes', function () {
+            it('Should add a correct list of properties into the forbidden with one event but no modes', function () {
                 globalPA.privacy.exclude.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     null,
                     'page.display'
                 );
-                expect(globalPA.privacy.modes['*'].properties.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.forbidden).to.deep.equal({
                     '*': {},
                     'page.display': {
                         'prop1_sub1': true,
@@ -1390,13 +1390,13 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should add a correct list of properties into the blacklist with modes and events', function () {
+            it('Should add a correct list of properties into the forbidden with modes and events', function () {
                 globalPA.privacy.exclude.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     ['exempt', 'customMode'],
                     ['page.display', 'custom.event']
                 );
-                expect(globalPA.privacy.modes['exempt'].properties.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['exempt'].properties.forbidden).to.deep.equal({
                     '*': {},
                     'page.display': {
                         'prop1_sub1': true,
@@ -1416,13 +1416,13 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should add a correct list of properties into the blacklist with one known mode and one event', function () {
+            it('Should add a correct list of properties into the forbidden with one known mode and one event', function () {
                 globalPA.privacy.exclude.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     'exempt',
                     'page.display'
                 );
-                expect(globalPA.privacy.modes['exempt'].properties.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['exempt'].properties.forbidden).to.deep.equal({
                     '*': {},
                     'page.display': {
                         'prop1_sub1': true,
@@ -1434,7 +1434,7 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should not add a correct list of properties into the blacklist using one unknown mode', function () {
+            it('Should not add a correct list of properties into the forbidden using one unknown mode', function () {
                 globalPA.privacy.exclude.properties(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     'customMode',
@@ -1444,48 +1444,48 @@ describe('Privacy :', function () {
             });
         });
         describe('exclude.property :', function () {
-            it('Should add a property into the blacklist without events/modes', function () {
+            it('Should add a property into the forbidden without events/modes', function () {
                 globalPA.privacy.exclude.property(
                     'prop1_sub1'
                 );
-                expect(globalPA.privacy.modes['*'].properties.blacklist['*']).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.forbidden['*']).to.deep.equal({
                     'prop1_sub1': true
                 });
             });
-            it('Should add a property into the blacklist with modes but no events', function () {
+            it('Should add a property into the forbidden with modes but no events', function () {
                 globalPA.privacy.exclude.property(
                     'prop1_sub1',
                     ['exempt', 'customMode']
                 );
-                expect(globalPA.privacy.modes['*'].properties.blacklist).to.deep.equal({'*': {}});
-                expect(globalPA.privacy.modes['exempt'].properties.blacklist['*']).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.forbidden).to.deep.equal({'*': {}});
+                expect(globalPA.privacy.modes['exempt'].properties.forbidden['*']).to.deep.equal({
                     'prop1_sub1': true
                 });
             });
-            it('Should add a property into the blacklist with one known mode but no events', function () {
+            it('Should add a property into the forbidden with one known mode but no events', function () {
                 globalPA.privacy.exclude.property(
                     'prop1_sub1',
                     'exempt'
                 );
-                expect(globalPA.privacy.modes['*'].properties.blacklist).to.deep.equal({'*': {}});
-                expect(globalPA.privacy.modes['exempt'].properties.blacklist['*']).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.forbidden).to.deep.equal({'*': {}});
+                expect(globalPA.privacy.modes['exempt'].properties.forbidden['*']).to.deep.equal({
                     'prop1_sub1': true
                 });
             });
-            it('Should add a property into the blacklist with one unknown mode but no events', function () {
+            it('Should add a property into the forbidden with one unknown mode but no events', function () {
                 globalPA.privacy.exclude.property(
                     'prop1_sub1',
                     'customMode'
                 );
-                expect(globalPA.privacy.modes['*'].properties.blacklist).to.deep.equal({'*': {}});
+                expect(globalPA.privacy.modes['*'].properties.forbidden).to.deep.equal({'*': {}});
             });
-            it('Should add a property into the blacklist with events but no modes', function () {
+            it('Should add a property into the forbidden with events but no modes', function () {
                 globalPA.privacy.exclude.property(
                     'prop1_sub1',
                     null,
                     ['page.display', 'custom.event']
                 );
-                expect(globalPA.privacy.modes['*'].properties.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.forbidden).to.deep.equal({
                     '*': {},
                     'page.display': {
                         'prop1_sub1': true
@@ -1495,26 +1495,26 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should add a property into the blacklist with one event but no modes', function () {
+            it('Should add a property into the forbidden with one event but no modes', function () {
                 globalPA.privacy.exclude.property(
                     'prop1_sub1',
                     null,
                     'page.display'
                 );
-                expect(globalPA.privacy.modes['*'].properties.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].properties.forbidden).to.deep.equal({
                     '*': {},
                     'page.display': {
                         'prop1_sub1': true
                     }
                 });
             });
-            it('Should add a property into the blacklist with modes and events', function () {
+            it('Should add a property into the forbidden with modes and events', function () {
                 globalPA.privacy.exclude.property(
                     'prop1_sub1',
                     ['exempt', 'customMode'],
                     ['page.display', 'custom.event']
                 );
-                expect(globalPA.privacy.modes['exempt'].properties.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['exempt'].properties.forbidden).to.deep.equal({
                     '*': {},
                     'page.display': {
                         'prop1_sub1': true
@@ -1524,20 +1524,20 @@ describe('Privacy :', function () {
                     }
                 });
             });
-            it('Should add a property into the blacklist with one known mode and one event', function () {
+            it('Should add a property into the forbidden with one known mode and one event', function () {
                 globalPA.privacy.exclude.property(
                     'prop1_sub1',
                     'exempt',
                     'page.display'
                 );
-                expect(globalPA.privacy.modes['exempt'].properties.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['exempt'].properties.forbidden).to.deep.equal({
                     '*': {},
                     'page.display': {
                         'prop1_sub1': true
                     }
                 });
             });
-            it('Should not add a property into the blacklist using one unknown mode', function () {
+            it('Should not add a property into the forbidden using one unknown mode', function () {
                 globalPA.privacy.exclude.property(
                     'prop1_sub1',
                     'customMode',
@@ -1549,11 +1549,11 @@ describe('Privacy :', function () {
     });
     describe('storage keys management :', function () {
         describe('include.storageKeys :', function () {
-            it('Should add a correct list of keys into the whitelist without modes', function () {
+            it('Should add a correct list of keys into the allowed without modes', function () {
                 globalPA.privacy.include.storageKeys(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2']
                 );
-                expect(globalPA.privacy.modes['*'].storage.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].storage.allowed).to.deep.equal({
                     'prop1_sub1': true,
                     'prop2_sub1': true,
                     'prop2_sub2': true,
@@ -1562,13 +1562,13 @@ describe('Privacy :', function () {
                     'prop4_sub2': true
                 });
             });
-            it('Should add a correct list of keys into the whitelist with modes', function () {
+            it('Should add a correct list of keys into the allowed with modes', function () {
                 globalPA.privacy.include.storageKeys(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     ['exempt', 'customMode']
                 );
-                expect(globalPA.privacy.modes['*'].storage.whitelist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].storage.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].storage.allowed).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].storage.allowed).to.deep.equal({
                     'pa_vid': true,
                     'pa_privacy': true,
                     'prop1_sub1': true,
@@ -1579,13 +1579,13 @@ describe('Privacy :', function () {
                     'prop4_sub2': true
                 });
             });
-            it('Should add a correct list of keys into the whitelist with one known mode', function () {
+            it('Should add a correct list of keys into the allowed with one known mode', function () {
                 globalPA.privacy.include.storageKeys(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     'exempt'
                 );
-                expect(globalPA.privacy.modes['*'].storage.whitelist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].storage.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].storage.allowed).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].storage.allowed).to.deep.equal({
                     'pa_vid': true,
                     'pa_privacy': true,
                     'prop1_sub1': true,
@@ -1596,61 +1596,61 @@ describe('Privacy :', function () {
                     'prop4_sub2': true
                 });
             });
-            it('Should add a correct list of keys into the whitelist with one unknown mode', function () {
+            it('Should add a correct list of keys into the allowed with one unknown mode', function () {
                 globalPA.privacy.include.storageKeys(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     'customMode'
                 );
-                expect(globalPA.privacy.modes['*'].storage.whitelist).to.deep.equal({});
+                expect(globalPA.privacy.modes['*'].storage.allowed).to.deep.equal({});
             });
         });
         describe('include.storageKey :', function () {
-            it('Should add a correct storage key into the whitelist without modes', function () {
+            it('Should add a correct storage key into the allowed without modes', function () {
                 globalPA.privacy.include.storageKey(
                     'prop1_sub1'
                 );
-                expect(globalPA.privacy.modes['*'].storage.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].storage.allowed).to.deep.equal({
                     'prop1_sub1': true
                 });
             });
-            it('Should add a correct storage key into the whitelist with modes', function () {
+            it('Should add a correct storage key into the allowed with modes', function () {
                 globalPA.privacy.include.storageKey(
                     'prop1_sub1',
                     ['exempt', 'customMode']
                 );
-                expect(globalPA.privacy.modes['*'].storage.whitelist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].storage.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].storage.allowed).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].storage.allowed).to.deep.equal({
                     'pa_vid': true,
                     'pa_privacy': true,
                     'prop1_sub1': true
                 });
             });
-            it('Should add a correct storage key into the whitelist with one known mode', function () {
+            it('Should add a correct storage key into the allowed with one known mode', function () {
                 globalPA.privacy.include.storageKey(
                     'prop1_sub1',
                     'exempt'
                 );
-                expect(globalPA.privacy.modes['*'].storage.whitelist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].storage.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].storage.allowed).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].storage.allowed).to.deep.equal({
                     'pa_vid': true,
                     'pa_privacy': true,
                     'prop1_sub1': true
                 });
             });
-            it('Should add a correct storage key into the whitelist with one unknown mode', function () {
+            it('Should add a correct storage key into the allowed with one unknown mode', function () {
                 globalPA.privacy.include.storageKey(
                     'prop1_sub1',
                     'customMode'
                 );
-                expect(globalPA.privacy.modes['*'].storage.whitelist).to.deep.equal({});
+                expect(globalPA.privacy.modes['*'].storage.allowed).to.deep.equal({});
             });
         });
         describe('exclude.storageKeys :', function () {
-            it('Should add a correct list of keys into the blacklist without modes', function () {
+            it('Should add a correct list of keys into the forbidden without modes', function () {
                 globalPA.privacy.exclude.storageKeys(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2']
                 );
-                expect(globalPA.privacy.modes['*'].storage.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].storage.forbidden).to.deep.equal({
                     'prop1_sub1': true,
                     'prop2_sub1': true,
                     'prop2_sub2': true,
@@ -1659,13 +1659,13 @@ describe('Privacy :', function () {
                     'prop4_sub2': true
                 });
             });
-            it('Should add a correct list of keys into the blacklist with modes', function () {
+            it('Should add a correct list of keys into the forbidden with modes', function () {
                 globalPA.privacy.exclude.storageKeys(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     ['exempt', 'customMode']
                 );
-                expect(globalPA.privacy.modes['*'].storage.blacklist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].storage.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].storage.forbidden).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].storage.forbidden).to.deep.equal({
                     'prop1_sub1': true,
                     'prop2_sub1': true,
                     'prop2_sub2': true,
@@ -1674,13 +1674,13 @@ describe('Privacy :', function () {
                     'prop4_sub2': true
                 });
             });
-            it('Should add a correct list of keys into the blacklist with one known mode', function () {
+            it('Should add a correct list of keys into the forbidden with one known mode', function () {
                 globalPA.privacy.exclude.storageKeys(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     'exempt'
                 );
-                expect(globalPA.privacy.modes['*'].storage.blacklist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].storage.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].storage.forbidden).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].storage.forbidden).to.deep.equal({
                     'prop1_sub1': true,
                     'prop2_sub1': true,
                     'prop2_sub2': true,
@@ -1689,59 +1689,59 @@ describe('Privacy :', function () {
                     'prop4_sub2': true
                 });
             });
-            it('Should add a correct list of keys into the blacklist with one unknown mode', function () {
+            it('Should add a correct list of keys into the forbidden with one unknown mode', function () {
                 globalPA.privacy.exclude.storageKeys(
                     ['prop1_sub1', 'prop2_sub1', 'prop2_sub2', 'prop3_*', 'prop4_sub1_*', 'prop4_sub2'],
                     'customMode'
                 );
-                expect(globalPA.privacy.modes['*'].storage.blacklist).to.deep.equal({});
+                expect(globalPA.privacy.modes['*'].storage.forbidden).to.deep.equal({});
             });
         });
         describe('exclude.storageKey :', function () {
-            it('Should add a correct list of keys into the blacklist without modes', function () {
+            it('Should add a correct list of keys into the forbidden without modes', function () {
                 globalPA.privacy.exclude.storageKey(
                     'prop1_sub1'
                 );
-                expect(globalPA.privacy.modes['*'].storage.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].storage.forbidden).to.deep.equal({
                     'prop1_sub1': true
                 });
             });
-            it('Should add a correct list of keys into the blacklist with modes', function () {
+            it('Should add a correct list of keys into the forbidden with modes', function () {
                 globalPA.privacy.exclude.storageKey(
                     'prop1_sub1',
                     ['exempt', 'customMode']
                 );
-                expect(globalPA.privacy.modes['*'].storage.blacklist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].storage.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].storage.forbidden).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].storage.forbidden).to.deep.equal({
                     'prop1_sub1': true
                 });
             });
-            it('Should add a correct list of keys into the blacklist with one known mode', function () {
+            it('Should add a correct list of keys into the forbidden with one known mode', function () {
                 globalPA.privacy.exclude.storageKey(
                     'prop1_sub1',
                     'exempt'
                 );
-                expect(globalPA.privacy.modes['*'].storage.blacklist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].storage.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].storage.forbidden).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].storage.forbidden).to.deep.equal({
                     'prop1_sub1': true
                 });
             });
-            it('Should add a correct list of keys into the blacklist with one unknown mode', function () {
+            it('Should add a correct list of keys into the forbidden with one unknown mode', function () {
                 globalPA.privacy.exclude.storageKey(
                     'prop1_sub1',
                     'customMode'
                 );
-                expect(globalPA.privacy.modes['*'].storage.blacklist).to.deep.equal({});
+                expect(globalPA.privacy.modes['*'].storage.forbidden).to.deep.equal({});
             });
         });
     });
     describe('event management :', function () {
         describe('include.events :', function () {
-            it('Should add a correct list of events into the whitelist without modes', function () {
+            it('Should add a correct list of events into the allowed without modes', function () {
                 globalPA.privacy.include.events(
                     ['event1.type1', 'event1.type2', 'event2.type3', 'event3.*', 'event4.type4.*', 'event5*']
                 );
-                expect(globalPA.privacy.modes['*'].events.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].events.allowed).to.deep.equal({
                     'event1.type1': true,
                     'event1.type2': true,
                     'event2.type3': true,
@@ -1750,13 +1750,13 @@ describe('Privacy :', function () {
                     'event5*': true
                 });
             });
-            it('Should add a correct list of events into the whitelist with modes', function () {
+            it('Should add a correct list of events into the allowed with modes', function () {
                 globalPA.privacy.include.events(
                     ['event1.type1', 'event1.type2', 'event2.type3', 'event3.*', 'event4.type4.*', 'event5*'],
                     ['exempt', 'customMode']
                 );
-                expect(globalPA.privacy.modes['*'].events.whitelist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].events.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].events.allowed).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].events.allowed).to.deep.equal({
                     'click.action': true,
                     'click.download': true,
                     'click.exit': true,
@@ -1770,13 +1770,13 @@ describe('Privacy :', function () {
                     'page.display': true
                 });
             });
-            it('Should add a correct list of events into the whitelist with one known mode', function () {
+            it('Should add a correct list of events into the allowed with one known mode', function () {
                 globalPA.privacy.include.events(
                     ['event1.type1', 'event1.type2', 'event2.type3', 'event3.*', 'event4.type4.*', 'event5*'],
                     'exempt'
                 );
-                expect(globalPA.privacy.modes['*'].events.whitelist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].events.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].events.allowed).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].events.allowed).to.deep.equal({
                     'click.action': true,
                     'click.download': true,
                     'click.exit': true,
@@ -1790,30 +1790,30 @@ describe('Privacy :', function () {
                     'page.display': true
                 });
             });
-            it('Should add a correct list of events into the whitelist with one unknown mode', function () {
+            it('Should add a correct list of events into the allowed with one unknown mode', function () {
                 globalPA.privacy.include.events(
                     ['event1.type1', 'event1.type2', 'event2.type3', 'event3.*', 'event4.type4.*', 'event5*'],
                     'customMode'
                 );
-                expect(globalPA.privacy.modes['*'].events.whitelist).to.deep.equal({});
+                expect(globalPA.privacy.modes['*'].events.allowed).to.deep.equal({});
             });
         });
         describe('include.event :', function () {
-            it('Should add a correct event into the whitelist without modes', function () {
+            it('Should add a correct event into the allowed without modes', function () {
                 globalPA.privacy.include.event(
                     'event1.type1'
                 );
-                expect(globalPA.privacy.modes['*'].events.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].events.allowed).to.deep.equal({
                     'event1.type1': true
                 });
             });
-            it('Should add a correct event into the whitelist with modes', function () {
+            it('Should add a correct event into the allowed with modes', function () {
                 globalPA.privacy.include.event(
                     'event1.type1',
                     ['exempt', 'customMode']
                 );
-                expect(globalPA.privacy.modes['*'].events.whitelist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].events.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].events.allowed).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].events.allowed).to.deep.equal({
                     'click.exit': true,
                     'click.navigation': true,
                     'click.download': true,
@@ -1822,13 +1822,13 @@ describe('Privacy :', function () {
                     'event1.type1': true
                 });
             });
-            it('Should add a correct event into the whitelist with one known mode', function () {
+            it('Should add a correct event into the allowed with one known mode', function () {
                 globalPA.privacy.include.event(
                     'event1.type1',
                     'exempt'
                 );
-                expect(globalPA.privacy.modes['*'].events.whitelist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].events.whitelist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].events.allowed).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].events.allowed).to.deep.equal({
                     'click.exit': true,
                     'click.navigation': true,
                     'click.download': true,
@@ -1837,20 +1837,20 @@ describe('Privacy :', function () {
                     'event1.type1': true
                 });
             });
-            it('Should add a correct event into the whitelist with one unknown mode', function () {
+            it('Should add a correct event into the allowed with one unknown mode', function () {
                 globalPA.privacy.include.event(
                     'event1.type1',
                     'customMode'
                 );
-                expect(globalPA.privacy.modes['*'].events.whitelist).to.deep.equal({});
+                expect(globalPA.privacy.modes['*'].events.allowed).to.deep.equal({});
             });
         });
         describe('exclude.events :', function () {
-            it('Should add a correct list of events into the blacklist without modes', function () {
+            it('Should add a correct list of events into the forbidden without modes', function () {
                 globalPA.privacy.exclude.events(
                     ['event1.type1', 'event1.type2', 'event2.type3', 'event3.*', 'event4.type4.*', 'event5*']
                 );
-                expect(globalPA.privacy.modes['*'].events.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].events.forbidden).to.deep.equal({
                     'event1.type1': true,
                     'event1.type2': true,
                     'event2.type3': true,
@@ -1859,13 +1859,13 @@ describe('Privacy :', function () {
                     'event5*': true
                 });
             });
-            it('Should add a correct list of events into the blacklist with modes', function () {
+            it('Should add a correct list of events into the forbidden with modes', function () {
                 globalPA.privacy.exclude.events(
                     ['event1.type1', 'event1.type2', 'event2.type3', 'event3.*', 'event4.type4.*', 'event5*'],
                     ['exempt', 'customMode']
                 );
-                expect(globalPA.privacy.modes['*'].events.blacklist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].events.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].events.forbidden).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].events.forbidden).to.deep.equal({
                     'event1.type1': true,
                     'event1.type2': true,
                     'event2.type3': true,
@@ -1874,13 +1874,13 @@ describe('Privacy :', function () {
                     'event5*': true
                 });
             });
-            it('Should add a correct list of events into the blacklist with one known mode', function () {
+            it('Should add a correct list of events into the forbidden with one known mode', function () {
                 globalPA.privacy.exclude.events(
                     ['event1.type1', 'event1.type2', 'event2.type3', 'event3.*', 'event4.type4.*', 'event5*'],
                     'exempt'
                 );
-                expect(globalPA.privacy.modes['*'].events.blacklist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].events.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].events.forbidden).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].events.forbidden).to.deep.equal({
                     'event1.type1': true,
                     'event1.type2': true,
                     'event2.type3': true,
@@ -1889,49 +1889,49 @@ describe('Privacy :', function () {
                     'event5*': true
                 });
             });
-            it('Should add a correct list of events into the blacklist with one unknown mode', function () {
+            it('Should add a correct list of events into the forbidden with one unknown mode', function () {
                 globalPA.privacy.exclude.events(
                     ['event1.type1', 'event1.type2', 'event2.type3', 'event3.*', 'event4.type4.*', 'event5*'],
                     'customMode'
                 );
-                expect(globalPA.privacy.modes['*'].events.blacklist).to.deep.equal({});
+                expect(globalPA.privacy.modes['*'].events.forbidden).to.deep.equal({});
             });
         });
         describe('exclude.event :', function () {
-            it('Should add a correct event into the blacklist without modes', function () {
+            it('Should add a correct event into the forbidden without modes', function () {
                 globalPA.privacy.exclude.event(
                     'event1.type1'
                 );
-                expect(globalPA.privacy.modes['*'].events.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].events.forbidden).to.deep.equal({
                     'event1.type1': true
                 });
             });
-            it('Should add a correct event into the blacklist with modes', function () {
+            it('Should add a correct event into the forbidden with modes', function () {
                 globalPA.privacy.exclude.event(
                     'event1.type1',
                     ['exempt', 'customMode']
                 );
-                expect(globalPA.privacy.modes['*'].events.blacklist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].events.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].events.forbidden).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].events.forbidden).to.deep.equal({
                     'event1.type1': true
                 });
             });
-            it('Should add a correct event into the blacklist with one known mode', function () {
+            it('Should add a correct event into the forbidden with one known mode', function () {
                 globalPA.privacy.exclude.event(
                     'event1.type1',
                     'exempt'
                 );
-                expect(globalPA.privacy.modes['*'].events.blacklist).to.deep.equal({});
-                expect(globalPA.privacy.modes['exempt'].events.blacklist).to.deep.equal({
+                expect(globalPA.privacy.modes['*'].events.forbidden).to.deep.equal({});
+                expect(globalPA.privacy.modes['exempt'].events.forbidden).to.deep.equal({
                     'event1.type1': true
                 });
             });
-            it('Should add a correct event into the blacklist with one unknown mode', function () {
+            it('Should add a correct event into the forbidden with one unknown mode', function () {
                 globalPA.privacy.exclude.event(
                     'event1.type1',
                     'customMode'
                 );
-                expect(globalPA.privacy.modes['*'].events.blacklist).to.deep.equal({});
+                expect(globalPA.privacy.modes['*'].events.forbidden).to.deep.equal({});
             });
         });
     });

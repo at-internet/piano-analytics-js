@@ -1,7 +1,7 @@
 import {cloneObject} from '../utils/index';
 import {preloadTagging} from './preload';
 
-const Privacy = function (pa) {
+function Privacy(pa) {
     const config = pa.getConfiguration('privacy');
     this.currentMode = '';
     this.previousMode = '';
@@ -70,17 +70,17 @@ const Privacy = function (pa) {
         let _modes = ['*'];
         let _events = ['*'];
         let propertyType = 'properties';
-        const listType = isBlacklisting ? 'blacklist' : 'whitelist';
-        if(modes){
+        const listType = isBlacklisting ? 'forbidden' : 'allowed';
+        if (modes) {
             _modes = typeof modes === 'string' ? [modes] : modes;
         }
-        if(events){
+        if (events) {
             _events = typeof events === 'string' ? [events] : events;
         }
-        if(isForStorage){
+        if (isForStorage) {
             propertyType = 'storage';
         }
-        if(isForEvent){
+        if (isForEvent) {
             propertyType = 'events';
         }
         for (let i = 0; i < _modes.length; i++) {
@@ -168,8 +168,8 @@ const Privacy = function (pa) {
     }
 
     this.isEventAllowed = function (event) {
-        const isEventBlacklisted = _checkModesForEvent('blacklist', this.modes, this.currentMode, event);
-        const isEventWhitelisted = _checkModesForEvent('whitelist', this.modes, this.currentMode, event);
+        const isEventBlacklisted = _checkModesForEvent('forbidden', this.modes, this.currentMode, event);
+        const isEventWhitelisted = _checkModesForEvent('allowed', this.modes, this.currentMode, event);
         return isEventBlacklisted ? false : isEventWhitelisted;
     };
 
@@ -199,7 +199,7 @@ const Privacy = function (pa) {
     }
 
     function _checkPropertyWithoutEvent(mode, typeList, property) {
-        if (typeList === 'blacklist') {
+        if (typeList === 'forbidden') {
             if (mode[typeList]['*'][property]) {
                 return true;
             }
@@ -234,8 +234,8 @@ const Privacy = function (pa) {
     }
 
     this.isPropAllowed = function (propertyName, event) {
-        const isPropertyBlacklisted = _checkModesListForProperty('blacklist', this.modes, this.currentMode, propertyName, event);
-        const isPropertyWhitelisted = _checkModesListForProperty('whitelist', this.modes, this.currentMode, propertyName, event);
+        const isPropertyBlacklisted = _checkModesListForProperty('forbidden', this.modes, this.currentMode, propertyName, event);
+        const isPropertyWhitelisted = _checkModesListForProperty('allowed', this.modes, this.currentMode, propertyName, event);
         return isPropertyBlacklisted ? false : isPropertyWhitelisted;
     };
 
@@ -262,8 +262,8 @@ const Privacy = function (pa) {
     }
 
     this.isKeyAllowed = function (key) {
-        const isKeyBlacklisted = _checkModesListForKey('blacklist', this.modes, this.currentMode, key);
-        const isKeyWhitelisted = _checkModesListForKey('whitelist', this.modes, this.currentMode, key);
+        const isKeyBlacklisted = _checkModesListForKey('forbidden', this.modes, this.currentMode, key);
+        const isKeyWhitelisted = _checkModesListForKey('allowed', this.modes, this.currentMode, key);
         return isKeyBlacklisted ? false : isKeyWhitelisted;
     };
 
@@ -300,7 +300,7 @@ const Privacy = function (pa) {
     };
 
     this.init();
-};
+}
 
 export {
     Privacy

@@ -21,54 +21,51 @@ It also includes [Privacy tagging methods](https://developers.atinternet-solutio
 <!-- GETTING STARTED -->
 ## Getting Started
 
-- Install our library on your project (see below), you have two possibilities :
-  - Using directly the GitHub project to generate a file you will have to host
-  - Using our CDN
+- Install our library on your project (see below), you have a few possibilities :
+    - Using NPM
+    - Using our CDN (browser only)
+  - Cloning the GitHub project to build a file you will host (browser only)
+    - You can use this method if you want to configure your library without additional tagging (ex: like having your site and collect domain already configured in the built file). However, we suggest the NPM method if you use Build Tools (webpack etc.) 
 - Check the <a href="https://developers.atinternet-solutions.com/piano-analytics/"><strong>documentation</strong></a> for an overview of the functionalities and code examples
 
-### Installation
-Note that you can generate a file within your site with your site and collect domain already configured, which is not possible using our global CDN
-#### Using GitHub
-1. Clone the repo
-   ```sh
-   git clone https://github.com/at-internet/piano-analytics-js
-   ```
-2. Install NPM packages
-   ```sh
-   npm install
-   ```
-   _Use the `--legacy-peer-deps` flag if you got peer dependencies errors from a recent npm version_
-3. Enter your site and collect domain in `src/config.js` (optionnal if you want to do it in your implementation)
-   ```js
-    'site': 123456,
-    'collectDomain': 'https://logsx.xiti.com',
-   ```
-4. Build the file
-      ```sh
-      npm run build
-      ```
-    _For the moment, a warning may appear saying `Creating a browser bundle that depends on "https"`. You may ignore this warning as the code using this dependency is excluded from the file generated for the browser bundle_
-5. Get `piano-analytics.js` in `/dist/browser/`
-6. Load it and send events
-```html
-    <head>
-        <script src="https://my.website.com/piano-analytics.js"></script>
-    </head>
-    <body>
-        <script type="text/javascript">
-            pa.sendEvent('page.display', // Event name
-                {
-                    'page': 'page name', // Event properties
-                    'page_chapter1': 'chapter 1' ,
-                    'page_chapter2': 'chapter 2' ,
-                    'page_chapter3': 'chapter 3'
-                }
-            );
-        </script>
-    </body>
-```
-#### Using the CDN
+## Using NPM
+
+1. install our library
+    ```sh
+    npm install piano-analytics-js --save (--legacy-peer-deps)
+    or
+    yarn add piano-analytics-js
+    ```
+
+2. Configure your site and collect domain in your site/application initialization
+    ```js
+    import {pianoAnalytics} from 'piano-analytics-js';
+    // for commonJS environment you can do the following
+    // const pianoAnalytics = require('piano-analytics-js').pianoAnalytics;
    
+   
+   // in your initialization
+    pianoAnalytics.setConfigurations({
+        'site': 410501,
+        'collectDomain': 'https://logdev.xiti.com'
+    });
+    ```
+
+3. Send events ! 
+    ```js
+    pianoAnalytics.sendEvent('page.display', // Event name
+        {
+            'page': 'page name', // Event properties
+            'page_chapter1': 'chapter 1' ,
+            'page_chapter2': 'chapter 2' ,
+            'page_chapter3': 'chapter 3'
+        }
+    ); 
+    ```
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+## Using the CDN (browser)
+
 1. Load the file from our CDN and configure your site and collect domain
     ```html
     <head>
@@ -99,7 +96,50 @@ Note that you can generate a file within your site with your site and collect do
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+## Using GitHub (browser)
 
+1. Clone the repo
+   ```sh
+   git clone https://github.com/at-internet/piano-analytics-js
+   ```
+2. Install NPM packages
+   ```sh
+   npm install --legacy-peer-deps
+   or
+   yarn install
+   ```
+3. Enter your site and collect domain in `src/config.js` (optionnal if you want to do it in your implementation)
+   ```
+    'site': 123456,
+    'collectDomain': 'https://logsx.xiti.com'
+   ```
+4. Build the file
+      ```sh
+      npm run build
+      ```
+
+
+5. Get `piano-analytics.js` in `/dist/browser/` 
+6. Load it and send events
+```html
+    <head>
+        <script src="https://url-to-your-file/piano-analytics.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            pa.sendEvent('page.display', // Event name
+                {
+                    'page': 'page name', // Event properties
+                    'page_chapter1': 'chapter 1' ,
+                    'page_chapter2': 'chapter 2' ,
+                    'page_chapter3': 'chapter 3'
+                }
+            );
+        </script>
+    </body>
+```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
