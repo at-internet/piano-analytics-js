@@ -1,6 +1,6 @@
 # Changelog
 
-## 6.1.0
+## 6.1.1
 
 ### Added or Changed
 - releasing to npm
