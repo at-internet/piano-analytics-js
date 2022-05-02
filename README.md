@@ -46,8 +46,8 @@ It also includes [Privacy tagging methods](https://developers.atinternet-solutio
    
    // in your initialization
     pianoAnalytics.setConfigurations({
-        'site': 410501,
-        'collectDomain': 'https://logdev.xiti.com'
+        'site': 123456789,
+        'collectDomain': 'https://log.xiti.com'
     });
     ```
 
@@ -72,8 +72,8 @@ It also includes [Privacy tagging methods](https://developers.atinternet-solutio
         <script src="https://tag.aticdn.net/piano-analytics.js"></script>
         <script type="text/javascript">
             pa.setConfigurations({
-                site:123456, 
-                collectDomain:'https://logsx.xiti.com'
+                site:123456789, 
+                collectDomain:'https://log.xiti.com'
             }); 
         </script>
     </head>
@@ -110,8 +110,8 @@ It also includes [Privacy tagging methods](https://developers.atinternet-solutio
    ```
 3. Enter your site and collect domain in `src/config.js` (optionnal if you want to do it in your implementation)
    ```
-    'site': 123456,
-    'collectDomain': 'https://logsx.xiti.com'
+    'site': 123456789,
+    'collectDomain': 'https://log.xiti.com'
    ```
 4. Build the file
       ```sh
