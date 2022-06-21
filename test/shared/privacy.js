@@ -66,7 +66,7 @@ describe('Privacy :', function () {
                 '*': true
             }
         },
-        'name': 'noConsent',
+        'name': 'no-consent',
         'properties': {
             'forbidden': {
                 '*': {}
@@ -94,7 +94,7 @@ describe('Privacy :', function () {
                 '*': true
             }
         },
-        'name': 'noStorage',
+        'name': 'no-storage',
         'properties': {
             'forbidden': {
                 '*': {}
@@ -1960,19 +1960,19 @@ describe('Privacy :', function () {
                     expect(tempPA.getVisitorId()).to.equal('OPT-OUT');
                 });
             });
-            it('Should initialize with noConsent mode when present in storage', function () {
-                globalPA.storage.setItem(config.privacy.storageKey, 'noConsent', null, function () {
+            it('Should initialize with no-consent mode when present in storage', function () {
+                globalPA.storage.setItem(config.privacy.storageKey, 'no-consent', null, function () {
                     let tempPA = new pa.PA(config);
-                    expect(tempPA.privacy.getMode()).to.equal('noConsent');
-                    expect(tempPA.privacy.modes['noConsent']).to.deep.equal(noConsentModeValue);
+                    expect(tempPA.privacy.getMode()).to.equal('no-consent');
+                    expect(tempPA.privacy.modes['no-consent']).to.deep.equal(noConsentModeValue);
                     expect(tempPA.getVisitorId()).to.equal('Consent-NO');
                 });
             });
-            it('Should initialize with noStorage mode when present in storage', function (done) {
-                globalPA.storage.setItem(config.privacy.storageKey, 'noStorage', null, function () {
+            it('Should initialize with no-storage mode when present in storage', function (done) {
+                globalPA.storage.setItem(config.privacy.storageKey, 'no-storage', null, function () {
                     let tempPA = new pa.PA(config);
-                    expect(tempPA.privacy.getMode()).to.equal('noStorage');
-                    expect(tempPA.privacy.modes['noStorage']).to.deep.equal(noStorageModeValue);
+                    expect(tempPA.privacy.getMode()).to.equal('no-storage');
+                    expect(tempPA.privacy.modes['no-storage']).to.deep.equal(noStorageModeValue);
                     expect(tempPA.getVisitorId()).to.equal('no-storage');
                     done();
                 });
@@ -2040,10 +2040,10 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('noConsent -> optin', function (done) {
-                    globalPA.storage.setItem(config.privacy.storageKey, 'noConsent', null, function () {
+                it('no-consent -> optin', function (done) {
+                    globalPA.storage.setItem(config.privacy.storageKey, 'no-consent', null, function () {
                         let tempPA = new pa.PA(config);
-                        expect(tempPA.privacy.getMode()).to.equal('noConsent');
+                        expect(tempPA.privacy.getMode()).to.equal('no-consent');
                         expect(tempPA.getVisitorId()).to.equal('Consent-NO');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal(null);
@@ -2057,10 +2057,10 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('noStorage -> optin', function (done) {
-                    globalPA.storage.setItem(config.privacy.storageKey, 'noStorage', null, function () {
+                it('no-storage -> optin', function (done) {
+                    globalPA.storage.setItem(config.privacy.storageKey, 'no-storage', null, function () {
                         let tempPA = new pa.PA(config);
-                        expect(tempPA.privacy.getMode()).to.equal('noStorage');
+                        expect(tempPA.privacy.getMode()).to.equal('no-storage');
                         expect(tempPA.getVisitorId()).to.equal('no-storage');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal(null);
@@ -2147,10 +2147,10 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('noConsent -> optout', function (done) {
-                    globalPA.storage.setItem(config.privacy.storageKey, 'noConsent', null, function () {
+                it('no-consent -> optout', function (done) {
+                    globalPA.storage.setItem(config.privacy.storageKey, 'no-consent', null, function () {
                         let tempPA = new pa.PA(config);
-                        expect(tempPA.privacy.getMode()).to.equal('noConsent');
+                        expect(tempPA.privacy.getMode()).to.equal('no-consent');
                         expect(tempPA.getVisitorId()).to.equal('Consent-NO');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal(null);
@@ -2164,10 +2164,10 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('noStorage -> optout', function (done) {
-                    globalPA.storage.setItem(config.privacy.storageKey, 'noStorage', null, function () {
+                it('no-storage -> optout', function (done) {
+                    globalPA.storage.setItem(config.privacy.storageKey, 'no-storage', null, function () {
                         let tempPA = new pa.PA(config);
-                        expect(tempPA.privacy.getMode()).to.equal('noStorage');
+                        expect(tempPA.privacy.getMode()).to.equal('no-storage');
                         expect(tempPA.getVisitorId()).to.equal('no-storage');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal(null);
@@ -2222,14 +2222,14 @@ describe('Privacy :', function () {
                     });
                 });
             });
-            describe('to noConsent :', function () {
-                it('optin -> noConsent', function (done) {
+            describe('to no-consent :', function () {
+                it('optin -> no-consent', function (done) {
                     expect(globalPA.privacy.getMode()).to.equal('optin');
                     expect(globalPA.getVisitorId()).to.equal(null);
                     globalPA.storage.getItem(config.privacy.storageKey, function (original) {
                         expect(original).to.equal('optin');
-                        globalPA.privacy.setMode('noConsent');
-                        expect(globalPA.privacy.getMode()).to.equal('noConsent');
+                        globalPA.privacy.setMode('no-consent');
+                        expect(globalPA.privacy.getMode()).to.equal('no-consent');
                         expect(globalPA.getVisitorId()).to.equal('Consent-NO');
                         globalPA.storage.getItem(config.privacy.storageKey, function (data) {
                             expect(data).to.equal(null);
@@ -2237,15 +2237,15 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('optout -> noConsent', function (done) {
+                it('optout -> no-consent', function (done) {
                     globalPA.storage.setItem(config.privacy.storageKey, 'optout', null, function () {
                         let tempPA = new pa.PA(config);
                         expect(tempPA.privacy.getMode()).to.equal('optout');
                         expect(tempPA.getVisitorId()).to.equal('OPT-OUT');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal('optout');
-                            tempPA.privacy.setMode('noConsent');
-                            expect(tempPA.privacy.getMode()).to.equal('noConsent');
+                            tempPA.privacy.setMode('no-consent');
+                            expect(tempPA.privacy.getMode()).to.equal('no-consent');
                             expect(tempPA.getVisitorId()).to.equal('Consent-NO');
                             tempPA.storage.getItem(config.privacy.storageKey, function (data) {
                                 expect(data).to.equal(null);
@@ -2254,15 +2254,15 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('noConsent -> noConsent', function (done) {
-                    globalPA.storage.setItem(config.privacy.storageKey, 'noConsent', null, function () {
+                it('no-consent -> no-consent', function (done) {
+                    globalPA.storage.setItem(config.privacy.storageKey, 'no-consent', null, function () {
                         let tempPA = new pa.PA(config);
-                        expect(tempPA.privacy.getMode()).to.equal('noConsent');
+                        expect(tempPA.privacy.getMode()).to.equal('no-consent');
                         expect(tempPA.getVisitorId()).to.equal('Consent-NO');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal(null);
-                            tempPA.privacy.setMode('noConsent');
-                            expect(tempPA.privacy.getMode()).to.equal('noConsent');
+                            tempPA.privacy.setMode('no-consent');
+                            expect(tempPA.privacy.getMode()).to.equal('no-consent');
                             expect(tempPA.getVisitorId()).to.equal('Consent-NO');
                             tempPA.storage.getItem(config.privacy.storageKey, function (data) {
                                 expect(data).to.equal(null);
@@ -2271,15 +2271,15 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('noStorage -> noConsent', function (done) {
-                    globalPA.storage.setItem(config.privacy.storageKey, 'noStorage', null, function () {
+                it('no-storage -> no-consent', function (done) {
+                    globalPA.storage.setItem(config.privacy.storageKey, 'no-storage', null, function () {
                         let tempPA = new pa.PA(config);
-                        expect(tempPA.privacy.getMode()).to.equal('noStorage');
+                        expect(tempPA.privacy.getMode()).to.equal('no-storage');
                         expect(tempPA.getVisitorId()).to.equal('no-storage');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal(null);
-                            tempPA.privacy.setMode('noConsent');
-                            expect(tempPA.privacy.getMode()).to.equal('noConsent');
+                            tempPA.privacy.setMode('no-consent');
+                            expect(tempPA.privacy.getMode()).to.equal('no-consent');
                             expect(tempPA.getVisitorId()).to.equal('Consent-NO');
                             tempPA.storage.getItem(config.privacy.storageKey, function (data) {
                                 expect(data).to.equal(null);
@@ -2288,15 +2288,15 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('exempt -> noConsent', function (done) {
+                it('exempt -> no-consent', function (done) {
                     globalPA.storage.setItem(config.privacy.storageKey, 'exempt', null, function () {
                         let tempPA = new pa.PA(config);
                         expect(tempPA.privacy.getMode()).to.equal('exempt');
                         expect(tempPA.getVisitorId()).to.equal(null);
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal('exempt');
-                            tempPA.privacy.setMode('noConsent');
-                            expect(tempPA.privacy.getMode()).to.equal('noConsent');
+                            tempPA.privacy.setMode('no-consent');
+                            expect(tempPA.privacy.getMode()).to.equal('no-consent');
                             expect(tempPA.getVisitorId()).to.equal('Consent-NO');
                             tempPA.storage.getItem(config.privacy.storageKey, function (data) {
                                 expect(data).to.equal(null);
@@ -2305,7 +2305,7 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('custom -> noConsent', function (done) {
+                it('custom -> no-consent', function (done) {
                     let testModeValue = Utility.cloneObject(exemptModeValue);
                     testModeValue.name = 'testMode';
                     testModeValue.properties.include['visitor_privacy_mode'] = 'testMode';
@@ -2318,8 +2318,8 @@ describe('Privacy :', function () {
                         expect(tempPA.getVisitorId()).to.equal(null);
                         tempPA.storage.getItem(tempConfig.privacy.storageKey, function (original) {
                             expect(original).to.equal('testMode');
-                            tempPA.privacy.setMode('noConsent');
-                            expect(tempPA.privacy.getMode()).to.equal('noConsent');
+                            tempPA.privacy.setMode('no-consent');
+                            expect(tempPA.privacy.getMode()).to.equal('no-consent');
                             expect(tempPA.getVisitorId()).to.equal('Consent-NO');
                             tempPA.storage.getItem(config.privacy.storageKey, function (data) {
                                 expect(data).to.equal(null);
@@ -2329,14 +2329,14 @@ describe('Privacy :', function () {
                     });
                 });
             });
-            describe('to noStorage :', function () {
-                it('optin -> noStorage', function (done) {
+            describe('to no-storage :', function () {
+                it('optin -> no-storage', function (done) {
                     expect(globalPA.privacy.getMode()).to.equal('optin');
                     expect(globalPA.getVisitorId()).to.equal(null);
                     globalPA.storage.getItem(config.privacy.storageKey, function (original) {
                         expect(original).to.equal('optin');
-                        globalPA.privacy.setMode('noStorage');
-                        expect(globalPA.privacy.getMode()).to.equal('noStorage');
+                        globalPA.privacy.setMode('no-storage');
+                        expect(globalPA.privacy.getMode()).to.equal('no-storage');
                         expect(globalPA.getVisitorId()).to.equal('no-storage');
                         globalPA.storage.getItem(config.privacy.storageKey, function (data) {
                             expect(data).to.equal(null);
@@ -2344,15 +2344,15 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('optout -> noStorage', function (done) {
+                it('optout -> no-storage', function (done) {
                     globalPA.storage.setItem(config.privacy.storageKey, 'optout', null, function () {
                         let tempPA = new pa.PA(config);
                         expect(tempPA.privacy.getMode()).to.equal('optout');
                         expect(tempPA.getVisitorId()).to.equal('OPT-OUT');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal('optout');
-                            tempPA.privacy.setMode('noStorage');
-                            expect(tempPA.privacy.getMode()).to.equal('noStorage');
+                            tempPA.privacy.setMode('no-storage');
+                            expect(tempPA.privacy.getMode()).to.equal('no-storage');
                             expect(tempPA.getVisitorId()).to.equal('no-storage');
                             tempPA.storage.getItem(config.privacy.storageKey, function (data) {
                                 expect(data).to.equal(null);
@@ -2361,15 +2361,15 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('noConsent -> noStorage', function (done) {
-                    globalPA.storage.setItem(config.privacy.storageKey, 'noConsent', null, function () {
+                it('no-consent -> no-storage', function (done) {
+                    globalPA.storage.setItem(config.privacy.storageKey, 'no-consent', null, function () {
                         let tempPA = new pa.PA(config);
-                        expect(tempPA.privacy.getMode()).to.equal('noConsent');
+                        expect(tempPA.privacy.getMode()).to.equal('no-consent');
                         expect(tempPA.getVisitorId()).to.equal('Consent-NO');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal(null);
-                            tempPA.privacy.setMode('noStorage');
-                            expect(tempPA.privacy.getMode()).to.equal('noStorage');
+                            tempPA.privacy.setMode('no-storage');
+                            expect(tempPA.privacy.getMode()).to.equal('no-storage');
                             expect(tempPA.getVisitorId()).to.equal('no-storage');
                             tempPA.storage.getItem(config.privacy.storageKey, function (data) {
                                 expect(data).to.equal(null);
@@ -2378,15 +2378,15 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('noStorage -> noStorage', function (done) {
-                    globalPA.storage.setItem(config.privacy.storageKey, 'noStorage', null, function () {
+                it('no-storage -> no-storage', function (done) {
+                    globalPA.storage.setItem(config.privacy.storageKey, 'no-storage', null, function () {
                         let tempPA = new pa.PA(config);
-                        expect(tempPA.privacy.getMode()).to.equal('noStorage');
+                        expect(tempPA.privacy.getMode()).to.equal('no-storage');
                         expect(tempPA.getVisitorId()).to.equal('no-storage');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal(null);
-                            tempPA.privacy.setMode('noStorage');
-                            expect(tempPA.privacy.getMode()).to.equal('noStorage');
+                            tempPA.privacy.setMode('no-storage');
+                            expect(tempPA.privacy.getMode()).to.equal('no-storage');
                             expect(tempPA.getVisitorId()).to.equal('no-storage');
                             tempPA.storage.getItem(config.privacy.storageKey, function (data) {
                                 expect(data).to.equal(null);
@@ -2395,15 +2395,15 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('exempt -> noStorage', function (done) {
+                it('exempt -> no-storage', function (done) {
                     globalPA.storage.setItem(config.privacy.storageKey, 'exempt', null, function () {
                         let tempPA = new pa.PA(config);
                         expect(tempPA.privacy.getMode()).to.equal('exempt');
                         expect(tempPA.getVisitorId()).to.equal(null);
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal('exempt');
-                            tempPA.privacy.setMode('noStorage');
-                            expect(tempPA.privacy.getMode()).to.equal('noStorage');
+                            tempPA.privacy.setMode('no-storage');
+                            expect(tempPA.privacy.getMode()).to.equal('no-storage');
                             expect(tempPA.getVisitorId()).to.equal('no-storage');
                             tempPA.storage.getItem(config.privacy.storageKey, function (data) {
                                 expect(data).to.equal(null);
@@ -2412,7 +2412,7 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('custom -> noStorage', function (done) {
+                it('custom -> no-storage', function (done) {
                     let testModeValue = Utility.cloneObject(exemptModeValue);
                     testModeValue.name = 'testMode';
                     testModeValue.properties.include['visitor_privacy_mode'] = 'testMode';
@@ -2425,8 +2425,8 @@ describe('Privacy :', function () {
                         expect(tempPA.getVisitorId()).to.equal(null);
                         tempPA.storage.getItem(tempConfig.privacy.storageKey, function (original) {
                             expect(original).to.equal('testMode');
-                            tempPA.privacy.setMode('noStorage');
-                            expect(tempPA.privacy.getMode()).to.equal('noStorage');
+                            tempPA.privacy.setMode('no-storage');
+                            expect(tempPA.privacy.getMode()).to.equal('no-storage');
                             expect(tempPA.getVisitorId()).to.equal('no-storage');
                             tempPA.storage.getItem(config.privacy.storageKey, function (data) {
                                 expect(data).to.equal(null);
@@ -2468,10 +2468,10 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('noConsent -> exempt', function (done) {
-                    globalPA.storage.setItem(config.privacy.storageKey, 'noConsent', null, function () {
+                it('no-consent -> exempt', function (done) {
+                    globalPA.storage.setItem(config.privacy.storageKey, 'no-consent', null, function () {
                         let tempPA = new pa.PA(config);
-                        expect(tempPA.privacy.getMode()).to.equal('noConsent');
+                        expect(tempPA.privacy.getMode()).to.equal('no-consent');
                         expect(tempPA.getVisitorId()).to.equal('Consent-NO');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal(null);
@@ -2485,10 +2485,10 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('noStorage -> exempt', function (done) {
-                    globalPA.storage.setItem(config.privacy.storageKey, 'noStorage', null, function () {
+                it('no-storage -> exempt', function (done) {
+                    globalPA.storage.setItem(config.privacy.storageKey, 'no-storage', null, function () {
                         let tempPA = new pa.PA(config);
-                        expect(tempPA.privacy.getMode()).to.equal('noStorage');
+                        expect(tempPA.privacy.getMode()).to.equal('no-storage');
                         expect(tempPA.getVisitorId()).to.equal('no-storage');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal(null);
@@ -2573,10 +2573,10 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('noConsent -> custom', function (done) {
-                    globalPA.storage.setItem(config.privacy.storageKey, 'noConsent', null, function () {
+                it('no-consent -> custom', function (done) {
+                    globalPA.storage.setItem(config.privacy.storageKey, 'no-consent', null, function () {
                         let tempPA = new pa.PA(config);
-                        expect(tempPA.privacy.getMode()).to.equal('noConsent');
+                        expect(tempPA.privacy.getMode()).to.equal('no-consent');
                         expect(tempPA.getVisitorId()).to.equal('Consent-NO');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal(null);
@@ -2591,10 +2591,10 @@ describe('Privacy :', function () {
                         });
                     });
                 });
-                it('noStorage -> custom', function (done) {
-                    globalPA.storage.setItem(config.privacy.storageKey, 'noStorage', null, function () {
+                it('no-storage -> custom', function (done) {
+                    globalPA.storage.setItem(config.privacy.storageKey, 'no-storage', null, function () {
                         let tempPA = new pa.PA(config);
-                        expect(tempPA.privacy.getMode()).to.equal('noStorage');
+                        expect(tempPA.privacy.getMode()).to.equal('no-storage');
                         expect(tempPA.getVisitorId()).to.equal('no-storage');
                         tempPA.storage.getItem(config.privacy.storageKey, function (original) {
                             expect(original).to.equal(null);

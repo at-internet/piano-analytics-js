@@ -25,20 +25,20 @@ function Privacy(pa) {
         }
         this.previousMode = this.currentMode;
         this.currentMode = mode;
-        const privateModes = ['optin', 'optout', 'noConsent', 'noStorage', 'exempt'];
+        const privateModes = ['optin', 'optout', 'no-consent', 'no-storage', 'exempt'];
         pa.storage.getItem(pa.getConfiguration('storageVisitor'), (function (visitorIdStored) {
             pa.storage.getItem(config.storageKey, (function (storedMode) {
                 if (
-                    mode === 'noStorage' ||
+                    mode === 'no-storage' ||
                     ((privateModes.indexOf(mode) < 0 || mode === 'optin' || mode === 'exempt') &&
-                        (this.previousMode === 'optout' || this.previousMode === 'noConsent' || this.previousMode === 'noStorage')) ||
-                    (mode === 'noConsent' && visitorIdStored) ||
+                        (this.previousMode === 'optout' || this.previousMode === 'no-consent' || this.previousMode === 'no-storage')) ||
+                    (mode === 'no-consent' && visitorIdStored) ||
                     (mode === 'optout' && (visitorIdStored !== this.modes[mode].visitorId))
                 ) {
                     pa.storage.deleteItem(pa.getConfiguration('storageVisitor'));
                     pa.setVisitorId(undefined);
                 }
-                if (mode === 'optout' || mode === 'noConsent' || mode === 'noStorage') {
+                if (mode === 'optout' || mode === 'no-consent' || mode === 'no-storage') {
                     pa.setVisitorId(this.modes[mode].visitorId);
                 }
 

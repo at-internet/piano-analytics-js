@@ -1,10 +1,15 @@
 # Changelog
 
+## 6.2.0
+
+### Added or Changed
+- fix privacy mode name ("no-consent", "no-storage")
+- upgraded dev-dependencies
+
 ## 6.1.2
 
 ### Added or Changed
-- updated README 
-
+- updated README
 
 ## 6.1.1
 

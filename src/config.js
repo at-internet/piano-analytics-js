@@ -23,7 +23,7 @@ export default {
     ],
     'storageVisitor': 'pa_vid',
     'storageUser': 'pa_user',
-    'version': '6.1.2',
+    'version': '6.2.0',
     'minHeartbeat': 5,
     'minBufferingHeartbeat': 1,
     'privacy': {
@@ -93,8 +93,8 @@ export default {
                     'forbidden': {}
                 }
             },
-            'noConsent': {
-                'name': 'noConsent',
+            'no-consent': {
+                'name': 'no-consent',
                 'visitorId': 'Consent-NO',
                 'properties': {
                     'include': {
@@ -121,8 +121,8 @@ export default {
                     'forbidden': {}
                 }
             },
-            'noStorage': {
-                'name': 'noStorage',
+            'no-storage': {
+                'name': 'no-storage',
                 'visitorId': 'no-storage',
                 'properties': {
                     'include': {

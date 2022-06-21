@@ -645,8 +645,8 @@ describe('Privacy not in Browser :', function () {
                     }
                 });
         });
-        it('Should work properly using noConsent mode', function (done) {
-            globalPA.privacy.setMode('noConsent');
+        it('Should work properly using no-consent mode', function (done) {
+            globalPA.privacy.setMode('no-consent');
             globalPA.privacy.include.properties(
                 [
                     'event_collection_*',
@@ -849,8 +849,8 @@ describe('Privacy not in Browser :', function () {
                     }
                 });
         });
-        it('Should work properly using noStorage mode', function (done) {
-            globalPA.privacy.setMode('noStorage');
+        it('Should work properly using no-storage mode', function (done) {
+            globalPA.privacy.setMode('no-storage');
             globalPA.privacy.include.properties(
                 [
                     'event_collection_*',
