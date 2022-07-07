@@ -23,7 +23,7 @@ export default {
     ],
     'storageVisitor': 'pa_vid',
     'storageUser': 'pa_user',
-    'version': '6.2.0',
+    'version': '6.3.0',
     'minHeartbeat': 5,
     'minBufferingHeartbeat': 1,
     'privacy': {
@@ -224,6 +224,7 @@ export default {
                             'page_duration': true,
                             'page_full_name': true,
                             'page_position': true,
+                            'previous_url': true,
                             'privacy_status': true,
                             'site': true,
                             'site_env': true,

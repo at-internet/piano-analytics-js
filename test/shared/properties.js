@@ -41,7 +41,7 @@ describe('Properties :', function () {
             });
         });
         it('Should add a property for the next sendEvent (prop with events option)', function (done) {
-            globalPA.setProperty('custom', true, {'events': ['toto', 'tata']});
+            globalPA.setProperty('custom', true, {'events': ['to*', 'tata']});
             globalPA.sendEvent('another', {}, {
                 onBeforeSend: function (pianoanalytics, model, next) {
                     expect(model.build.data.events[0].data['custom']).to.equal(undefined);
@@ -64,7 +64,7 @@ describe('Properties :', function () {
         it('Should add a property for the next sendEvent (prop with events and persistent option)', function (done) {
             globalPA.setProperty('custom', true, {
                 'persistent': true,
-                'events': ['toto', 'tata']
+                'events': ['toto', 'ta*']
             });
             globalPA.sendEvent('toto', {}, {
                 onBeforeSend: function (pianoanalytics, model, next) {
@@ -73,9 +73,15 @@ describe('Properties :', function () {
                         onBeforeSend: function (pianoanalytics2, model2, next2) {
                             expect(model2.build.data.events[0].data['custom']).to.equal(undefined);
                             globalPA.sendEvent('tata', {}, {
-                                onBeforeSend: function (pianoanalytics3, model3) {
+                                onBeforeSend: function (pianoanalytics3, model3, next3) {
                                     expect(model3.build.data.events[0].data['custom']).to.equal(true);
-                                    done();
+                                    globalPA.sendEvent('taco', {}, {
+                                        onBeforeSend: function (pianoanalytics4, model4) {
+                                            expect(model4.build.data.events[0].data['custom']).to.equal(true);
+                                            done();
+                                        }
+                                    });
+                                    next3(false);
                                 }
                             });
                             next2(false);
@@ -132,7 +138,7 @@ describe('Properties :', function () {
             });
         });
         it('Should add a property for the next sendEvents (prop with events option)', function (done) {
-            globalPA.setProperty('custom', true, {'events': ['toto', 'tata']});
+            globalPA.setProperty('custom', true, {'events': ['to*', 'tata']});
             globalPA.sendEvents([
                 {name: 'toto', data: {}},
                 {name: 'another', data: {}}
@@ -157,7 +163,7 @@ describe('Properties :', function () {
         it('Should add a property for the next sendEvents (prop with events and persistent option)', function (done) {
             globalPA.setProperty('custom', true, {
                 'persistent': true,
-                'events': ['toto', 'tata']
+                'events': ['to*', 'ta*']
             });
             globalPA.sendEvents([
                 {name: 'toto', data: {}},
@@ -252,7 +258,7 @@ describe('Properties :', function () {
             globalPA.setProperties({
                 'custom': true,
                 'another': '1'
-            }, {'events': ['toto', 'tata']});
+            }, {'events': ['to*', 'tata']});
             globalPA.sendEvent('toto', {}, {
                 onBeforeSend: function (pianoanalytics, model, next) {
                     expect(model.build.data.events[0].data['custom']).to.equal(true);
@@ -274,7 +280,7 @@ describe('Properties :', function () {
                 'another': '1'
             }, {
                 'persistent': true,
-                'events': ['toto', 'tata']
+                'events': ['toto', 'ta*']
             });
             globalPA.sendEvent('toto', {}, {
                 onBeforeSend: function (pianoanalytics, model, next) {
@@ -285,10 +291,17 @@ describe('Properties :', function () {
                             expect(model2.build.data.events[0].data['custom']).to.equal(undefined);
                             expect(model2.build.data.events[0].data['another']).to.equal(undefined);
                             globalPA.sendEvent('tata', {}, {
-                                onBeforeSend: function (pianoanalytics3, model3) {
+                                onBeforeSend: function (pianoanalytics3, model3, next3) {
                                     expect(model3.build.data.events[0].data['custom']).to.equal(true);
                                     expect(model3.build.data.events[0].data['another']).to.equal('1');
-                                    done();
+                                    globalPA.sendEvent('taco', {}, {
+                                        onBeforeSend: function (pianoanalytics4, model4) {
+                                            expect(model4.build.data.events[0].data['custom']).to.equal(true);
+                                            expect(model4.build.data.events[0].data['another']).to.equal('1');
+                                            done();
+                                        }
+                                    });
+                                    next3(false);
                                 }
                             });
                             next2(false);
@@ -362,7 +375,7 @@ describe('Properties :', function () {
             globalPA.setProperties({
                 'custom': true,
                 'another': '1'
-            }, {'events': ['toto', 'tata']});
+            }, {'events': ['to*', 'tata']});
             globalPA.sendEvents([
                 {name: 'toto', data: {}},
                 {name: 'another', data: {}}
@@ -394,7 +407,7 @@ describe('Properties :', function () {
                 'another': '1'
             }, {
                 'persistent': true,
-                'events': ['toto', 'tata']
+                'events': ['to*', 'ta*']
             });
             globalPA.sendEvents([
                 {name: 'toto', data: {}},

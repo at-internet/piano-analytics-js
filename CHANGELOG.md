@@ -1,5 +1,13 @@
 # Changelog
 
+## 6.3.0
+
+### Added or Changed
+- property previous_url is now allowed in exempt mode
+- requests without events are not sent anymore
+- setProperty and setProperties now allow wildcard for event name (e.g: 'page.*')
+- fix cases where multiple sendEvent called simultaneously don't send all events
+
 ## 6.2.0
 
 ### Added or Changed

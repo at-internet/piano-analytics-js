@@ -1601,8 +1601,7 @@ describe('Privacy in Browser :', function () {
                                         model.build.data.events,
                                         [
                                             'browser_language',
-                                            'browser_language_local',
-                                            'previous_url'
+                                            'browser_language_local'
                                         ],
                                         [
                                             'device_display_height',
@@ -1620,7 +1619,8 @@ describe('Privacy in Browser :', function () {
                                             'ch_ua_mobile',
                                             'ch_ua_model',
                                             'ch_ua_platform',
-                                            'ch_ua_platform_version'
+                                            'ch_ua_platform_version',
+                                            'previous_url'
                                         ]
                                     );
 
@@ -1658,6 +1658,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'user_category': '456789',
                                                     'visitor_privacy_consent': false,
                                                     'visitor_privacy_mode': 'exempt'
@@ -1696,6 +1697,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'user_category': '456789',
                                                     'visitor_privacy_consent': false,
                                                     'visitor_privacy_mode': 'exempt'
@@ -1734,6 +1736,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'user_category': '456789',
                                                     'visitor_privacy_consent': false,
                                                     'visitor_privacy_mode': 'exempt'
@@ -1762,6 +1765,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'page': 'page name',
                                                     'page_chapter1': 'chapter 1',
                                                     'page_chapter2': 'chapter 2',
@@ -1794,6 +1798,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'page': 'page name',
                                                     'page_chapter1': 'chapter 1',
                                                     'page_chapter2': 'chapter 2',
@@ -1836,6 +1841,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'page': 'page name',
                                                     'page_chapter1': 'chapter 1',
                                                     'page_chapter2': 'chapter 2',
@@ -1888,8 +1894,7 @@ describe('Privacy in Browser :', function () {
                                         model.build.data.events,
                                         [
                                             'browser_language',
-                                            'browser_language_local',
-                                            'previous_url'
+                                            'browser_language_local'
                                         ],
                                         [
                                             'device_display_height',
@@ -1907,7 +1912,8 @@ describe('Privacy in Browser :', function () {
                                             'ch_ua_mobile',
                                             'ch_ua_model',
                                             'ch_ua_platform',
-                                            'ch_ua_platform_version'
+                                            'ch_ua_platform_version',
+                                            'previous_url'
                                         ]
                                     );
 
@@ -1945,6 +1951,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'user_category': '456789',
                                                     'visitor_privacy_consent': true,
                                                     'visitor_privacy_mode': 'mytestingMode'
@@ -1983,6 +1990,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'user_category': '456789',
                                                     'visitor_privacy_consent': true,
                                                     'visitor_privacy_mode': 'mytestingMode'
@@ -2021,6 +2029,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'user_category': '456789',
                                                     'visitor_privacy_consent': true,
                                                     'visitor_privacy_mode': 'mytestingMode'
@@ -2049,6 +2058,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'page': 'page name',
                                                     'page_chapter1': 'chapter 1',
                                                     'page_chapter2': 'chapter 2',
@@ -2081,6 +2091,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'page': 'page name',
                                                     'page_chapter1': 'chapter 1',
                                                     'page_chapter2': 'chapter 2',
@@ -2123,6 +2134,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'page': 'page name',
                                                     'page_chapter1': 'chapter 1',
                                                     'page_chapter2': 'chapter 2',
@@ -2180,8 +2192,7 @@ describe('Privacy in Browser :', function () {
                                         model.build.data.events,
                                         [
                                             'browser_language',
-                                            'browser_language_local',
-                                            'previous_url'
+                                            'browser_language_local'
                                         ],
                                         [
                                             'device_display_height',
@@ -2199,7 +2210,8 @@ describe('Privacy in Browser :', function () {
                                             'ch_ua_mobile',
                                             'ch_ua_model',
                                             'ch_ua_platform',
-                                            'ch_ua_platform_version'
+                                            'ch_ua_platform_version',
+                                            'previous_url'
                                         ]
                                     );
 
@@ -2237,6 +2249,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'user_category': '456789',
                                                     'visitor_privacy_consent': true,
                                                     'visitor_privacy_mode': 'mytestingMode'
@@ -2275,6 +2288,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'user_category': '456789',
                                                     'visitor_privacy_consent': true,
                                                     'visitor_privacy_mode': 'mytestingMode'
@@ -2313,6 +2327,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'user_category': '456789',
                                                     'visitor_privacy_consent': true,
                                                     'visitor_privacy_mode': 'mytestingMode'
@@ -2341,6 +2356,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'page': 'page name',
                                                     'page_chapter1': 'chapter 1',
                                                     'page_chapter2': 'chapter 2',
@@ -2373,6 +2389,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'page': 'page name',
                                                     'page_chapter1': 'chapter 1',
                                                     'page_chapter2': 'chapter 2',
@@ -2415,6 +2432,7 @@ describe('Privacy in Browser :', function () {
                                                     'device_timestamp_utc': 'forced_value_for_test',
                                                     'event_collection_platform': 'forced_value_for_test',
                                                     'event_collection_version': 'forced_value_for_test',
+                                                    'previous_url': 'forced_value_for_test',
                                                     'page': 'page name',
                                                     'page_chapter1': 'chapter 1',
                                                     'page_chapter2': 'chapter 2',
@@ -2433,7 +2451,6 @@ describe('Privacy in Browser :', function () {
                         });
                     }
                 });
-
         });
     });
 });

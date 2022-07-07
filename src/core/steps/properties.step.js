@@ -6,10 +6,23 @@ function propertiesStep(pa, model, nextSteps) {
         if (Object.prototype.hasOwnProperty.call(model.properties, property)) {
             let isAdded = false;
             for (const event of model.events) {
-                if (
-                    (model.properties[property].options.events && model.properties[property].options.events.indexOf(event.name) > -1)
-                    || !model.properties[property].options.events
-                ) {
+                let isEventOptionOk = false;
+                const propertyEventsOption = model.properties[property].options.events;
+                if (propertyEventsOption) {
+                    if(propertyEventsOption.indexOf(event.name) > -1){
+                        isEventOptionOk = true;
+                    }else {
+                        for (const eventAllowed of propertyEventsOption) {
+                            if(eventAllowed.charAt(eventAllowed.length - 1) === '*' && event.name.indexOf(eventAllowed.substring(0, eventAllowed.length - 1)) === 0) {
+                                isEventOptionOk = true;
+                                break;
+                            }
+                        }
+                    }
+                } else if (!propertyEventsOption) {
+                    isEventOptionOk = true;
+                }
+                if(isEventOptionOk){
                     event.data[property] = model.properties[property].value;
                     isAdded = true;
                 }

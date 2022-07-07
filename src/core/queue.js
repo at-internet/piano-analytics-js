@@ -9,7 +9,7 @@ function PianoAnalyticsQueue(pa) {
     const next = function () {
         _queue.shift();
         if (_queue.length > 0) {
-            const nextCall = _queue.shift();
+            const nextCall = _queue[0];
             pa[nextCall[0]].apply(pa, nextCall.slice(1));
         }
     };
