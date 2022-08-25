@@ -23,9 +23,10 @@ export default {
     ],
     'storageVisitor': 'pa_vid',
     'storageUser': 'pa_user',
-    'version': '6.3.0',
+    'version': '6.4.0',
     'minHeartbeat': 5,
     'minBufferingHeartbeat': 1,
+    'queueVarName': '_paq',
     'privacy': {
         'storageKey': 'pa_privacy',
         'storageKeys': {

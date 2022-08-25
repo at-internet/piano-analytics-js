@@ -7,7 +7,7 @@ function _functionCallFromString(root, target, params, context) {
     }
 }
 
-function preloadTagging(root, srcArray, isAsync) {
+function preloadTagging(root, srcArray, isAsync, asyncArrayName) {
     const context = isAsync ? null : root;
     const configOverrideArray = srcArray || [];
     if (configOverrideArray.length > 0) {
@@ -17,7 +17,7 @@ function preloadTagging(root, srcArray, isAsync) {
         }
     }
     if (isAsync) {
-        window._paq = {
+        window[asyncArrayName] = {
             push: function (paramsArray) {
                 _functionCallFromString(root, paramsArray[0].split('.'), paramsArray.slice(1));
             }

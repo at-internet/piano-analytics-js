@@ -1,5 +1,10 @@
 # Changelog
 
+## 6.4.0
+
+### Added or Changed
+- New configuration key `queueVarName` to set the global variable name used in asynchronous tagging
+
 ## 6.3.0
 
 ### Added or Changed

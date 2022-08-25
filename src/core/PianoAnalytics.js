@@ -44,8 +44,9 @@ function PianoAnalytics(configuration) {
     AVInsights(this);
 
     if (BUILD_BROWSER) {
-        window._paq = window._paq || [];
-        preloadTagging(this, window._paq, true);
+        const asyncName = this.getConfiguration('queueVarName');
+        window[asyncName] = window[asyncName] || [];
+        preloadTagging(this, window[asyncName], true, asyncName);
     }
 }
 
