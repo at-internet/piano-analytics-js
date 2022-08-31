@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.4.1
+### Added or Changed
+- Fix version number
+
 ## 6.4.0
 
 ### Added or Changed
