@@ -11,6 +11,10 @@ module.exports = function (grunt) {
                 src: 'src/utils/request/http-browserless.js',
                 dest: 'src/utils/request/http.js'
             },
+            reactnative: {
+                src: 'src/utils/request/http-react-native.js',
+                dest: 'src/utils/request/http.js'
+            },
             browser: {
                 src: 'src/utils/request/http-browser.js',
                 dest: 'src/utils/request/http.js'

@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.5.0
+### Added or Changed
+- Added React Native compatibility
+
 ## 6.4.1
 ### Added or Changed
 - Fix version number
