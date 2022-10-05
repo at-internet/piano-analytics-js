@@ -235,7 +235,8 @@ describe('Privacy :', function () {
             'forbidden': {},
             'allowed': {
                 'pa_privacy': true,
-                'pa_vid': true
+                'pa_vid': true,
+                'atuserid': true
             }
         }
     };
@@ -1580,6 +1581,7 @@ describe('Privacy :', function () {
                 expect(globalPA.privacy.modes['exempt'].storage.allowed).to.deep.equal({
                     'pa_vid': true,
                     'pa_privacy': true,
+                    'atuserid': true,
                     'prop1_sub1': true,
                     'prop2_sub1': true,
                     'prop2_sub2': true,
@@ -1597,6 +1599,7 @@ describe('Privacy :', function () {
                 expect(globalPA.privacy.modes['exempt'].storage.allowed).to.deep.equal({
                     'pa_vid': true,
                     'pa_privacy': true,
+                    'atuserid': true,
                     'prop1_sub1': true,
                     'prop2_sub1': true,
                     'prop2_sub2': true,
@@ -1631,6 +1634,7 @@ describe('Privacy :', function () {
                 expect(globalPA.privacy.modes['exempt'].storage.allowed).to.deep.equal({
                     'pa_vid': true,
                     'pa_privacy': true,
+                    'atuserid': true,
                     'prop1_sub1': true
                 });
             });
@@ -1643,6 +1647,7 @@ describe('Privacy :', function () {
                 expect(globalPA.privacy.modes['exempt'].storage.allowed).to.deep.equal({
                     'pa_vid': true,
                     'pa_privacy': true,
+                    'atuserid': true,
                     'prop1_sub1': true
                 });
             });

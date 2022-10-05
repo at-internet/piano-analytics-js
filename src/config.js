@@ -23,7 +23,7 @@ export default {
     ],
     'storageVisitor': 'pa_vid',
     'storageUser': 'pa_user',
-    'version': '6.5.0',
+    'version': '6.6.0',
     'minHeartbeat': 5,
     'minBufferingHeartbeat': 1,
     'queueVarName': '_paq',
@@ -259,7 +259,8 @@ export default {
                 'storage': {
                     'allowed': {
                         'pa_vid': true,
-                        'pa_privacy': true
+                        'pa_privacy': true,
+                        'atuserid': true
                     },
                     'forbidden': {}
                 },

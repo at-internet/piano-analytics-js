@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.6.0
+### Added or Changed
+- Added SmartTag cookie `atuserid` management for Privacy `exempt` mode
+
 ## 6.5.0
 ### Added or Changed
 - Added React Native compatibility
