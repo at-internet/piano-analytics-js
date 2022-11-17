@@ -1,16 +1,21 @@
 import {nextStep} from './utils/index';
 import {uuid} from '../../utils/index';
+import {dataLayer} from '../../business/data-layer/data-layer';
 
 function visitorStep(pa, model, nextSteps) {
     pa.storage.getItem(model.getConfiguration('storageVisitor'), function (storedValue) {
         if (model.getConfiguration('isVisitorClientSide')) {
-            pa.storage.getItem('atuserid', function (retrocompatVisitorIdStored) {
-                let retrocompatVisitorIDStoredValue = null;
-                if (retrocompatVisitorIdStored !== null) {
-                    retrocompatVisitorIDStoredValue = retrocompatVisitorIdStored.val;
+            model.visitorId = model.getConfiguration('visitorId') || (BUILD_BROWSER ? dataLayer.get('browserId') : (storedValue || uuid.v4()));
+            const isNotForcedValue = model.visitorId !== 'OPT-OUT' && model.visitorId !== 'no-consent' && model.visitorId !== 'no-storage' && model.visitorId !== model.getConfiguration('visitorId');
+            if (BUILD_BROWSER) {
+                if (model.visitorId !== dataLayer.get('browserId')
+                    && isNotForcedValue) {
+                    model.visitorId = model.visitorId + '-NO';
                 }
-                model.visitorId = model.getConfiguration('visitorId') || retrocompatVisitorIDStoredValue || storedValue || uuid.v4();
-                if (model.visitorId !== storedValue || model.getConfiguration('visitorStorageMode') === 'relative') {
+                nextStep(pa, model, nextSteps);
+            } else {
+                if ((model.visitorId !== storedValue || model.getConfiguration('visitorStorageMode') === 'relative')
+                    && isNotForcedValue) {
                     const expirationDate = new Date();
                     expirationDate.setTime(expirationDate.getTime() + (model.getConfiguration('storageLifetimeVisitor') * 24 * 60 * 60 * 1000));
                     pa.privacy.setItem(model.getConfiguration('storageVisitor'), model.visitorId, expirationDate, function () {
@@ -25,8 +30,7 @@ function visitorStep(pa, model, nextSteps) {
                 } else {
                     nextStep(pa, model, nextSteps);
                 }
-            });
-
+            }
         } else {
             nextStep(pa, model, nextSteps);
         }

@@ -1,5 +1,25 @@
 # Changelog
 
+## 6.7.0
+### Fixes
+- Handle `queueVarName` conflict (no more crash, console log)
+- Correctly retrieve encoded cookies, even if the configuration is not enabled
+
+### Changes
+- Allow boolean value for `addEventUrl` configuration
+- Remove anchor in `page_url` retrieved
+- Automatically generated visitor IDs are now 16 characters long (no more GUID)
+- Visitor ID must be 16 or 36 characters long
+- Visitor id is now stored in `_pcid` cookie
+- Empty values for configurations are now ignored
+
+### New
+- New cookie `_pctx` created to store contextual data
+- Automatically retrieve HTML page title into property `page_title_html`
+- New contextual properties added (`has_access`, `pageview_id`)
+- Properties `page_title_html` and `pageview_id` are allowed in exempt mode
+- New methods for Piano cross-product integrations (`setContentProperties`, `setContentProperty`, `refresh`)
+
 ## 6.6.0
 ### Added or Changed
 - Added SmartTag cookie `atuserid` management for Privacy `exempt` mode

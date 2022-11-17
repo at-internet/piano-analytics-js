@@ -16,7 +16,11 @@ function Cookies(pa) {
         const regExp = new RegExp(`(?:^| )${name}=([^;]+)`);
         const cookieData = regExp.exec(document.cookie) || null;
         if (cookieData) {
-            storedData = JSON.parse((pa.getConfiguration('encodeStorageBase64') ? encoding.base64.decode(cookieData[1]) : decodeURIComponent(cookieData[1])));
+            try {
+                storedData = JSON.parse(decodeURIComponent(cookieData[1]));
+            } catch (e) {
+                storedData = JSON.parse(encoding.base64.decode(cookieData[1]));
+            }
         }
         callback && callback(storedData);
     };

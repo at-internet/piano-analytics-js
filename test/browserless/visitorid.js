@@ -1,7 +1,6 @@
 describe('Visitor id :', function () {
     let config = pa.cfg.cloneData();
     let globalPA;
-    let regexUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     beforeEach(function () {
         Utility.clearStorage(pa);
         globalPA = new pa.PA(config);
@@ -14,7 +13,6 @@ describe('Visitor id :', function () {
     it('Should add a visitorId by default and store it', function (done) {
         globalPA.sendEvent('toto', {test: 'visitor'}, {
             onBeforeSend: function (pianoanalytics, model) {
-                expect(regexUUID.test(model.visitorId)).to.equal(true);
                 globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
                     expect(visitorIdStored).to.equal(model.visitorId);
                     done();
@@ -51,7 +49,6 @@ describe('Visitor id :', function () {
         globalPA.setConfiguration('storageLifetimeVisitor', 1 / 86400);
         globalPA.sendEvent('toto', {test: 'visitor'}, {
             onBeforeSend: function (pianoanalytics, model) {
-                expect(regexUUID.test(model.visitorId)).to.equal(true);
                 globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
                     expect(visitorIdStored).to.equal(model.visitorId);
                     setTimeout(function () {
@@ -69,7 +66,6 @@ describe('Visitor id :', function () {
         globalPA.setConfiguration('visitorStorageMode', 'relative');
         globalPA.sendEvent('toto', {test: 'visitor'}, {
             onBeforeSend: function (pianoanalytics, model, next) {
-                expect(regexUUID.test(model.visitorId)).to.equal(true);
                 globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
                     expect(visitorIdStored).to.equal(model.visitorId);
                     setTimeout(function () {
@@ -95,7 +91,6 @@ describe('Visitor id :', function () {
         globalPA.setConfiguration('visitorStorageMode', 'fixed');
         globalPA.sendEvent('toto', {test: 'visitor'}, {
             onBeforeSend: function (pianoanalytics, model) {
-                expect(regexUUID.test(model.visitorId)).to.equal(true);
                 globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
                     expect(visitorIdStored).to.equal(model.visitorId);
                     setTimeout(function () {
@@ -115,7 +110,7 @@ describe('Visitor id :', function () {
             }
         });
     });
-    it('Should add "-NO" flag to the visitor ID if we can\'t store it because of external factors and uuid is enabled', function (done) {
+    it('Should add "-NO" flag to the visitor ID if we can\'t store it because of external factors', function (done) {
         globalPA.storage.setItem = function (name, data, expiration, callback) {
             callback && callback();
         };
@@ -124,31 +119,8 @@ describe('Visitor id :', function () {
                 let visitorIdLenght = model.visitorId.length;
                 let NOIndex = model.visitorId.indexOf('-NO');
                 expect(NOIndex).to.equal(visitorIdLenght - 3);
-                expect(regexUUID.test(model.visitorId.substring(0, visitorIdLenght - 3))).to.equal(true);
                 done();
             }
-        });
-    });
-    it('Should retrieve the previous visitor ID if present (atuserid), use it if needed, then delete it from storage', function (done) {
-        globalPA.storage.setItem('atuserid', {
-            name: 'atuserid',
-            val: 'visitorIdTestRetrocompatValue'
-        }, null, function () {
-            globalPA.sendEvent('toto', {test: 'visitor'}, {
-                onBeforeSend: function (pianoanalytics, model) {
-                    expect(model.visitorId).to.equal('visitorIdTestRetrocompatValue');
-                    globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
-                        expect(visitorIdStored).to.equal('visitorIdTestRetrocompatValue');
-                        globalPA.storage.getItem('atuserid', function (visitorIdRetrocompatStored) {
-                            expect(visitorIdRetrocompatStored).to.deep.equal({
-                                name: 'atuserid',
-                                val: 'visitorIdTestRetrocompatValue'
-                            });
-                            done();
-                        });
-                    });
-                }
-            });
         });
     });
 });

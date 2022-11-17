@@ -127,9 +127,38 @@ describe('Metadata in browser :', function () {
         });
     });
     it('Should add user agent data', function (done) {
+        const checkAndForceDynamicPropertiesToStaticTestingValues = function (events, propsUndefined, propsToForce) {
+            for (let prop of propsUndefined) {
+                for (let evt of events) {
+                    expect(evt.data[prop], `the property ${prop} should NOT be present`).to.equal(undefined);
+                }
+            }
+            for (let prop of propsToForce) {
+                for (let evt of events) {
+                    expect(evt.data[prop], `the property ${prop} should be present`).to.not.equal(undefined);
+                    evt.data[prop] = 'forced_value_for_test';
+                }
+            }
+        };
+        const CHUA_LIST_PROPERTIES = [
+            'ch_ua',
+            'ch_ua_arch',
+            'ch_ua_bitness',
+            'ch_ua_full_version_list',
+            'ch_ua_mobile',
+            'ch_ua_model',
+            'ch_ua_platform',
+            'ch_ua_platform_version',
+            'ch_ua_full_version'
+        ]
         globalPA.sendEvent('toto', {test: 'test'}, {
             onBeforeSend: function (pianoanalytics, model) {
-                // todo when we'll know what we have to do... lol
+                checkAndForceDynamicPropertiesToStaticTestingValues(model.build.data.events, [], CHUA_LIST_PROPERTIES)
+                for(const event of model.build.data.events){
+                    for(const chuaProperty of CHUA_LIST_PROPERTIES){
+                        expect(event.data[chuaProperty]).to.equal('forced_value_for_test');
+                    }
+                }
                 done();
             }
         });

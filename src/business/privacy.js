@@ -4,7 +4,6 @@ import {preloadTagging} from './preload';
 function Privacy(pa) {
     const config = pa.getConfiguration('privacy');
     this.currentMode = '';
-    this.previousMode = '';
     this.modes = config.modes;
     this.storageKeys = config.storageKeys;
 
@@ -23,34 +22,21 @@ function Privacy(pa) {
         if (mode === this.currentMode || !this.modes[mode]) {
             return;
         }
-        this.previousMode = this.currentMode;
         this.currentMode = mode;
-        const privateModes = ['optin', 'optout', 'no-consent', 'no-storage', 'exempt'];
-        pa.storage.getItem(pa.getConfiguration('storageVisitor'), (function (visitorIdStored) {
-            pa.storage.getItem(config.storageKey, (function (storedMode) {
-                if (
-                    mode === 'no-storage' ||
-                    ((privateModes.indexOf(mode) < 0 || mode === 'optin' || mode === 'exempt') &&
-                        (this.previousMode === 'optout' || this.previousMode === 'no-consent' || this.previousMode === 'no-storage')) ||
-                    (mode === 'no-consent' && visitorIdStored) ||
-                    (mode === 'optout' && (visitorIdStored !== this.modes[mode].visitorId))
-                ) {
-                    pa.storage.deleteItem(pa.getConfiguration('storageVisitor'));
-                    pa.setVisitorId(undefined);
-                }
-                if (mode === 'optout' || mode === 'no-consent' || mode === 'no-storage') {
-                    pa.setVisitorId(this.modes[mode].visitorId);
-                }
+        pa.storage.getItem(config.storageKey, (function (storedMode) {
+            if (mode === 'optout' || mode === 'no-consent' || mode === 'no-storage') {
+                pa.setConfiguration('visitorId', this.modes[mode].visitorId);
+            } else if (pa.getConfiguration('visitorId') === 'OPT-OUT' || pa.getConfiguration('visitorId') === 'no-consent' || pa.getConfiguration('visitorId') === 'no-storage') {
+                pa.cfg.deleteProperty('visitorId');
+            }
+            this.filterProps(pa.properties);
+            this.filterKeys();
 
-                this.filterProps(pa.properties);
-                this.filterKeys();
-
-                if (storedMode !== mode) {
-                    const expirationDate = new Date();
-                    expirationDate.setTime(expirationDate.getTime() + (pa.getConfiguration('storageLifetimePrivacy') * 24 * 60 * 60 * 1000));
-                    this.setItem(config.storageKey, mode, expirationDate);
-                }
-            }).bind(this));
+            if (storedMode !== mode) {
+                const expirationDate = new Date();
+                expirationDate.setTime(expirationDate.getTime() + (pa.getConfiguration('storageLifetimePrivacy') * 24 * 60 * 60 * 1000));
+                this.setItem(config.storageKey, mode, expirationDate);
+            }
         }).bind(this));
     };
     this.createMode = function (modeName, consentValue) {

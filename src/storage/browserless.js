@@ -14,7 +14,12 @@ function LocalVariable(pa) {
     this.getItem = function (name, callback) {
         let data = null;
         if (typeof localVariable[name] !== 'undefined') {
-            const dataStored = JSON.parse(pa.getConfiguration('encodeStorageBase64') ? encoding.base64.decode(localVariable[name]) : localVariable[name]);
+            let dataStored;
+            try {
+                dataStored = JSON.parse(localVariable[name]);
+            } catch (e) {
+                dataStored = JSON.parse(encoding.base64.decode(localVariable[name]));
+            }
             if (dataStored.expires === 0 || (new Date().getTime() < dataStored.expires)) {
                 data = dataStored.data;
                 callback && callback(data);

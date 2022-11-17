@@ -4,6 +4,9 @@ function Configuration(data) {
     const _configuration = data;
 
     function setConfiguration(key, value) {
+        if(value === null || value === '' || value === undefined){
+            return;
+        }
         _configuration[key] = value;
     }
 
@@ -26,11 +29,16 @@ function Configuration(data) {
         return cloneObject(_configuration);
     }
 
+    function deleteProperty(property) {
+        delete _configuration[property];
+    }
+
     return {
         setConfiguration: setConfiguration,
         setConfigurations: setConfigurations,
         getConfiguration: getConfiguration,
-        cloneData: cloneData
+        cloneData: cloneData,
+        deleteProperty: deleteProperty,
     };
 }
 
