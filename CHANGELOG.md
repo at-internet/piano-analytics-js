@@ -1,5 +1,11 @@
 # Changelog
 
+## 6.7.1
+### Fixes
+- Changed request's headers sent in hits for browserless 
+- Added a fallback to send hit requests (using fetch api) when sendBeacon is blocked due to its limitations
+
+
 ## 6.7.0
 ### Fixes
 - Handle `queueVarName` conflict (no more crash, console log)

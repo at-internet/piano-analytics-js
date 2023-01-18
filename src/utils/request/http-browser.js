@@ -1,9 +1,20 @@
-function sendBeacon(url, data) {
+function post(url, data) {
+    let queued = false;
     if (window.navigator && typeof window.navigator.sendBeacon === 'function') {
-        window.navigator.sendBeacon(url, data);
+        queued = window.navigator.sendBeacon(url, data);
+    }
+    if (!queued && window.fetch) {
+        window.fetch(url, {
+            method: 'POST',
+            body: data,
+            headers: {
+                'Content-Type': 'text/plain;charset=UTF-8'
+            }
+        });
     }
 }
+
 const http = {
-    post: sendBeacon
+    post: post
 };
 export {http};

@@ -10,8 +10,7 @@ const http = {
             path: _url.pathname + _url.search,
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': bodyContent.length
+                'Content-Type': 'text/plain;charset=UTF-8'
             }
         };
         const req = https.request(options, res => {

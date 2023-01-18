@@ -3,9 +3,7 @@ const http = {
         return fetch(url, {
             method: 'POST',
             headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'Content-Length': data.length
+                'Content-Type': 'text/plain;charset=UTF-8'
             },
             body: data
         })
