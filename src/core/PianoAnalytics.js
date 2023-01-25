@@ -1,37 +1,55 @@
 import Config from '../config';
-import Model from './model';
 import Configuration from './configuration';
-import buildStep from './steps/build.step';
-import campaignsStep from './steps/campaigns.step';
-import metadataStep from './steps/metadata.step';
-import onBeforeBuildStep from './steps/onbefore.build.step';
-import onBeforeSendStep from './steps/onbefore.send.step';
-import privacyStep from './steps/privacy.step';
-import propertiesStep from './steps/properties.step';
-import sendStep from './steps/send.step';
-import userStep from './steps/user.step';
-import visitorStep from './steps/visitor.step';
+import PianoAnalyticsQueue from './queue';
+import Model from './model';
+import {
+    buildStep, campaignsStep, metadataStep, onBeforeBuildStep, onBeforeSendStep, privacyStep,
+    propertiesStep, sendStep, userStep, visitorStep
+} from './steps/index';
 import {Storage} from '../storage/storage';
-import {Privacy} from '../business/privacy';
+import {AtPrivacy, DlPrivacy, Privacy} from '../business/privacy/index';
 import {User} from '../business/user';
 import {cloneObject} from '../utils/index';
 import {preloadTagging} from '../business/preload';
 import {AVInsights} from '../business/avinsights';
-import PianoAnalyticsQueue from './queue';
 import {dataLayer} from '../business/data-layer/data-layer';
 
-
 function PianoAnalytics(configuration) {
+    _initConfig(this, configuration);
+    this._storage = new Storage(this);
     this._queue = new PianoAnalyticsQueue(this);
+    this._properties = {};
     this._sendEvent = _sendEvent;
-    this.properties = {};
-    this.cfg = new Configuration(cloneObject(configuration) || Config);
-    this.setConfiguration = this.cfg.setConfiguration;
-    this.setConfigurations = this.cfg.setConfigurations;
-    this.getConfiguration = this.cfg.getConfiguration;
+    _initPrivacy(this);
+    this.user = new User(this);
+    AVInsights(this);
+    if (BUILD_BROWSER) {
+        _runAsyncTagging(this);
+    }
+}
+
+function _initConfig(pa, configuration) {
+    pa.cfg = new Configuration(cloneObject(configuration) || Config);
+    pa.setConfiguration = pa.cfg.setConfiguration;
+    pa.setConfigurations = pa.cfg.setConfigurations;
+    pa.getConfiguration = pa.cfg.getConfiguration;
+    if (BUILD_BROWSER) {
+        // overriding configurations tagging
+        window._pac = window._pac || {privacy: []};
+        for (const config in window._pac) {
+            if (Object.prototype.hasOwnProperty.call(window._pac, config) && config !== 'privacy') {
+                pa.setConfiguration(config, window._pac[config]);
+            }
+        }
+    }
+}
+
+function _initPrivacy(pa) {
+    pa.setConfiguration('isLegacyPrivacy', true);
     if (BUILD_BROWSER) {
         if (typeof window.pdl === 'undefined') {
             window.pdl = {
+                requireConsent: true,
                 migration: {
                     browserId: {
                         source: 'PA'
@@ -41,59 +59,41 @@ function PianoAnalytics(configuration) {
                     storageMode: 'fixed'
                 }
             };
-        }
-
-        window._pac = window._pac || {privacy: []};
-        const configOverrideObject = window._pac;
-        for (const config in configOverrideObject) {
-            if (Object.prototype.hasOwnProperty.call(configOverrideObject, config) && config !== 'privacy') {
-                this.setConfiguration(config, configOverrideObject[config]);
+        } else {
+            if (!window.pdl.requireConsent) {
+                window.pdl.requireConsent = true;
             }
+            pa.setConfiguration('isLegacyPrivacy', false);
         }
         dataLayer.init({
             cookieDefault: {
-                domain: this.getConfiguration('cookieDomain'),
-                secure: this.getConfiguration('cookieSecure'),
-                path: this.getConfiguration('cookiePath'),
-                samesite: this.getConfiguration('cookieSameSite')
+                domain: pa.getConfiguration('cookieDomain'),
+                secure: pa.getConfiguration('cookieSecure'),
+                path: pa.getConfiguration('cookiePath'),
+                samesite: pa.getConfiguration('cookieSameSite')
             },
             cookies: {
                 _pcid: {
-                    expires: this.getConfiguration('storageLifetimeVisitor')
+                    expires: pa.getConfiguration('storageLifetimeVisitor')
                 }
             }
         });
     }
-    this.storage = new Storage(this);
-    this.privacy = new Privacy(this);
-    this.user = new User(this);
-    AVInsights(this);
-
+    // public privacy api (deprecated for browser tagging)
+    pa.privacy = new AtPrivacy(pa);
     if (BUILD_BROWSER) {
-        const asyncName = this.getConfiguration('queueVarName');
-        window[asyncName] = window[asyncName] || [];
-        preloadTagging(this, window[asyncName], true, asyncName);
+        // public consent api (new browser tagging for privacy)
+        pa.consent = new DlPrivacy(pa);
     }
+    // apis wrapper for internal use
+    pa._privacy = new Privacy(pa);
 }
 
-PianoAnalytics.prototype.setProperty = function (property, value, options) {
-    if (this.privacy.isPropAllowed(property)) {
-        this.properties[property] = {
-            value: value,
-            options: options || {}
-        };
-    }
-};
-PianoAnalytics.prototype.setProperties = function (properties, options) {
-    for (const prop in properties) {
-        if (Object.prototype.hasOwnProperty.call(properties, prop)) {
-            this.setProperty(prop, properties[prop], options);
-        }
-    }
-};
-PianoAnalytics.prototype.deleteProperty = function (propertyName) {
-    delete this.properties[propertyName];
-};
+function _runAsyncTagging(pa) {
+    const asyncName = pa.getConfiguration('queueVarName');
+    window[asyncName] = window[asyncName] || [];
+    preloadTagging(pa, window[asyncName], true, asyncName);
+}
 
 function _sendEvent(events, options) {
     const steps = [
@@ -126,14 +126,6 @@ function _sendEvent(events, options) {
     }
 }
 
-PianoAnalytics.prototype.sendEvent = function (eventName, eventData, options) {
-    this._queue.push(['_sendEvent', [{name: eventName, data: eventData}], options]);
-};
-
-PianoAnalytics.prototype.sendEvents = function (events, options) {
-    this._queue.push(['_sendEvent', events, options]);
-};
-
 function _processCallbackIfPresent(value, cb) {
     if (cb) {
         cb(value);
@@ -141,13 +133,37 @@ function _processCallbackIfPresent(value, cb) {
     return value;
 }
 
+PianoAnalytics.prototype.setProperty = function (property, value, options) {
+    if (this._privacy.call('isPropAllowed', property)) {
+        this._properties[property] = {
+            value: value,
+            options: options || {}
+        };
+    }
+};
+PianoAnalytics.prototype.setProperties = function (properties, options) {
+    for (const prop in properties) {
+        if (Object.prototype.hasOwnProperty.call(properties, prop)) {
+            this.setProperty(prop, properties[prop], options);
+        }
+    }
+};
+PianoAnalytics.prototype.deleteProperty = function (propertyName) {
+    delete this._properties[propertyName];
+};
+PianoAnalytics.prototype.sendEvent = function (eventName, eventData, options) {
+    this._queue.push(['_sendEvent', [{name: eventName, data: eventData}], options]);
+};
+PianoAnalytics.prototype.sendEvents = function (events, options) {
+    this._queue.push(['_sendEvent', events, options]);
+};
 PianoAnalytics.prototype.getVisitorId = function (callback) {
     let forcedValue = this.getConfiguration('visitorId') || null;
     let result = null;
     if (BUILD_BROWSER) {
         result = _processCallbackIfPresent(forcedValue || dataLayer.get('browserId'), callback);
     } else {
-        this.storage.getItem(this.getConfiguration('storageVisitor'), (function (storedValue) {
+        this._storage.getItem(this.getConfiguration('storageVisitor'), (function (storedValue) {
             result = _processCallbackIfPresent(forcedValue || storedValue, callback);
         }).bind(this));
     }
@@ -155,18 +171,16 @@ PianoAnalytics.prototype.getVisitorId = function (callback) {
         return result;
     }
 };
-
 PianoAnalytics.prototype.setVisitorId = function (value) {
     this.setConfiguration('visitorId', value);
     const expirationDate = new Date();
     expirationDate.setTime(expirationDate.getTime() + (this.getConfiguration('storageLifetimeVisitor') * 24 * 60 * 60 * 1000));
-    this.privacy.setItem(this.getConfiguration('storageVisitor'), value, expirationDate, function () {
+    this._privacy.call('setItem', this.getConfiguration('storageVisitor'), value, expirationDate, function () {
         if (BUILD_BROWSER) {
             dataLayer.updateMigration();
         }
     });
 };
-
 PianoAnalytics.prototype.setUser = function (id, category, enableStorage) {
     this.user.setUser(id, category, enableStorage);
 };
@@ -176,6 +190,7 @@ PianoAnalytics.prototype.getUser = function (callback) {
 PianoAnalytics.prototype.deleteUser = function () {
     this.user.deleteUser();
 };
+PianoAnalytics.prototype.PA = PianoAnalytics;
 
 if (BUILD_BROWSER) {
     PianoAnalytics.prototype.refresh = function () {
@@ -193,19 +208,14 @@ if (BUILD_BROWSER) {
             temp[name] = value;
         }
         dataLayer.set('content', temp);
-
     };
     PianoAnalytics.prototype.setContentProperties = function (content) {
-
         for (const prop in content) {
             if (Object.prototype.hasOwnProperty.call(content, prop)) {
                 this.setContentProperty(prop, content[prop]);
             }
         }
-
     };
 }
-
-PianoAnalytics.prototype.PA = PianoAnalytics;
 
 export default PianoAnalytics;

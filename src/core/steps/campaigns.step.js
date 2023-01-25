@@ -42,4 +42,4 @@ function campaignsStep(pa, model, nextSteps) {
     nextStep(pa, model, nextSteps);
 }
 
-export default campaignsStep;
+export {campaignsStep};

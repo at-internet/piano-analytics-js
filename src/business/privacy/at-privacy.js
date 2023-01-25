@@ -1,21 +1,22 @@
-import {cloneObject} from '../utils/index';
-import {preloadTagging} from './preload';
+import {preloadTagging} from '../preload';
+import {cloneObject} from '../../utils/index';
 
-function Privacy(pa) {
+function AtPrivacy(pa) {
     const config = pa.getConfiguration('privacy');
     this.currentMode = '';
     this.modes = config.modes;
-    this.storageKeys = config.storageKeys;
+    this._storageKeys = Object.assign(config.legacyKeys, config.storageKeys);
 
     this.init = function () {
-        if (BUILD_BROWSER) {
-            window._pac = window._pac || {privacy: []};
-            preloadTagging(this, window._pac.privacy);
+        if (pa.getConfiguration('isLegacyPrivacy')) {
+            if (BUILD_BROWSER) {
+                window._pac = window._pac || {privacy: []};
+                preloadTagging(this, window._pac.privacy);
+            }
+            pa._storage.getItem(config.storageKey, (function (storedMode) {
+                this.setMode((storedMode && this.modes[storedMode]) ? storedMode : pa.getConfiguration('privacyDefaultMode'));
+            }).bind(this));
         }
-        pa.storage.getItem(config.storageKey, (function (storedMode) {
-            this.setMode((storedMode && this.modes[storedMode]) ? storedMode : pa.getConfiguration('privacyDefaultMode'));
-        }).bind(this));
-
     };
 
     this.setMode = function (mode) {
@@ -23,13 +24,13 @@ function Privacy(pa) {
             return;
         }
         this.currentMode = mode;
-        pa.storage.getItem(config.storageKey, (function (storedMode) {
+        pa._storage.getItem(config.storageKey, (function (storedMode) {
             if (mode === 'optout' || mode === 'no-consent' || mode === 'no-storage') {
                 pa.setConfiguration('visitorId', this.modes[mode].visitorId);
             } else if (pa.getConfiguration('visitorId') === 'OPT-OUT' || pa.getConfiguration('visitorId') === 'no-consent' || pa.getConfiguration('visitorId') === 'no-storage') {
                 pa.cfg.deleteProperty('visitorId');
             }
-            this.filterProps(pa.properties);
+            this.filterProps(pa._properties);
             this.filterKeys();
 
             if (storedMode !== mode) {
@@ -89,7 +90,6 @@ function Privacy(pa) {
             }
         }
     }).bind(this);
-
     this.include = {
         properties: function (propsArray, modes, events) {
             _addElements(propsArray, modes, events);
@@ -132,7 +132,7 @@ function Privacy(pa) {
     };
 
     /* Events Authorizations methods */
-    function _modeHasEvent(modeEvents, event) {
+    const _modeHasEvent = function (modeEvents, event) {
         if (modeEvents[event]) {
             return true;
         } else {
@@ -145,14 +145,12 @@ function Privacy(pa) {
             }
         }
         return false;
-    }
-
-    function _checkModesForEvent(typeList, modes, currentMode, event) {
+    };
+    const _checkModesForEvent = function (typeList, modes, currentMode, event) {
         const isKeyInCurrentMode = _modeHasEvent(modes[currentMode].events[typeList], event);
         const isKeyInWildcardMode = _modeHasEvent(modes['*'].events[typeList], event);
         return isKeyInCurrentMode || isKeyInWildcardMode;
-    }
-
+    };
     this.isEventAllowed = function (event) {
         const isEventBlacklisted = _checkModesForEvent('forbidden', this.modes, this.currentMode, event);
         const isEventWhitelisted = _checkModesForEvent('allowed', this.modes, this.currentMode, event);
@@ -160,7 +158,7 @@ function Privacy(pa) {
     };
 
     /* Properties Authorizations methods */
-    function _checkPropertyWithEvent(mode, typeList, property, event) {
+    const _checkPropertyWithEvent = function (mode, typeList, property, event) {
         const modeEventList = mode[typeList];
         if (
             (modeEventList[event] && modeEventList[event][property]) ||
@@ -182,9 +180,8 @@ function Privacy(pa) {
             }
         }
         return false;
-    }
-
-    function _checkPropertyWithoutEvent(mode, typeList, property) {
+    };
+    const _checkPropertyWithoutEvent = function (mode, typeList, property) {
         if (typeList === 'forbidden') {
             if (mode[typeList]['*'][property]) {
                 return true;
@@ -204,9 +201,8 @@ function Privacy(pa) {
             }
         }
         return false;
-    }
-
-    function _checkModesListForProperty(typeList, modes, currentMode, property, event) {
+    };
+    const _checkModesListForProperty = function (typeList, modes, currentMode, property, event) {
         let isPropertyInCurrentMode;
         let isPropertyInWildcardMode;
         if (event) {
@@ -217,8 +213,7 @@ function Privacy(pa) {
             isPropertyInWildcardMode = _checkPropertyWithoutEvent(modes['*'].properties, typeList, property);
         }
         return isPropertyInCurrentMode || isPropertyInWildcardMode;
-    }
-
+    };
     this.isPropAllowed = function (propertyName, event) {
         const isPropertyBlacklisted = _checkModesListForProperty('forbidden', this.modes, this.currentMode, propertyName, event);
         const isPropertyWhitelisted = _checkModesListForProperty('allowed', this.modes, this.currentMode, propertyName, event);
@@ -226,7 +221,7 @@ function Privacy(pa) {
     };
 
     /* Storage keys Authorizations methods */
-    function _modeListHasKey(mode, typeList, key) {
+    const _modeListHasKey = function (mode, typeList, key) {
         const modeListProperties = mode[typeList];
         if (modeListProperties[key]) {
             return true;
@@ -239,14 +234,12 @@ function Privacy(pa) {
             }
         }
         return false;
-    }
-
-    function _checkModesListForKey(typeList, modes, currentMode, key) {
+    };
+    const _checkModesListForKey = function (typeList, modes, currentMode, key) {
         const isKeyInCurrentMode = _modeListHasKey(modes[currentMode].storage, typeList, key);
         const isKeyInWildcardMode = _modeListHasKey(modes['*'].storage, typeList, key);
         return isKeyInCurrentMode || isKeyInWildcardMode;
-    }
-
+    };
     this.isKeyAllowed = function (key) {
         const isKeyBlacklisted = _checkModesListForKey('forbidden', this.modes, this.currentMode, key);
         const isKeyWhitelisted = _checkModesListForKey('allowed', this.modes, this.currentMode, key);
@@ -256,7 +249,7 @@ function Privacy(pa) {
     /* storage global method to use */
     this.setItem = function (key, value, expiration, callback) {
         if (this.isKeyAllowed(key)) {
-            pa.storage.setItem(key, value, expiration, callback);
+            pa._storage.setItem(key, value, expiration, callback);
         } else {
             callback && callback();
         }
@@ -271,9 +264,9 @@ function Privacy(pa) {
         }
     };
     this.filterKeys = function () {
-        for (const key in this.storageKeys) {
-            if (Object.prototype.hasOwnProperty.call(this.storageKeys, key) && !this.isKeyAllowed(key)) {
-                pa.storage.deleteItem(key);
+        for (const key in this._storageKeys) {
+            if (Object.prototype.hasOwnProperty.call(this._storageKeys, key) && !this.isKeyAllowed(key)) {
+                pa._storage.deleteItem(key);
             }
         }
     };
@@ -284,10 +277,13 @@ function Privacy(pa) {
             }
         }
     };
+    this.getModeMetadata = function () {
+        return this.modes[this.getMode()].properties.include;
+    };
 
     this.init();
 }
 
 export {
-    Privacy
+    AtPrivacy
 };

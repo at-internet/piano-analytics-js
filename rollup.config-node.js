@@ -5,6 +5,12 @@ import replace from 'rollup-plugin-replace';
 
 export default {
     input: 'src/exports.js',
+    treeshake: {
+        moduleSideEffects: [
+            'src/business/data-layer/data-layer.js',
+            'src/business/consent/consent.js'
+        ],
+    },
     plugins: [
         eslint({
             configFile: './src/.eslintrc.json'

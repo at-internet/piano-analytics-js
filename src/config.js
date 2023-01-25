@@ -23,17 +23,19 @@ export default {
     ],
     'storageVisitor': 'pa_vid',
     'storageUser': 'pa_user',
-    'version': '6.7.1',
+    'version': '6.8.0',
     'minHeartbeat': 5,
     'minBufferingHeartbeat': 1,
     'queueVarName': '_paq',
     'privacy': {
         'storageKey': 'pa_privacy',
-        'storageKeys': {
+        'legacyKeys': {
             'pa_vid': true,
             'pa_privacy': true,
-            'pa_user': true,
             'atuserid': true
+        },
+        'storageKeys': {
+            'pa_user': true
         },
         'modes': {
             'optin': {

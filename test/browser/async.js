@@ -4,6 +4,7 @@ describe('Asynchronous tagging :', function () {
     beforeEach(function () {
         Utility.clearStorage(pa);
         window._paq = undefined;
+        window.pdl = undefined;
         //globalPA = new pa.PA(config);
     });
     afterEach(function () {

@@ -33,9 +33,9 @@ function propertiesStep(pa, model, nextSteps) {
         }
     }
     for (const property of propsToDelete) {
-        delete pa.properties[property];
+        delete pa._properties[property];
     }
     nextStep(pa, model, nextSteps);
 }
 
-export default propertiesStep;
+export {propertiesStep};

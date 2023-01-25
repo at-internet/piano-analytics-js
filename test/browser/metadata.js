@@ -2,6 +2,7 @@ describe('Metadata in browser :', function () {
     let config = pa.cfg.cloneData();
     let globalPA;
     beforeEach(function () {
+        window.pdl = undefined;
         Utility.clearStorage(pa);
         globalPA = new pa.PA(config);
     });

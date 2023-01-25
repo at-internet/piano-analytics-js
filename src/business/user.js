@@ -15,16 +15,16 @@ function User(pa) {
         if (enableStorage !== false) {
             const expirationDate = new Date();
             expirationDate.setTime(expirationDate.getTime() + (pa.getConfiguration('storageLifetimeUser') * 24 * 60 * 60 * 1000));
-            pa.privacy.setItem(storageUser, _user, expirationDate);
+            pa._privacy.call('setItem', storageUser, _user, expirationDate);
         }
     };
     this.getUser = function (callback) {
-        pa.storage.getItem(storageUser, function (data) {
+        pa._storage.getItem(storageUser, function (data) {
             let userData = data;
-            if (!data && pa.properties['user_id']) {
+            if (!data && pa._properties['user_id']) {
                 userData = {
-                    id: pa.properties['user_id'].value,
-                    category: pa.properties['user_category'].value
+                    id: pa._properties['user_id'].value,
+                    category: pa._properties['user_category'].value
                 };
             }
             callback && callback(userData);
@@ -34,7 +34,7 @@ function User(pa) {
         pa.deleteProperty('user_id');
         pa.deleteProperty('user_category');
         pa.deleteProperty('user_recognition');
-        pa.storage.deleteItem(storageUser, function () {
+        pa._storage.deleteItem(storageUser, function () {
             callback && callback();
         });
     };

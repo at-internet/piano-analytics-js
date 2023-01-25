@@ -3,6 +3,7 @@ describe('Campaigns :', function () {
     let globalPA;
     var baseURL = window.location.href + '#';
     beforeEach(function () {
+        window.pdl = undefined;
         Utility.clearStorage(pa);
         globalPA = new pa.PA(config);
         window.location.href = baseURL;

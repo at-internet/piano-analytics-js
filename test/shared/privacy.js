@@ -3,6 +3,7 @@ describe('Privacy :', function () {
     let globalPA;
     beforeEach(function () {
         Utility.clearStorage(pa);
+        (typeof window !== 'undefined') && (window.pdl = undefined);
         globalPA = new pa.PA(config);
     });
     afterEach(function () {

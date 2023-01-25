@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.8.0
+### New
+- New consent management feature
+
 ## 6.7.1
 ### Fixes
 - Changed request's headers sent in hits for browserless 

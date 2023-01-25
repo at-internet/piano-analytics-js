@@ -18,4 +18,4 @@ function userStep(pa, model, nextSteps) {
     }
 }
 
-export default userStep;
+export {userStep};

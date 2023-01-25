@@ -3,6 +3,7 @@ describe('User tag :', function () {
     let globalPA;
     beforeEach(function () {
         Utility.clearStorage(pa);
+        (typeof window !== 'undefined') && (window.pdl = undefined);
         globalPA = new pa.PA(config);
     });
     afterEach(function () {
@@ -11,19 +12,19 @@ describe('User tag :', function () {
     });
     it('Should add a user using setUser', function (done) {
         globalPA.setUser('123', '456789');
-        expect(globalPA.properties['user_id']).to.deep.equal({
+        expect(globalPA._properties['user_id']).to.deep.equal({
             value: '123',
             options: {
                 persistent: true
             }
         });
-        expect(globalPA.properties['user_category']).to.deep.equal({
+        expect(globalPA._properties['user_category']).to.deep.equal({
             value: '456789',
             options: {
                 persistent: true
             }
         });
-        expect(globalPA.properties['user_recognition']).to.deep.equal({
+        expect(globalPA._properties['user_recognition']).to.deep.equal({
             value: false,
             options: {
                 persistent: true
@@ -40,7 +41,7 @@ describe('User tag :', function () {
                 expect(model.build.data.events[0].data['user_id']).to.equal('123');
                 expect(model.build.data.events[0].data['user_category']).to.equal('456789');
                 expect(model.build.data.events[0].data['user_recognition']).to.equal(false);
-                globalPA.storage.getItem('pa_user', function(userdatastored){
+                globalPA._storage.getItem('pa_user', function(userdatastored){
                     expect(userdatastored).to.deep.equal({id: '123', category: '456789'});
                     done();
                 });
@@ -49,19 +50,19 @@ describe('User tag :', function () {
     });
     it('Should add a user using setUser without storing it', function (done) {
         globalPA.setUser('123', '456789', false);
-        expect(globalPA.properties['user_id']).to.deep.equal({
+        expect(globalPA._properties['user_id']).to.deep.equal({
             value: '123',
             options: {
                 persistent: true
             }
         });
-        expect(globalPA.properties['user_category']).to.deep.equal({
+        expect(globalPA._properties['user_category']).to.deep.equal({
             value: '456789',
             options: {
                 persistent: true
             }
         });
-        expect(globalPA.properties['user_recognition']).to.deep.equal({
+        expect(globalPA._properties['user_recognition']).to.deep.equal({
             value: false,
             options: {
                 persistent: true
@@ -78,7 +79,7 @@ describe('User tag :', function () {
                 expect(model.build.data.events[0].data['user_id']).to.equal('123');
                 expect(model.build.data.events[0].data['user_category']).to.equal('456789');
                 expect(model.build.data.events[0].data['user_recognition']).to.equal(false);
-                globalPA.storage.getItem('pa_user', function(userdatastored){
+                globalPA._storage.getItem('pa_user', function(userdatastored){
                     expect(userdatastored).to.equal(null);
                     done();
                 });
@@ -86,13 +87,13 @@ describe('User tag :', function () {
         });
     });
     it('Should add a user from stored user data', function (done) {
-        globalPA.storage.setItem('pa_user', {
+        globalPA._storage.setItem('pa_user', {
             id : '321',
             category : '987654'
         }, null, function () {
-            expect(globalPA.properties['user_id']).to.equal(undefined);
-            expect(globalPA.properties['user_category']).to.equal(undefined);
-            expect(globalPA.properties['user_recognition']).to.equal(undefined);
+            expect(globalPA._properties['user_id']).to.equal(undefined);
+            expect(globalPA._properties['user_category']).to.equal(undefined);
+            expect(globalPA._properties['user_recognition']).to.equal(undefined);
             globalPA.getUser(function (userData) {
                 expect(userData).to.deep.equal({
                     id: '321',
@@ -110,19 +111,19 @@ describe('User tag :', function () {
         });
     });
     it('Should retrieve user properties set if no stored data using getUser', function () {
-        globalPA.properties['user_id'] = {
+        globalPA._properties['user_id'] = {
             value: '123',
             options: {
                 persistent: true
             }
         };
-        globalPA.properties['user_category'] = {
+        globalPA._properties['user_category'] = {
             value: '456789',
             options: {
                 persistent: true
             }
         };
-        globalPA.properties['user_recognition'] = {
+        globalPA._properties['user_recognition'] = {
             value: false,
             options: {
                 persistent: true
@@ -137,19 +138,19 @@ describe('User tag :', function () {
     });
     it('Should delete user data using deleteUser', function (done) {
         globalPA.setUser('123', '456789');
-        expect(globalPA.properties['user_id']).to.deep.equal({
+        expect(globalPA._properties['user_id']).to.deep.equal({
             value: '123',
             options: {
                 persistent: true
             }
         });
-        expect(globalPA.properties['user_category']).to.deep.equal({
+        expect(globalPA._properties['user_category']).to.deep.equal({
             value: '456789',
             options: {
                 persistent: true
             }
         });
-        expect(globalPA.properties['user_recognition']).to.deep.equal({
+        expect(globalPA._properties['user_recognition']).to.deep.equal({
             value: false,
             options: {
                 persistent: true
@@ -161,9 +162,9 @@ describe('User tag :', function () {
                 category: '456789'
             });
             globalPA.deleteUser();
-            expect(globalPA.properties['user_id']).to.equal(undefined);
-            expect(globalPA.properties['user_category']).to.equal(undefined);
-            expect(globalPA.properties['user_recognition']).to.equal(undefined);
+            expect(globalPA._properties['user_id']).to.equal(undefined);
+            expect(globalPA._properties['user_category']).to.equal(undefined);
+            expect(globalPA._properties['user_recognition']).to.equal(undefined);
             globalPA.getUser(function (userData2) {
                 expect(userData2).to.equal(null);
                 done();

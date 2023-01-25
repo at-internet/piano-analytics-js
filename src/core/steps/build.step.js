@@ -8,4 +8,4 @@ function buildStep(pa, model, nextSteps) {
     nextStep(pa, model, nextSteps);
 }
 
-export default buildStep;
+export {buildStep};

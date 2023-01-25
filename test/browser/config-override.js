@@ -3,6 +3,7 @@ describe('Configuration override tagging :', function () {
     let globalPA;
     beforeEach(function () {
         Utility.clearStorage(pa);
+        window.pdl = undefined;
     });
     afterEach(function () {
         globalPA = undefined;

@@ -3,6 +3,7 @@ describe('Properties :', function () {
     let globalPA;
     beforeEach(function () {
         Utility.clearStorage(pa);
+        (typeof window !== 'undefined') && (window.pdl = undefined);
         globalPA = new pa.PA(config);
     });
     afterEach(function () {
@@ -468,11 +469,11 @@ describe('Properties :', function () {
     });
     it('Should delete a property', function () {
         globalPA.setProperty('custom', true);
-        expect(globalPA.properties['custom']).to.deep.equal({
+        expect(globalPA._properties['custom']).to.deep.equal({
             'options': {},
             'value': true
         });
         globalPA.deleteProperty('custom', true);
-        expect(globalPA.properties['custom']).to.equal(undefined);
+        expect(globalPA._properties['custom']).to.equal(undefined);
     });
 });

@@ -13,7 +13,7 @@ describe('Visitor id :', function () {
     it('Should add a visitorId by default and store it', function (done) {
         globalPA.sendEvent('toto', {test: 'visitor'}, {
             onBeforeSend: function (pianoanalytics, model) {
-                globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
+                globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
                     expect(visitorIdStored).to.equal(model.visitorId);
                     done();
                 });
@@ -26,7 +26,7 @@ describe('Visitor id :', function () {
         globalPA.sendEvent('toto', {test: 'visitor'}, {
             onBeforeSend: function (pianoanalytics, model) {
                 expect(model.visitorId).to.equal(testValue);
-                globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
+                globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
                     expect(visitorIdStored).to.equal(testValue);
                     done();
                 });
@@ -38,7 +38,7 @@ describe('Visitor id :', function () {
         globalPA.sendEvent('toto', {test: 'visitor'}, {
             onBeforeSend: function (pianoanalytics, model) {
                 expect(model.visitorId).to.equal(null);
-                globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
+                globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
                     expect(visitorIdStored).to.equal(null);
                     done();
                 });
@@ -49,10 +49,10 @@ describe('Visitor id :', function () {
         globalPA.setConfiguration('storageLifetimeVisitor', 1 / 86400);
         globalPA.sendEvent('toto', {test: 'visitor'}, {
             onBeforeSend: function (pianoanalytics, model) {
-                globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
+                globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
                     expect(visitorIdStored).to.equal(model.visitorId);
                     setTimeout(function () {
-                        globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored2) {
+                        globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored2) {
                             expect(visitorIdStored2).to.equal(null);
                             done();
                         });
@@ -66,7 +66,7 @@ describe('Visitor id :', function () {
         globalPA.setConfiguration('visitorStorageMode', 'relative');
         globalPA.sendEvent('toto', {test: 'visitor'}, {
             onBeforeSend: function (pianoanalytics, model, next) {
-                globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
+                globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
                     expect(visitorIdStored).to.equal(model.visitorId);
                     setTimeout(function () {
                         globalPA.sendEvent('tata', {test: 'visitor'}, {
@@ -76,7 +76,7 @@ describe('Visitor id :', function () {
                         });
                     }, 2000);
                     setTimeout(function () {
-                        globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored2) {
+                        globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored2) {
                             expect(visitorIdStored2).to.equal(visitorIdStored);
                             done();
                         });
@@ -91,7 +91,7 @@ describe('Visitor id :', function () {
         globalPA.setConfiguration('visitorStorageMode', 'fixed');
         globalPA.sendEvent('toto', {test: 'visitor'}, {
             onBeforeSend: function (pianoanalytics, model) {
-                globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
+                globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
                     expect(visitorIdStored).to.equal(model.visitorId);
                     setTimeout(function () {
                         globalPA.sendEvent('tata', {test: 'visitor'}, {
@@ -101,7 +101,7 @@ describe('Visitor id :', function () {
                         });
                     }, 2000);
                     setTimeout(function () {
-                        globalPA.storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored2) {
+                        globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored2) {
                             expect(visitorIdStored2).to.equal(null);
                             done();
                         });
@@ -111,7 +111,7 @@ describe('Visitor id :', function () {
         });
     });
     it('Should add "-NO" flag to the visitor ID if we can\'t store it because of external factors', function (done) {
-        globalPA.storage.setItem = function (name, data, expiration, callback) {
+        globalPA._storage.setItem = function (name, data, expiration, callback) {
             callback && callback();
         };
         globalPA.sendEvent('toto', {test: 'visitor'}, {

@@ -141,4 +141,4 @@ function metadataStep(pa, model, nextSteps) {
     }
 }
 
-export default metadataStep;
+export {metadataStep};

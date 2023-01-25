@@ -12,4 +12,4 @@ function onBeforeBuildStep(pa, model, nextSteps) {
     }
 }
 
-export default onBeforeBuildStep;
+export {onBeforeBuildStep};

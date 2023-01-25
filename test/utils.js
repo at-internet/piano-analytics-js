@@ -29,9 +29,10 @@
     exports.cloneObject = cloneObject;
 
     let clearStorage = function (pa_instance) {
-        for (let key in pa_instance.getConfiguration('privacy').storageKeys) {
-            if (Object.prototype.hasOwnProperty.call(pa_instance.getConfiguration('privacy').storageKeys, key)) {
-                pa_instance.storage.deleteItem(key);
+        const storageKeys = Object.assign(pa_instance.getConfiguration('privacy').legacyKeys, pa_instance.getConfiguration('privacy').storageKeys);
+        for (let key in storageKeys) {
+            if (Object.prototype.hasOwnProperty.call(storageKeys, key)) {
+                pa_instance._storage.deleteItem(key);
             }
         }
     };

@@ -9,9 +9,12 @@
   },
   "ignorePatterns": [
     "business/data-layer/data-layer.js",
-    "business/data-layer/data-layer-browser.js",
-    "business/data-layer/data-layer-template.js",
-    "business/avinsights.js"
+    "business/consent/consent.js",
+    "business/privacy/privacy.js",
+    "business/privacy/privacy-template.js",
+    "business/avinsights.js",
+    "utils/request/http.js",
+    "utils/request/http-templates.js"
   ],
   "rules": {
     "indent": [

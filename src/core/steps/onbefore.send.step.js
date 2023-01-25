@@ -12,4 +12,4 @@ function onBeforeSendStep(pa, model, nextSteps) {
     }
 }
 
-export default onBeforeSendStep;
+export {onBeforeSendStep};
