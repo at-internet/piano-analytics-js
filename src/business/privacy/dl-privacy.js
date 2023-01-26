@@ -142,7 +142,7 @@ function DlPrivacy(pa) {
     function _switchToDl() {
         if (pa.getConfiguration('isLegacyPrivacy')) {
             pa.setConfiguration('isLegacyPrivacy', false);
-            this.filterKeys();
+            pa.consent.filterKeys();
         }
     }
 

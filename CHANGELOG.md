@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.8.1
+### Fixes
+- Consent management was crashing in rare case where no `window.pdl` was set beforehand
+
 ## 6.8.0
 ### New
 - New consent management feature
