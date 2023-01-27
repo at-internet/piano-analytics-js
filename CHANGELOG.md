@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.8.2
+### Fixes
+- Fixed an issue preventing various cookies from being deposited when not using Consent
+
 ## 6.8.1
 ### Fixes
 - Consent management was crashing in rare case where no `window.pdl` was set beforehand

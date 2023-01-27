@@ -49,7 +49,6 @@ function _initPrivacy(pa) {
     if (BUILD_BROWSER) {
         if (typeof window.pdl === 'undefined') {
             window.pdl = {
-                requireConsent: true,
                 migration: {
                     browserId: {
                         source: 'PA'
@@ -59,10 +58,7 @@ function _initPrivacy(pa) {
                     storageMode: 'fixed'
                 }
             };
-        } else {
-            if (!window.pdl.requireConsent) {
-                window.pdl.requireConsent = true;
-            }
+        } else if (window.pdl && window.pdl.requireConsent) {
             pa.setConfiguration('isLegacyPrivacy', false);
         }
         dataLayer.init({

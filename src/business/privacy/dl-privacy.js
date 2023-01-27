@@ -3,6 +3,7 @@ import {dataLayer} from '../data-layer/data-layer';
 import {getConsentItems} from './dl-privacy-configuration';
 
 function DlPrivacy(pa) {
+    const DEFAULT_MODE = 'opt-in';
     this.storageKeys = [
         'pa_vid',
         'pa_user',
@@ -54,40 +55,39 @@ function DlPrivacy(pa) {
             items: this.consentItems.cookieItems
         });
         if(!pa.getConfiguration('isLegacyPrivacy')){
+            this.initMode();
             this.filterKeys();
         }
     };
-
+    this.initMode = function () {
+        if (dataLayer.get('consent') === null) {
+            if (window.pdl.consent && window.pdl.consent.defaultPreset) {
+                dataLayer.set('consent', 0);
+            } else {
+                this.setMode(DEFAULT_MODE);
+            }
+        }
+    };
     /* public */
     this.setMode = function (mode) {
-        _switchToDl();
         dataLayer.set('consent', {
             PA: {mode: mode}
         });
         this.filterKeys();
     };
     this.setPresets = function (presets) {
-        _switchToDl();
         dataLayer.set('consent', presets);
         this.filterKeys();
     };
     this.getMode = function () {
-        _switchToDl();
-        let consent = 'opt-in';
+        let consent = DEFAULT_MODE;
         const dlConsent = dataLayer.get('consent');
         if (dlConsent && dlConsent['PA'] && dlConsent['PA'].mode) {
             consent = dataLayer.get('consent')['PA'].mode;
-        } else if (dlConsent === null) {
-            if (window.pdl.consent && window.pdl.consent.defaultPreset) {
-                dataLayer.set('consent', 0);
-            } else {
-                this.setMode(consent);
-            }
         }
         return consent;
     };
     this.setCustomModeMetadata = function (consentValue, modeName) {
-        _switchToDl();
         this.modeMetadata['custom'].visitor_privacy_mode = modeName || 'custom';
         this.modeMetadata['custom'].visitor_privacy_consent = consentValue;
     };
@@ -138,13 +138,6 @@ function DlPrivacy(pa) {
             callback && callback();
         }
     };
-
-    function _switchToDl() {
-        if (pa.getConfiguration('isLegacyPrivacy')) {
-            pa.setConfiguration('isLegacyPrivacy', false);
-            pa.consent.filterKeys();
-        }
-    }
 
     this.dl = dataLayer;
 
