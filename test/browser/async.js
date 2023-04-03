@@ -25,29 +25,33 @@ describe('Asynchronous tagging :', function () {
             'myThirdProp': 'three'
         }, {
             onBeforeSend: function (pianoAnalytics, model, next) {
-                expect(model.build.data.events[0].data['myProperty']).to.equal(1);
-                expect(model.build.data.events[0].data['myOtherProperty']).to.equal('two');
-                expect(model.build.data.events[0].data['myThirdProp']).to.equal('three');
-                expect(model.getConfiguration('collectDomain')).to.equal('collectDomainTestValue');
-                window._paq = window._paq || [];
-                _paq.push(['sendEvent', 'tata', {
-                    'myOnlyProp': 'one'
-                }, {
-                    onBeforeSend: function (pianoAnalytics2, model2) {
-                        expect(model2.build.data.events[0].data['myProperty']).to.equal(undefined);
-                        expect(model2.build.data.events[0].data['myOtherProperty']).to.equal(undefined);
-                        expect(model2.build.data.events[0].data['myThirdProp']).to.equal(undefined);
-                        expect(model2.build.data.events[0].data['myOnlyProp']).to.equal('one');
-                        expect(model2.getConfiguration('collectDomain')).to.equal('collectDomainTestValue');
-                        done();
-                    }
-                }]);
-                next(false);
+                Utility.promiseThrowCatcher(done, function () {
+                    expect(model.build.data.events[0].data['myProperty']).to.equal(1);
+                    expect(model.build.data.events[0].data['myOtherProperty']).to.equal('two');
+                    expect(model.build.data.events[0].data['myThirdProp']).to.equal('three');
+                    expect(model.getConfiguration('collectDomain')).to.equal('collectDomainTestValue');
+                    window._paq = window._paq || [];
+                    _paq.push(['sendEvent', 'tata', {
+                        'myOnlyProp': 'one'
+                    }, {
+                        onBeforeSend: function (pianoAnalytics2, model2) {
+                            Utility.promiseThrowCatcher(done, function () {
+                                expect(model2.build.data.events[0].data['myProperty']).to.equal(undefined);
+                                expect(model2.build.data.events[0].data['myOtherProperty']).to.equal(undefined);
+                                expect(model2.build.data.events[0].data['myThirdProp']).to.equal(undefined);
+                                expect(model2.build.data.events[0].data['myOnlyProp']).to.equal('one');
+                                expect(model2.getConfiguration('collectDomain')).to.equal('collectDomainTestValue');
+                                done();
+                            });
+                        }
+                    }]);
+                    next(false);
+                });
             }
         }]);
         globalPA = new pa.PA(config);
     });
-    it('Should work properly after pianoAnalytics is instancied and variable name has been overrided', function (done) {
+    it('Should work properly after pianoAnalytics is instanced and variable name has been override', function (done) {
         // _paq should be ignored
         var _paq = window._paq = window._paq || [];
         _paq.push(['sendEvent', 'tata', {}, {
@@ -70,24 +74,28 @@ describe('Asynchronous tagging :', function () {
             'myThirdProp': 'three'
         }, {
             onBeforeSend: function (pianoAnalytics, model, next) {
-                expect(model.build.data.events[0].data['myProperty']).to.equal(1);
-                expect(model.build.data.events[0].data['myOtherProperty']).to.equal('two');
-                expect(model.build.data.events[0].data['myThirdProp']).to.equal('three');
-                expect(model.getConfiguration('collectDomain')).to.equal('collectDomainTestValue');
-                window._pasync = window._pasync || [];
-                _pasync.push(['sendEvent', 'tata', {
-                    'myOnlyProp': 'one'
-                }, {
-                    onBeforeSend: function (pianoAnalytics2, model2) {
-                        expect(model2.build.data.events[0].data['myProperty']).to.equal(undefined);
-                        expect(model2.build.data.events[0].data['myOtherProperty']).to.equal(undefined);
-                        expect(model2.build.data.events[0].data['myThirdProp']).to.equal(undefined);
-                        expect(model2.build.data.events[0].data['myOnlyProp']).to.equal('one');
-                        expect(model2.getConfiguration('collectDomain')).to.equal('collectDomainTestValue');
-                        done();
-                    }
-                }]);
-                next(false);
+                Utility.promiseThrowCatcher(done, function () {
+                    expect(model.build.data.events[0].data['myProperty']).to.equal(1);
+                    expect(model.build.data.events[0].data['myOtherProperty']).to.equal('two');
+                    expect(model.build.data.events[0].data['myThirdProp']).to.equal('three');
+                    expect(model.getConfiguration('collectDomain')).to.equal('collectDomainTestValue');
+                    window._pasync = window._pasync || [];
+                    _pasync.push(['sendEvent', 'tata', {
+                        'myOnlyProp': 'one'
+                    }, {
+                        onBeforeSend: function (pianoAnalytics2, model2) {
+                            Utility.promiseThrowCatcher(done, function () {
+                                expect(model2.build.data.events[0].data['myProperty']).to.equal(undefined);
+                                expect(model2.build.data.events[0].data['myOtherProperty']).to.equal(undefined);
+                                expect(model2.build.data.events[0].data['myThirdProp']).to.equal(undefined);
+                                expect(model2.build.data.events[0].data['myOnlyProp']).to.equal('one');
+                                expect(model2.getConfiguration('collectDomain')).to.equal('collectDomainTestValue');
+                                done();
+                            });
+                        }
+                    }]);
+                    next(false);
+                });
             }
         }]);
         globalPA = new pa.PA(config);

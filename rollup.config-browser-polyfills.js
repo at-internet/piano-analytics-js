@@ -13,17 +13,17 @@ export default {
         replace({
             BUILD_BROWSER: 'true'
         }),
-        babel({configFile: path.resolve(__dirname, 'babel.config.json'), babelHelpers: 'bundled'}),
+        babel({configFile: path.resolve(__dirname, 'babel.config-with-polyfills.json'), babelHelpers: 'bundled'}),
         process.env.NODE_ENV === 'production' && uglify()
     ],
     output: [
         {
-            file: 'dist/browser/piano-analytics.js',
+            file: 'dist/browser/piano-analytics.es5.js',
             format: 'iife',
             name: 'pianoAnalytics'
         },
         {
-            file: 'dist/browser/piano-analytics.umd.js',
+            file: 'dist/browser/piano-analytics.es5.umd.js',
             format: 'umd',
             name: 'pianoAnalytics'
         }

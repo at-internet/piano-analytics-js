@@ -25,6 +25,5 @@ describe('Configuration override tagging :', function () {
                     done();
                 }
             });
-
     });
 });

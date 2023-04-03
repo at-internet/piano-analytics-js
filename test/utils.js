@@ -13,8 +13,7 @@
             }
         };
     }();
-
-    let cloneObject = function (original) {
+    exports.cloneObject = function (original) {
         if (typeof original !== 'object' || original === null || original instanceof Date) {
             return original;
         }
@@ -26,9 +25,7 @@
         }
         return copy;
     };
-    exports.cloneObject = cloneObject;
-
-    let clearStorage = function (pa_instance) {
+    exports.clearStorage = function (pa_instance) {
         const storageKeys = Object.assign(pa_instance.getConfiguration('privacy').legacyKeys, pa_instance.getConfiguration('privacy').storageKeys);
         for (let key in storageKeys) {
             if (Object.prototype.hasOwnProperty.call(storageKeys, key)) {
@@ -36,5 +33,11 @@
             }
         }
     };
-    exports.clearStorage = clearStorage;
+    exports.promiseThrowCatcher = function (done, expects) {
+        try {
+            expects();
+        } catch (e) {
+            done(e);
+        }
+    };
 })(typeof global === 'undefined' ? window['Utility'] = {} : global['Utility'] = {});

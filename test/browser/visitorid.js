@@ -23,10 +23,12 @@ describe('Visitor id :', function () {
     it('Should add a visitorId without storing it (datalayer now)', function (done) {
         globalPA.sendEvent('toto', {test: 'visitor'}, {
             onBeforeSend: function (pianoanalytics, model) {
-                globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
-                    expect(visitorIdStored).to.equal(null);
-                    checkVisitorId(model.visitorId);
-                    done();
+                Utility.promiseThrowCatcher(done, function () {
+                    globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
+                        expect(visitorIdStored).to.equal(null);
+                        checkVisitorId(model.visitorId);
+                        done();
+                    });
                 });
             }
         });
@@ -36,11 +38,13 @@ describe('Visitor id :', function () {
         globalPA.setVisitorId(testValue);
         globalPA.sendEvent('toto', {test: 'visitor'}, {
             onBeforeSend: function (pianoanalytics, model) {
-                expect(model.visitorId).to.equal(testValue);
-                globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
-                    expect(visitorIdStored).to.equal('testforcedvalue');
-                    expect(testValue).to.equal('testforcedvalue');
-                    done();
+                Utility.promiseThrowCatcher(done, function () {
+                    expect(model.visitorId).to.equal(testValue);
+                    globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
+                        expect(visitorIdStored).to.equal('testforcedvalue');
+                        expect(testValue).to.equal('testforcedvalue');
+                        done();
+                    });
                 });
             }
         });
@@ -49,10 +53,12 @@ describe('Visitor id :', function () {
         globalPA.setConfiguration('isVisitorClientSide', false);
         globalPA.sendEvent('toto', {test: 'visitor'}, {
             onBeforeSend: function (pianoanalytics, model) {
-                expect(model.visitorId).to.equal(null);
-                globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
-                    expect(visitorIdStored).to.equal(null);
-                    done();
+                Utility.promiseThrowCatcher(done, function () {
+                    expect(model.visitorId).to.equal(null);
+                    globalPA._storage.getItem(globalPA.getConfiguration('storageVisitor'), function (visitorIdStored) {
+                        expect(visitorIdStored).to.equal(null);
+                        done();
+                    });
                 });
             }
         });

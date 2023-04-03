@@ -60,13 +60,14 @@ function metadataStep(pa, model, nextSteps) {
         model.setProperty('browser_language', languageSplitted[0]);
         model.setProperty('browser_language_local', languageSplitted[1]);
         model.setProperty('previous_url', document.referrer || '');
-        if(document.title){
+        if (document.title) {
             model.setProperty('page_title_html', document.title);
         }
         const eventUrlWithQueryString = model.getConfiguration('addEventURL').toString() === 'true';
         if (eventUrlWithQueryString || (model.getConfiguration('addEventURL') === 'withoutQS')) {
             model.setProperty('page_url', eventUrlWithQueryString ? window.location.href.split('#')[0] : `${window.location.protocol}//${window.location.host}${window.location.pathname}`);
         }
+
         try {
             window.navigator.userAgentData.getHighEntropyValues([
                 'architecture',
@@ -79,56 +80,8 @@ function metadataStep(pa, model, nextSteps) {
                 'uaFullVersion',
                 'fullVersionList'
             ])
-                .then(function (ua) {
-                    function _isDefined(variable) {
-                        return typeof variable !== 'undefined';
-                    }
-
-                    const properties = [
-                        {
-                            metric: 'brands',
-                            property: 'ch_ua'
-                        },
-                        {
-                            metric: 'architecture',
-                            property: 'ch_ua_arch'
-                        },
-                        {
-                            metric: 'bitness',
-                            property: 'ch_ua_bitness'
-                        },
-                        {
-                            metric: 'fullVersionList',
-                            property: 'ch_ua_full_version_list'
-                        },
-                        {
-                            metric: 'mobile',
-                            property: 'ch_ua_mobile'
-                        },
-                        {
-                            metric: 'model',
-                            property: 'ch_ua_model'
-                        },
-                        {
-                            metric: 'platform',
-                            property: 'ch_ua_platform'
-                        },
-                        {
-                            metric: 'platformVersion',
-                            property: 'ch_ua_platform_version'
-                        },
-                        {
-                            metric: 'uaFullVersion',
-                            property: 'ch_ua_full_version'
-                        }
-                    ];
-                    if (_isDefined(ua)) {
-                        for (let i = 0; i < properties.length; i++) {
-                            if (_isDefined(properties[i].metric)) {
-                                model.setProperty(properties[i].property, ua[properties[i].metric]);
-                            }
-                        }
-                    }
+                .then(function (userAgentData) {
+                    _addUserAgentMetadata(model, userAgentData);
                 })
                 .finally(function () {
                     nextStep(pa, model, nextSteps);
@@ -138,6 +91,57 @@ function metadataStep(pa, model, nextSteps) {
         }
     } else {
         nextStep(pa, model, nextSteps);
+    }
+}
+function _isDefined(variable) {
+    return typeof variable !== 'undefined';
+}
+
+function _addUserAgentMetadata(model, ua) {
+    const properties = [
+        {
+            metric: 'brands',
+            property: 'ch_ua'
+        },
+        {
+            metric: 'architecture',
+            property: 'ch_ua_arch'
+        },
+        {
+            metric: 'bitness',
+            property: 'ch_ua_bitness'
+        },
+        {
+            metric: 'fullVersionList',
+            property: 'ch_ua_full_version_list'
+        },
+        {
+            metric: 'mobile',
+            property: 'ch_ua_mobile'
+        },
+        {
+            metric: 'model',
+            property: 'ch_ua_model'
+        },
+        {
+            metric: 'platform',
+            property: 'ch_ua_platform'
+        },
+        {
+            metric: 'platformVersion',
+            property: 'ch_ua_platform_version'
+        },
+        {
+            metric: 'uaFullVersion',
+            property: 'ch_ua_full_version'
+        }
+    ];
+    if (_isDefined(ua)) {
+        for (let i = 0; i < properties.length; i++) {
+            if (_isDefined(properties[i].metric)) {
+                model.setProperty(properties[i].property, ua[properties[i].metric]);
+            }
+        }
     }
 }
 

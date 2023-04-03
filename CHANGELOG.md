@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.8.3
+### New
+- Updated the build with a new generated ES5-compatible file (`/dist/browser/piano-analytics.es5.js`)
+
 ## 6.8.2
 ### Fixes
 - Fixed an issue preventing various cookies from being deposited when not using Consent
@@ -16,7 +20,6 @@
 ### Fixes
 - Changed request's headers sent in hits for browserless 
 - Added a fallback to send hit requests (using fetch api) when sendBeacon is blocked due to its limitations
-
 
 ## 6.7.0
 ### Fixes
