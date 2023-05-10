@@ -1836,6 +1836,7 @@ describe('Privacy not in Browser :', function () {
                         'page_full_name': true,
                         'page_position': true,
                         'page_title_html': true,
+                        'page_url': true,
                         'pageview_id': true,
                         'previous_url': true,
                         'privacy_status': true,

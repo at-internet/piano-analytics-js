@@ -23,10 +23,12 @@ export default {
     ],
     'storageVisitor': 'pa_vid',
     'storageUser': 'pa_user',
-    'version': '6.8.3',
+    'version': '6.9.0',
     'minHeartbeat': 5,
     'minBufferingHeartbeat': 1,
     'queueVarName': '_paq',
+    'allowHighEntropyClientHints': true,
+    'sendEmptyProperties': true,
     'privacy': {
         'storageKey': 'pa_privacy',
         'legacyKeys': {
@@ -228,6 +230,7 @@ export default {
                             'page_full_name': true,
                             'page_position': true,
                             'page_title_html': true,
+                            'page_url': true,
                             'pageview_id': true,
                             'previous_url': true,
                             'privacy_status': true,

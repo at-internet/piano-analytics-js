@@ -1,5 +1,5 @@
 import {nextStep} from './utils/index';
-import {dataLayer} from '../../business/data-layer/data-layer';
+import {dataLayer} from '../../business/ext/data-layer/data-layer';
 
 function _parseLanguage(language, separators) {
     for (const separator of separators) {
@@ -27,16 +27,38 @@ function metadataStep(pa, model, nextSteps) {
 
     if (BUILD_BROWSER) {
         const content = dataLayer.get('content');
-        for (const prop in content) {
-            if (Object.prototype.hasOwnProperty.call(content, prop)) {
+        for (const propContent in content) {
+            if (Object.prototype.hasOwnProperty.call(content, propContent)) {
                 const MAP_PA_DL = {
                     'createdAt': 'content_publication_date',
                     'tags': 'tags_array'
                 };
-                if (prop === 'createdAt' || prop === 'tags') {
-                    model.setProperty(MAP_PA_DL[prop], content[prop]);
-                } else {
-                    model.setProperty(_camelToSnake(`content_${prop}`), content[prop]);
+                const propFinalName = (propContent === 'createdAt' || propContent === 'tags') ? MAP_PA_DL[propContent] : _camelToSnake(`content_${propContent}`);
+                for (const event of model.events) {
+                    let isAlreadyInProperties = false;
+                    if (model.hasProperty(propFinalName)) {
+                        const propertyEventsOption = model.properties[propFinalName].options.events;
+                        if (propertyEventsOption) {
+                            if (propertyEventsOption.indexOf(event.name) > -1) {
+                                isAlreadyInProperties = true;
+                            } else {
+                                for (const eventAllowed of propertyEventsOption) {
+                                    if (eventAllowed.charAt(eventAllowed.length - 1) === '*' && event.name.indexOf(eventAllowed.substring(0, eventAllowed.length - 1)) === 0) {
+                                        isAlreadyInProperties = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        } else if (!propertyEventsOption) {
+                            isAlreadyInProperties = true;
+                        }
+                    }
+                    const isAlreadyInEvent = typeof event.data[propFinalName] !== 'undefined';
+                    if (!isAlreadyInProperties && !isAlreadyInEvent) {
+                        if (pa._privacy.call('isPropAllowed', name)) {
+                            event.data[propFinalName] = content[propContent];
+                        }
+                    }
                 }
             }
         }
@@ -69,23 +91,33 @@ function metadataStep(pa, model, nextSteps) {
         }
 
         try {
-            window.navigator.userAgentData.getHighEntropyValues([
-                'architecture',
-                'bitness',
-                'brands',
-                'mobile',
-                'model',
-                'platform',
-                'platformVersion',
-                'uaFullVersion',
-                'fullVersionList'
-            ])
-                .then(function (userAgentData) {
-                    _addUserAgentMetadata(model, userAgentData);
-                })
-                .finally(function () {
-                    nextStep(pa, model, nextSteps);
-                });
+            if (pa.getConfiguration('allowHighEntropyClientHints')) {
+                window.navigator.userAgentData.getHighEntropyValues([
+                    'architecture',
+                    'bitness',
+                    'brands',
+                    'mobile',
+                    'model',
+                    'platform',
+                    'platformVersion',
+                    'uaFullVersion',
+                    'fullVersionList'
+                ])
+                    .then(function (userAgentData) {
+                        _addUserAgentMetadata(model, userAgentData);
+                    })
+                    .finally(function () {
+                        nextStep(pa, model, nextSteps);
+                    });
+            } else {
+                const ua = {
+                    'brands': window.navigator.userAgentData.brands,
+                    'platform': window.navigator.userAgentData.platform,
+                    'mobile': window.navigator.userAgentData.mobile
+                };
+                _addUserAgentMetadata(model, ua);
+                nextStep(pa, model, nextSteps);
+            }
         } catch (e) {
             nextStep(pa, model, nextSteps);
         }
@@ -93,6 +125,7 @@ function metadataStep(pa, model, nextSteps) {
         nextStep(pa, model, nextSteps);
     }
 }
+
 function _isDefined(variable) {
     return typeof variable !== 'undefined';
 }
@@ -138,7 +171,7 @@ function _addUserAgentMetadata(model, ua) {
     ];
     if (_isDefined(ua)) {
         for (let i = 0; i < properties.length; i++) {
-            if (_isDefined(properties[i].metric)) {
+            if (_isDefined(ua[properties[i].metric])) {
                 model.setProperty(properties[i].property, ua[properties[i].metric]);
             }
         }

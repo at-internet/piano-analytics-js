@@ -6,7 +6,7 @@ function _getQueryStringParameters(prefix, str, destPrefix) {
     let match = regex.exec(str);
     while (match !== null) {
         if (match[1].indexOf(prefix) === 0) {
-            campaign[destPrefix + match[1].substring(prefix.length)] = match[2];
+            campaign[destPrefix + match[1].substring(prefix.length)] = window.decodeURIComponent(match[2]);
         }
         match = regex.exec(str);
     }

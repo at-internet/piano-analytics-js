@@ -1,5 +1,5 @@
-import {consent} from '../consent/consent';
-import {dataLayer} from '../data-layer/data-layer';
+import {consent} from '../ext/consent/consent';
+import {dataLayer} from '../ext/data-layer/data-layer';
 import {getConsentItems} from './dl-privacy-configuration';
 
 function DlPrivacy(pa) {

@@ -16,7 +16,9 @@ export default {
             configFile: './src/.eslintrc.json'
         }),
         replace({
-            BUILD_BROWSER: 'false'
+            BUILD_BROWSER: 'false',
+            '@piano-sdk/storage': '../storage/storage.js',
+            delimiters: ['', '']
         }),
         babel({babelHelpers: 'bundled'}),
         process.env.NODE_ENV === 'production' && uglify()

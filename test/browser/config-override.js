@@ -21,8 +21,10 @@ describe('Configuration override tagging :', function () {
         PATemp.sendEvent('testEvent', {},
             {
                 onBeforeSend: function (PianoAnalytics, model) {
-                    expect(model.build.url.indexOf('collectDomainTestValue/path/value.test?s=99999999')).to.equal(0);
-                    done();
+                    Utility.promiseThrowCatcher(done, function () {
+                        expect(model.build.url.indexOf('https://collectDomainTestValue/path/value.test?s=99999999')).to.equal(0);
+                        done();
+                    });
                 }
             });
     });

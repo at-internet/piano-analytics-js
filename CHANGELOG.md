@@ -1,5 +1,23 @@
 # Changelog
 
+## 6.9.0
+### New
+
+- Automatically add `https://` to `collectDomain` configuration without protocol
+- New configuration `allowHighEntropyClientHints` to allow retrieving high entropy Client Hints (`true` by default)
+- New configuration `sendEmptyProperties` to allow sending properties with empty value
+
+### Changes
+
+- Now decode campaign values retrieved from querystring
+- Now decode UTM values retrieved from querystring
+- Change priority of content properties set from tagging over the ones automatically retrieved from page's meta tags
+- Consent: Allow `page_url` in essential mode
+
+### Fixes
+
+- Fix ES5 build
+
 ## 6.8.3
 ### New
 - Updated the build with a new generated ES5-compatible file (`/dist/browser/piano-analytics.es5.js`)

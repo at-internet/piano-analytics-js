@@ -92,6 +92,7 @@ const baseConfig = {
         'page_full_name': 'essential',
         'page_position': 'essential',
         'page_title_html': 'essential',
+        'page_url': 'essential',
         'pageview_id': 'essential',
         'previous_url': 'essential',
         'privacy_status': 'essential',

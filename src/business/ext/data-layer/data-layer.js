@@ -1,8 +1,10 @@
 /**
  * @license
- * Piano Browser SDK-DataLayer@2.6.1.
+ * Piano Browser SDK-DataLayer@2.8.2.
  * Copyright 2010-2022 Piano Software Inc.
  */
+import { cookie } from '@piano-sdk/storage';
+
 /******************************************************************************
  Copyright (c) Microsoft Corporation.
 
@@ -29,16 +31,6 @@ var __assign = function() {
     return __assign.apply(this, arguments);
 };
 
-function __spreadArray(to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-}
-
 var createBaseParam = function (defaultValue, cookieName) {
     if (cookieName === void 0) { cookieName = '_pctx'; }
     return ({
@@ -55,6 +47,12 @@ var createStaticParam = function (defaultValue) { return (__assign(__assign({}, 
 
 var userState = createBaseParam('anon');
 
+var keys = function (v) { return Object.keys(v); };
+var isArray = function (v) { return Array.isArray(v); };
+var isNotEmpty = function (val) { return val !== null && val !== undefined; };
+var isObject = function (val) { return typeof val === 'object'; };
+var isString = function (val) { return typeof val === 'string'; };
+
 /**
  * cx.js backwards compatible function.
  * @returns {string} - random string compatible with cx.js library.
@@ -67,13 +65,12 @@ var randomStringCxCompatible = function () {
     return randomString.substr(0, 16);
 };
 
-var isNotEmpty = function (val) { return val !== null && val !== undefined; };
 var filterObjectValues = function (obj, filter) {
     if (!obj) {
         return obj;
     }
     // Else add to the map
-    return Object.keys(obj)
+    return keys(obj)
         .filter(function (k) { return filter(obj[k]); })
         .reduce(function (a, k) {
             var _a;
@@ -81,7 +78,7 @@ var filterObjectValues = function (obj, filter) {
         }, {});
 };
 var combineCookieConfig = function (params, cookieWrappers) { return ({
-    fields: Object.keys(params).reduce(function (res, paramName) {
+    fields: keys(params).reduce(function (res, paramName) {
         var cookieName = params[paramName].cookieName;
         if (cookieName !== null) {
             res[paramName] = cookieName;
@@ -97,15 +94,15 @@ var stringSet = function () {
             data[value] = true;
         },
         values: function () {
-            return Object.keys(data);
+            return keys(data);
         }
     };
 };
 var validateObj = function (obj, mapFilter) {
-    if (typeof obj !== 'object') {
+    if (!isObject(obj)) {
         return obj;
     }
-    return Object.keys(obj).reduce(function (r, k) {
+    return keys(obj).reduce(function (r, k) {
         var val = obj[k];
         var validate = mapFilter[k];
         var value = validate && validate(val);
@@ -159,7 +156,7 @@ var toJSON = function (data, useBase64) {
 };
 
 var removeCxUsers = function (allUsers) {
-    return filterObjectValues(allUsers, function (val) { return val.type !== 'CX'; });
+    return filterObjectValues(allUsers, function (val) { return (val === null || val === void 0 ? void 0 : val.type) !== 'CX'; });
 };
 var users = __assign(__assign({}, createBaseParam(null)), { init: function (valueFromCookie) { return removeCxUsers(valueFromCookie || null); }, refresh: removeCxUsers, set: function (value, prev) {
         // if new value is a null then rewrite this parameter
@@ -256,12 +253,12 @@ var validateModifier = function (modifier, log) {
         log(oneOf('source', modes));
         source = 'opt-in';
     }
-    if (!Array.isArray(newPatches)) {
+    if (!isArray(newPatches)) {
         log('"patches" should be an array');
         newPatches = [];
     }
     newPatches = newPatches.reduce(function (res, patch, i) {
-        if (typeof patch !== 'object' || Array.isArray(patch)) {
+        if (!isObject(patch) || isArray(patch)) {
             log("patch[".concat(i, "]: should be type of {action, item, with?}"));
             return res;
         }
@@ -270,7 +267,7 @@ var validateModifier = function (modifier, log) {
             log("patch[".concat(i, "]: ") + oneOf('action', actions));
             return res;
         }
-        if (!item || typeof item !== 'object' || !item.key || !item.type) {
+        if (!item || !isObject(item) || !item.key || !item.type) {
             log("patch[".concat(i, "]: \"item\" should be type of {key, type}"));
             return res;
         }
@@ -289,7 +286,7 @@ var validateConsent = function (consent, log) {
     }
     var result = {};
     if (consent.products) {
-        if (!Array.isArray(consent.products)) {
+        if (!isArray(consent.products)) {
             log('consent.products: should be an array');
         }
         else {
@@ -303,7 +300,7 @@ var validateConsent = function (consent, log) {
         }
     }
     if (consent.defaultPreset) {
-        result.defaultPreset = Object.keys(consent.defaultPreset).reduce(function (res, productKey) {
+        result.defaultPreset = keys(consent.defaultPreset).reduce(function (res, productKey) {
             var product = toProduct(productKey, addPrefix('consent.defaultPreset: ', log));
             var mode = toMode(consent.defaultPreset[productKey]);
             if (!mode) {
@@ -320,7 +317,7 @@ var validateConsent = function (consent, log) {
 var validateConsentMemo = memo(validateConsent);
 var validateMigration = function (migration, log) {
     if (log === void 0) { log = emptyFn; }
-    return Object.keys(migration || {}).reduce(function (res, propName) {
+    return keys(migration || {}).reduce(function (res, propName) {
         var data = migration === null || migration === void 0 ? void 0 : migration[propName];
         var product = toProduct((data === null || data === void 0 ? void 0 : data.source) || '', log);
         res[propName] = __assign(__assign({}, data), { source: product });
@@ -378,13 +375,13 @@ var getPresets = (function () {
     var result = PRESETS;
     return function () {
         onChangeConfigPresets(function (defaultPreset) {
-            result = __spreadArray([], PRESETS, true);
+            result = PRESETS.slice();
             if (defaultPreset) {
                 result[0] = {
                     id: 0,
                     preset: __assign({}, result[0].preset)
                 };
-                Object.keys(defaultPreset).forEach(function (name) {
+                keys(defaultPreset).forEach(function (name) {
                     var mode = defaultPreset[name];
                     var productId = PRODUCTS_MAP[name];
                     result[0].preset[productId] = { mode: mode };
@@ -421,7 +418,7 @@ var setPresets = function (presetIndexes) {
     return currentPreset && convertIndexModes(currentPreset);
 };
 var convertToConsent = function (val) {
-    return Object.keys(val).reduce(function (res, key) {
+    return keys(val).reduce(function (res, key) {
         var _a;
         // @ts-ignore
         var config = val[key];
@@ -479,7 +476,7 @@ var consent = __assign(__assign({}, createBaseParam(null, '_pprv')), { init: fun
         if (typeof val === 'number') {
             newConsent = ((_a = getPresets()[val]) === null || _a === void 0 ? void 0 : _a.preset) || null;
         }
-        else if (Array.isArray(val)) {
+        else if (isArray(val)) {
             newConsent = setPresets(val);
         }
         else {
@@ -490,7 +487,7 @@ var consent = __assign(__assign({}, createBaseParam(null, '_pprv')), { init: fun
             : prevVal;
     }, get: memo(function (value) {
         return value &&
-            Object.keys(value).reduce(function (res, key) {
+            keys(value).reduce(function (res, key) {
                 var _a;
                 var productName = PRODUCTS[Number(key)].name;
                 var config = __assign({}, value[Number(key)]);
@@ -515,7 +512,7 @@ var toDate = function (val) {
     return String(val);
 };
 var toArrayString = function (val) {
-    return Array.isArray(val) ? val : val.split(',').map(function (s) { return s.trim().replace(/^['"](.+)['"]$/, '$1'); });
+    return isArray(val) ? val : val.split(',').map(function (s) { return s.trim().replace(/^['"](.+)['"]$/, '$1'); });
 };
 var asIs = function (val) { return val; };
 var Validators = {
@@ -634,7 +631,7 @@ var append = function (data, name, config) {
     var exist = Boolean(data[name]);
     var readValue = typeof config === 'function'
         ? config
-        : function () { return (Array.isArray(config) ? readMetaValues(config) : readMetaValue(config)); };
+        : function () { return (isArray(config) ? readMetaValues(config) : readMetaValue(config)); };
     if (!exist && validate) {
         var value = readValue();
         var validatedValue = value && validate(value);
@@ -700,7 +697,7 @@ var monthNames = {
 var dateFormatRegex = function (input) {
     var format = input
         .replace(/DAY/g, '(0?[1-9]|[12][0-9]|3[01])')
-        .replace(/MONTHLONG/g, '(' + Object.keys(monthNames).join('|') + ')')
+        .replace(/MONTHLONG/g, '(' + keys(monthNames).join('|') + ')')
         .replace(/MONTH/g, '(0?[1-9]|1[012])')
         .replace(/YEAR2/g, '([0-9][0-9])')
         .replace(/YEAR/g, '(197[1-9]|19[8-9][0-9]|20[0-9][0-9])')
@@ -905,6 +902,12 @@ var content = __assign(__assign({}, createStaticParam(null)), { init: function (
         return filterObjectValues(__assign(__assign({}, prevValue), value), function (val) { return val !== undefined && val !== null; });
     } });
 
+var userSegments = __assign(__assign({}, createBaseParam(null, '_pcus')), { init: function (valueFromCookie) {
+        if (valueFromCookie === void 0) { valueFromCookie = null; }
+        return valueFromCookie
+            && filterObjectValues(valueFromCookie, function (val) { return isObject(val) && Array.isArray(val.segments); });
+    } });
+
 var PropertiesMap = {
     pageViewId: pageViewId,
     browserId: browserId,
@@ -915,183 +918,9 @@ var PropertiesMap = {
     consentPresets: consentPresets,
     products: products,
     consentModifiers: consentModifiers,
-    content: content
+    content: content,
+    userSegments: userSegments
 };
-
-var randomStr = function randomStr() {
-    var date = new Date().getTime().toString(36);
-    var prefix = Math.round(Math.random() * 2147483647).toString(36);
-    return date + prefix;
-};
-
-var byteCount = function byteCount(str) {
-    return encodeURI(str).split(/%(?:u[\dA-F]{2})?[\dA-F]{2}|./).length - 1;
-};
-
-var expiresToDate = function expiresToDate(expires) {
-    var date = new Date();
-
-    var increaseDays = function increaseDays(days2) {
-        if (days2) {
-            date.setDate(date.getDate() + days2);
-        }
-    };
-
-    if (expires instanceof Date) {
-        date = expires;
-    } else if (typeof expires === "number") {
-        increaseDays(expires);
-    } else {
-        var _a = expires,
-            days = _a.days,
-            minutes = _a.minutes;
-        increaseDays(days);
-
-        if (minutes) {
-            date.setMinutes(date.getMinutes() + minutes);
-        }
-    }
-
-    return date;
-};
-
-var decode = function decode(s) {
-    var res = s.replace(/\+/g, " ").replace(/^\s+|\s+$/g, "");
-
-    try {
-        return decodeURIComponent(res);
-    } catch (e) {
-        return res;
-    }
-};
-
-var decodeValue = function decodeValue(s) {
-    if (s.indexOf('"') === 0) {
-        s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, "\\");
-    }
-
-    return decode(s);
-};
-
-var cookie = function () {
-    var _generateCookieString = function _generateCookieString(name, value, _a) {
-        var _b = _a === void 0 ? {} : _a,
-            path = _b.path,
-            domain = _b.domain,
-            expires = _b.expires,
-            secure = _b.secure,
-            samesite = _b.samesite,
-            raw = _b.raw;
-
-        return (raw ? name : encodeURIComponent(name)) + "=" + (raw ? value : encodeURIComponent(value)) + (expires ? "; expires=".concat(expiresToDate(expires).toUTCString()) : "") + (path ? "; path=".concat(path) : "") + (domain ? "; domain=".concat(domain) : "") + (secure ? "; secure" : "") + (samesite ? typeof samesite === "boolean" ? "; sameSite" : "; sameSite=".concat(samesite) : "");
-    };
-
-    var setCookie = function setCookie(name, value, cookieOptions, limitValue) {
-        if (value === void 0 || limitValue !== void 0 && byteCount(value) > limitValue) {
-            return;
-        }
-
-        document.cookie = _generateCookieString(name, value, cookieOptions);
-    };
-
-    var parseCookie = function parseCookie(cb) {
-        var allCookies = document.cookie.split(";");
-
-        for (var i = 0; i < allCookies.length; i++) {
-            var _cookie = allCookies[i].split("=");
-
-            var cookieName = decode(_cookie[0]);
-            var cookieValue = _cookie[1] || "";
-
-            if (cb(cookieName, cookieValue)) {
-                return void 0;
-            }
-        }
-    };
-
-    function getCookie(name) {
-        var result = null;
-        var cookies = {};
-        parseCookie(function (cookieName, cookieValue) {
-            if (name) {
-                if (cookieName === name) {
-                    result = decodeValue(cookieValue);
-                    return true;
-                }
-            } else {
-                cookies[cookieName] = decodeValue(cookieValue);
-            }
-        });
-
-        if (name) {
-            return result;
-        }
-
-        return cookies;
-    }
-
-    var getNames = function getNames() {
-        var result = [];
-        parseCookie(function (cookieName) {
-            result.push(cookieName);
-        });
-        return result;
-    };
-
-    var removeCookie = function removeCookie(name, cookieOptions) {
-        setCookie(name, "", Object.assign({}, cookieOptions, {
-            expires: -1
-        }));
-    };
-
-    var getTopLevelDomain = function () {
-        var testName = "_cookie_test";
-        return function (domainExceptions) {
-            if (domainExceptions === void 0) {
-                domainExceptions = [];
-            }
-
-            var domainParts = window.location.hostname.split(".");
-            var testValue = randomStr();
-            var expires = new Date();
-            expires.setSeconds(expires.getSeconds() + 30);
-
-            for (var i = 0; i < domainParts.length; i++) {
-                try {
-                    var candidate = domainParts.slice(-(i + 1)).join(".");
-
-                    if (!domainExceptions.includes(candidate)) {
-                        setCookie(testName, testValue, {
-                            expires: expires,
-                            path: "/",
-                            domain: candidate
-                        });
-                        var allowed = getCookie(testName) === testValue;
-                        removeCookie(testName, {
-                            path: "/",
-                            domain: candidate
-                        });
-
-                        if (allowed) {
-                            return candidate;
-                        }
-                    }
-                } catch (e) {}
-            }
-        };
-    }();
-
-    return {
-        set: setCookie,
-        get: getCookie,
-        getNames: getNames,
-        remove: removeCookie,
-        getTopLevelDomain: getTopLevelDomain,
-        __private__: {
-            _generateCookieString: _generateCookieString
-        }
-    };
-}();
 
 var domainExceptions = ['pantheon.io', 'go-vip.net', 'go-vip.co'];
 var DEFAULT_COOKIE_OPTIONS = {
@@ -1107,7 +936,7 @@ var createDateByExpires = function (expires) {
     if (expires instanceof Date) {
         date = expires;
     }
-    else if (typeof expires === "number") {
+    else if (typeof expires === 'number') {
         date.setDate(date.getDate() + expires);
     }
     else {
@@ -1115,41 +944,52 @@ var createDateByExpires = function (expires) {
     }
     return date;
 };
+var dateToString = function (date) { return date.getTime().toString(36); };
+var stringToDate = function (date) { return date
+    ? tryFn(function () { return new Date(parseInt(date, 36)); })
+    : null; };
 var expirationName = '_t';
 var initFixedUtils = function (rawData, _a) {
-    var cookieName = _a.cookieName, encode = _a.encode, decode = _a.decode;
+    var encode = _a.encode, decode = _a.decode;
     var fixedMode = false;
     var fixedExpirationDate = null;
+    var fixedCreationDate = null;
     var _onChangeCb = null;
     (function () {
         var _a;
         var expiration = (_a = decode(rawData || '')) === null || _a === void 0 ? void 0 : _a[expirationName];
         if (expiration) {
-            try {
-                fixedExpirationDate = new Date(parseInt(String(expiration), 36));
-                fixedMode = !!fixedExpirationDate;
-                // tslint:disable-next-line no-empty
-            }
-            catch (e) { }
+            var splitData = expiration.split('|');
+            // for backward compatibility, the first value is expiration
+            fixedExpirationDate = stringToDate(splitData[0]);
+            fixedCreationDate = stringToDate(splitData[1]);
+            fixedMode = !!fixedExpirationDate;
         }
     })();
     var getFixedExpiration = function (options) {
         fixedExpirationDate = fixedExpirationDate || createDateByExpires(options.expires);
         return fixedExpirationDate;
     };
+    var getFixedCreation = function () {
+        fixedCreationDate = fixedCreationDate || new Date();
+        return fixedCreationDate;
+    };
     var encodeData = function (data, options) {
         if (fixedMode) {
             fixedExpirationDate = getFixedExpiration(options);
             if (fixedExpirationDate) {
-                data[expirationName] = fixedExpirationDate.getTime().toString(36);
+                data[expirationName] = dateToString(fixedExpirationDate) + '|' + dateToString(getFixedCreation());
             }
+        }
+        else {
+            delete data[expirationName];
         }
         return encode(data);
     };
     var decodeData = function (data) {
         var result = decode(data);
-        if (result === null || result === void 0 ? void 0 : result[cookieName]) {
-            delete result[cookieName];
+        if (result === null || result === void 0 ? void 0 : result[expirationName]) {
+            delete result[expirationName];
         }
         return result;
     };
@@ -1163,17 +1003,18 @@ var initFixedUtils = function (rawData, _a) {
         return options;
     };
     return {
-        get fixedMode() {
-            return fixedMode;
+        get fixedAt() {
+            return fixedMode ? [fixedCreationDate, fixedExpirationDate] : null;
         },
         onChange: function (cb) {
             _onChangeCb = cb;
         },
-        setFixedMode: function (val) {
+        setMode: function (val) {
             var prevFixedMode = fixedMode;
             fixedMode = val;
             if (fixedMode !== prevFixedMode) {
                 fixedExpirationDate = null;
+                fixedCreationDate = null;
                 _onChangeCb === null || _onChangeCb === void 0 ? void 0 : _onChangeCb(fixedMode);
             }
         },
@@ -1198,7 +1039,7 @@ var createCookieWrapper = function (encoder) {
     var cookieInitialData = cookie.get(cookieName);
     var cookieEnabled = !!cookieInitialData;
     var fixedUtils = initFixedUtils(cookieInitialData, encoder);
-    var expirationIsUpdated = fixedUtils.fixedMode;
+    var expirationIsUpdated = !!fixedUtils.fixedAt;
     var lazy = cookieEnabled;
     var obfuscatedValue = null;
     var boundedCookieOptions = __assign({}, DEFAULT_COOKIE_OPTIONS);
@@ -1266,7 +1107,7 @@ var createCookieWrapper = function (encoder) {
         checkAndCreateCookie(enabled, lazy);
     };
     var setFixedMode = function (val) {
-        fixedUtils.setFixedMode(val);
+        fixedUtils.setMode(val);
     };
     fixedUtils.onChange(function () {
         if (isEnabled()) {
@@ -1281,6 +1122,9 @@ var createCookieWrapper = function (encoder) {
         get cookieEnabled() {
             return isEnabled();
         },
+        get fixedAt() {
+            return fixedUtils.fixedAt;
+        },
         get consent() {
             return consent;
         },
@@ -1290,19 +1134,16 @@ var createCookieWrapper = function (encoder) {
         setCookieOptions: setCookieOptions,
         setCookieEnabled: setCookieEnabled,
         lazyActive: lazyAction,
-        setFixedMode: setFixedMode,
+        setFixedMode: setFixedMode
     };
 };
 var createCookieWrappers = function (cookieEncoders) {
-    return Object.keys(cookieEncoders).reduce(function (res, cookieName) {
+    return keys(cookieEncoders).reduce(function (res, cookieName) {
         res[cookieName] = createCookieWrapper(cookieEncoders[cookieName]);
         return res;
     }, {});
 };
 
-var lzString = {exports: {}};
-
-(function (module) {
 // Copyright (c) 2013 Pieroxy <pieroxy@pieroxy.net>
 // This work is free. You can redistribute it and/or modify it
 // under the terms of the WTFPL, Version 2
@@ -1312,301 +1153,100 @@ var lzString = {exports: {}};
 // http://pieroxy.net/blog/pages/lz-string/testing.html
 //
 // LZ-based compression algorithm, version 1.4.4
-    var LZString = (function() {
-
 // private property
-        var f = String.fromCharCode;
-        var keyStrBase64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-        var keyStrUriSafe = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$";
-        var baseReverseDic = {};
+/* tslint:disable */
+var f = String.fromCharCode;
+var keyStrUriSafe = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$";
+var baseReverseDic = {};
 
-        function getBaseValue(alphabet, character) {
-            if (!baseReverseDic[alphabet]) {
-                baseReverseDic[alphabet] = {};
-                for (var i=0 ; i<alphabet.length ; i++) {
-                    baseReverseDic[alphabet][alphabet.charAt(i)] = i;
-                }
-            }
-            return baseReverseDic[alphabet][character];
+function _compress(uncompressed, bitsPerChar, getCharFromInt) {
+    if (uncompressed == null) return "";
+    var i, value,
+        context_dictionary = {},
+        context_dictionaryToCreate = {},
+        context_c = "",
+        context_wc = "",
+        context_w = "",
+        context_enlargeIn = 2, // Compensate for the first entry which should not count
+        context_dictSize = 3,
+        context_numBits = 2,
+        context_data = [],
+        context_data_val = 0,
+        context_data_position = 0,
+        ii;
+
+    for (ii = 0; ii < uncompressed.length; ii += 1) {
+        context_c = uncompressed.charAt(ii);
+        if (!Object.prototype.hasOwnProperty.call(context_dictionary, context_c)) {
+            context_dictionary[context_c] = context_dictSize++;
+            context_dictionaryToCreate[context_c] = true;
         }
 
-        var LZString = {
-            compressToBase64 : function (input) {
-                if (input == null) return "";
-                var res = LZString._compress(input, 6, function(a){return keyStrBase64.charAt(a);});
-                switch (res.length % 4) { // To produce valid Base64
-                    default: // When could this happen ?
-                    case 0 : return res;
-                    case 1 : return res+"===";
-                    case 2 : return res+"==";
-                    case 3 : return res+"=";
-                }
-            },
-
-            decompressFromBase64 : function (input) {
-                if (input == null) return "";
-                if (input == "") return null;
-                return LZString._decompress(input.length, 32, function(index) { return getBaseValue(keyStrBase64, input.charAt(index)); });
-            },
-
-            compressToUTF16 : function (input) {
-                if (input == null) return "";
-                return LZString._compress(input, 15, function(a){return f(a+32);}) + " ";
-            },
-
-            decompressFromUTF16: function (compressed) {
-                if (compressed == null) return "";
-                if (compressed == "") return null;
-                return LZString._decompress(compressed.length, 16384, function(index) { return compressed.charCodeAt(index) - 32; });
-            },
-
-            //compress into uint8array (UCS-2 big endian format)
-            compressToUint8Array: function (uncompressed) {
-                var compressed = LZString.compress(uncompressed);
-                var buf=new Uint8Array(compressed.length*2); // 2 bytes per character
-
-                for (var i=0, TotalLen=compressed.length; i<TotalLen; i++) {
-                    var current_value = compressed.charCodeAt(i);
-                    buf[i*2] = current_value >>> 8;
-                    buf[i*2+1] = current_value % 256;
-                }
-                return buf;
-            },
-
-            //decompress from uint8array (UCS-2 big endian format)
-            decompressFromUint8Array:function (compressed) {
-                if (compressed===null || compressed===undefined){
-                    return LZString.decompress(compressed);
+        context_wc = context_w + context_c;
+        if (Object.prototype.hasOwnProperty.call(context_dictionary, context_wc)) {
+            context_w = context_wc;
+        } else {
+            if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate, context_w)) {
+                if (context_w.charCodeAt(0) < 256) {
+                    for (i = 0; i < context_numBits; i++) {
+                        context_data_val = (context_data_val << 1);
+                        if (context_data_position == bitsPerChar - 1) {
+                            context_data_position = 0;
+                            context_data.push(getCharFromInt(context_data_val));
+                            context_data_val = 0;
+                        } else {
+                            context_data_position++;
+                        }
+                    }
+                    value = context_w.charCodeAt(0);
+                    for (i = 0; i < 8; i++) {
+                        context_data_val = (context_data_val << 1) | (value & 1);
+                        if (context_data_position == bitsPerChar - 1) {
+                            context_data_position = 0;
+                            context_data.push(getCharFromInt(context_data_val));
+                            context_data_val = 0;
+                        } else {
+                            context_data_position++;
+                        }
+                        value = value >> 1;
+                    }
                 } else {
-                    var buf=new Array(compressed.length/2); // 2 bytes per character
-                    for (var i=0, TotalLen=buf.length; i<TotalLen; i++) {
-                        buf[i]=compressed[i*2]*256+compressed[i*2+1];
-                    }
-
-                    var result = [];
-                    buf.forEach(function (c) {
-                        result.push(f(c));
-                    });
-                    return LZString.decompress(result.join(''));
-
-                }
-
-            },
-
-
-            //compress into a string that is already URI encoded
-            compressToEncodedURIComponent: function (input) {
-                if (input == null) return "";
-                return LZString._compress(input, 6, function(a){return keyStrUriSafe.charAt(a);});
-            },
-
-            //decompress from an output of compressToEncodedURIComponent
-            decompressFromEncodedURIComponent:function (input) {
-                if (input == null) return "";
-                if (input == "") return null;
-                input = input.replace(/ /g, "+");
-                return LZString._decompress(input.length, 32, function(index) { return getBaseValue(keyStrUriSafe, input.charAt(index)); });
-            },
-
-            compress: function (uncompressed) {
-                return LZString._compress(uncompressed, 16, function(a){return f(a);});
-            },
-            _compress: function (uncompressed, bitsPerChar, getCharFromInt) {
-                if (uncompressed == null) return "";
-                var i, value,
-                    context_dictionary= {},
-                    context_dictionaryToCreate= {},
-                    context_c="",
-                    context_wc="",
-                    context_w="",
-                    context_enlargeIn= 2, // Compensate for the first entry which should not count
-                    context_dictSize= 3,
-                    context_numBits= 2,
-                    context_data=[],
-                    context_data_val=0,
-                    context_data_position=0,
-                    ii;
-
-                for (ii = 0; ii < uncompressed.length; ii += 1) {
-                    context_c = uncompressed.charAt(ii);
-                    if (!Object.prototype.hasOwnProperty.call(context_dictionary,context_c)) {
-                        context_dictionary[context_c] = context_dictSize++;
-                        context_dictionaryToCreate[context_c] = true;
-                    }
-
-                    context_wc = context_w + context_c;
-                    if (Object.prototype.hasOwnProperty.call(context_dictionary,context_wc)) {
-                        context_w = context_wc;
-                    } else {
-                        if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)) {
-                            if (context_w.charCodeAt(0)<256) {
-                                for (i=0 ; i<context_numBits ; i++) {
-                                    context_data_val = (context_data_val << 1);
-                                    if (context_data_position == bitsPerChar-1) {
-                                        context_data_position = 0;
-                                        context_data.push(getCharFromInt(context_data_val));
-                                        context_data_val = 0;
-                                    } else {
-                                        context_data_position++;
-                                    }
-                                }
-                                value = context_w.charCodeAt(0);
-                                for (i=0 ; i<8 ; i++) {
-                                    context_data_val = (context_data_val << 1) | (value&1);
-                                    if (context_data_position == bitsPerChar-1) {
-                                        context_data_position = 0;
-                                        context_data.push(getCharFromInt(context_data_val));
-                                        context_data_val = 0;
-                                    } else {
-                                        context_data_position++;
-                                    }
-                                    value = value >> 1;
-                                }
-                            } else {
-                                value = 1;
-                                for (i=0 ; i<context_numBits ; i++) {
-                                    context_data_val = (context_data_val << 1) | value;
-                                    if (context_data_position ==bitsPerChar-1) {
-                                        context_data_position = 0;
-                                        context_data.push(getCharFromInt(context_data_val));
-                                        context_data_val = 0;
-                                    } else {
-                                        context_data_position++;
-                                    }
-                                    value = 0;
-                                }
-                                value = context_w.charCodeAt(0);
-                                for (i=0 ; i<16 ; i++) {
-                                    context_data_val = (context_data_val << 1) | (value&1);
-                                    if (context_data_position == bitsPerChar-1) {
-                                        context_data_position = 0;
-                                        context_data.push(getCharFromInt(context_data_val));
-                                        context_data_val = 0;
-                                    } else {
-                                        context_data_position++;
-                                    }
-                                    value = value >> 1;
-                                }
-                            }
-                            context_enlargeIn--;
-                            if (context_enlargeIn == 0) {
-                                context_enlargeIn = Math.pow(2, context_numBits);
-                                context_numBits++;
-                            }
-                            delete context_dictionaryToCreate[context_w];
+                    value = 1;
+                    for (i = 0; i < context_numBits; i++) {
+                        context_data_val = (context_data_val << 1) | value;
+                        if (context_data_position == bitsPerChar - 1) {
+                            context_data_position = 0;
+                            context_data.push(getCharFromInt(context_data_val));
+                            context_data_val = 0;
                         } else {
-                            value = context_dictionary[context_w];
-                            for (i=0 ; i<context_numBits ; i++) {
-                                context_data_val = (context_data_val << 1) | (value&1);
-                                if (context_data_position == bitsPerChar-1) {
-                                    context_data_position = 0;
-                                    context_data.push(getCharFromInt(context_data_val));
-                                    context_data_val = 0;
-                                } else {
-                                    context_data_position++;
-                                }
-                                value = value >> 1;
-                            }
-
-
+                            context_data_position++;
                         }
-                        context_enlargeIn--;
-                        if (context_enlargeIn == 0) {
-                            context_enlargeIn = Math.pow(2, context_numBits);
-                            context_numBits++;
-                        }
-                        // Add wc to the dictionary.
-                        context_dictionary[context_wc] = context_dictSize++;
-                        context_w = String(context_c);
+                        value = 0;
                     }
-                }
-
-                // Output the code for w.
-                if (context_w !== "") {
-                    if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)) {
-                        if (context_w.charCodeAt(0)<256) {
-                            for (i=0 ; i<context_numBits ; i++) {
-                                context_data_val = (context_data_val << 1);
-                                if (context_data_position == bitsPerChar-1) {
-                                    context_data_position = 0;
-                                    context_data.push(getCharFromInt(context_data_val));
-                                    context_data_val = 0;
-                                } else {
-                                    context_data_position++;
-                                }
-                            }
-                            value = context_w.charCodeAt(0);
-                            for (i=0 ; i<8 ; i++) {
-                                context_data_val = (context_data_val << 1) | (value&1);
-                                if (context_data_position == bitsPerChar-1) {
-                                    context_data_position = 0;
-                                    context_data.push(getCharFromInt(context_data_val));
-                                    context_data_val = 0;
-                                } else {
-                                    context_data_position++;
-                                }
-                                value = value >> 1;
-                            }
+                    value = context_w.charCodeAt(0);
+                    for (i = 0; i < 16; i++) {
+                        context_data_val = (context_data_val << 1) | (value & 1);
+                        if (context_data_position == bitsPerChar - 1) {
+                            context_data_position = 0;
+                            context_data.push(getCharFromInt(context_data_val));
+                            context_data_val = 0;
                         } else {
-                            value = 1;
-                            for (i=0 ; i<context_numBits ; i++) {
-                                context_data_val = (context_data_val << 1) | value;
-                                if (context_data_position == bitsPerChar-1) {
-                                    context_data_position = 0;
-                                    context_data.push(getCharFromInt(context_data_val));
-                                    context_data_val = 0;
-                                } else {
-                                    context_data_position++;
-                                }
-                                value = 0;
-                            }
-                            value = context_w.charCodeAt(0);
-                            for (i=0 ; i<16 ; i++) {
-                                context_data_val = (context_data_val << 1) | (value&1);
-                                if (context_data_position == bitsPerChar-1) {
-                                    context_data_position = 0;
-                                    context_data.push(getCharFromInt(context_data_val));
-                                    context_data_val = 0;
-                                } else {
-                                    context_data_position++;
-                                }
-                                value = value >> 1;
-                            }
+                            context_data_position++;
                         }
-                        context_enlargeIn--;
-                        if (context_enlargeIn == 0) {
-                            context_enlargeIn = Math.pow(2, context_numBits);
-                            context_numBits++;
-                        }
-                        delete context_dictionaryToCreate[context_w];
-                    } else {
-                        value = context_dictionary[context_w];
-                        for (i=0 ; i<context_numBits ; i++) {
-                            context_data_val = (context_data_val << 1) | (value&1);
-                            if (context_data_position == bitsPerChar-1) {
-                                context_data_position = 0;
-                                context_data.push(getCharFromInt(context_data_val));
-                                context_data_val = 0;
-                            } else {
-                                context_data_position++;
-                            }
-                            value = value >> 1;
-                        }
-
-
-                    }
-                    context_enlargeIn--;
-                    if (context_enlargeIn == 0) {
-                        context_enlargeIn = Math.pow(2, context_numBits);
-                        context_numBits++;
+                        value = value >> 1;
                     }
                 }
-
-                // Mark the end of the stream
-                value = 2;
-                for (i=0 ; i<context_numBits ; i++) {
-                    context_data_val = (context_data_val << 1) | (value&1);
-                    if (context_data_position == bitsPerChar-1) {
+                context_enlargeIn--;
+                if (context_enlargeIn == 0) {
+                    context_enlargeIn = Math.pow(2, context_numBits);
+                    context_numBits++;
+                }
+                delete context_dictionaryToCreate[context_w];
+            } else {
+                value = context_dictionary[context_w];
+                for (i = 0; i < context_numBits; i++) {
+                    context_data_val = (context_data_val << 1) | (value & 1);
+                    if (context_data_position == bitsPerChar - 1) {
                         context_data_position = 0;
                         context_data.push(getCharFromInt(context_data_val));
                         context_data_val = 0;
@@ -1616,217 +1256,326 @@ var lzString = {exports: {}};
                     value = value >> 1;
                 }
 
-                // Flush the last char
-                while (true) {
+
+            }
+            context_enlargeIn--;
+            if (context_enlargeIn == 0) {
+                context_enlargeIn = Math.pow(2, context_numBits);
+                context_numBits++;
+            }
+            // Add wc to the dictionary.
+            context_dictionary[context_wc] = context_dictSize++;
+            context_w = String(context_c);
+        }
+    }
+
+    // Output the code for w.
+    if (context_w !== "") {
+        if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate, context_w)) {
+            if (context_w.charCodeAt(0) < 256) {
+                for (i = 0; i < context_numBits; i++) {
                     context_data_val = (context_data_val << 1);
-                    if (context_data_position == bitsPerChar-1) {
+                    if (context_data_position == bitsPerChar - 1) {
+                        context_data_position = 0;
                         context_data.push(getCharFromInt(context_data_val));
-                        break;
+                        context_data_val = 0;
+                    } else {
+                        context_data_position++;
                     }
-                    else context_data_position++;
                 }
-                return context_data.join('');
-            },
-
-            decompress: function (compressed) {
-                if (compressed == null) return "";
-                if (compressed == "") return null;
-                return LZString._decompress(compressed.length, 32768, function(index) { return compressed.charCodeAt(index); });
-            },
-
-            _decompress: function (length, resetValue, getNextValue) {
-                var dictionary = [],
-                    enlargeIn = 4,
-                    dictSize = 4,
-                    numBits = 3,
-                    entry = "",
-                    result = [],
-                    i,
-                    w,
-                    bits, resb, maxpower, power,
-                    c,
-                    data = {val:getNextValue(0), position:resetValue, index:1};
-
-                for (i = 0; i < 3; i += 1) {
-                    dictionary[i] = i;
+                value = context_w.charCodeAt(0);
+                for (i = 0; i < 8; i++) {
+                    context_data_val = (context_data_val << 1) | (value & 1);
+                    if (context_data_position == bitsPerChar - 1) {
+                        context_data_position = 0;
+                        context_data.push(getCharFromInt(context_data_val));
+                        context_data_val = 0;
+                    } else {
+                        context_data_position++;
+                    }
+                    value = value >> 1;
                 }
+            } else {
+                value = 1;
+                for (i = 0; i < context_numBits; i++) {
+                    context_data_val = (context_data_val << 1) | value;
+                    if (context_data_position == bitsPerChar - 1) {
+                        context_data_position = 0;
+                        context_data.push(getCharFromInt(context_data_val));
+                        context_data_val = 0;
+                    } else {
+                        context_data_position++;
+                    }
+                    value = 0;
+                }
+                value = context_w.charCodeAt(0);
+                for (i = 0; i < 16; i++) {
+                    context_data_val = (context_data_val << 1) | (value & 1);
+                    if (context_data_position == bitsPerChar - 1) {
+                        context_data_position = 0;
+                        context_data.push(getCharFromInt(context_data_val));
+                        context_data_val = 0;
+                    } else {
+                        context_data_position++;
+                    }
+                    value = value >> 1;
+                }
+            }
+            context_enlargeIn--;
+            if (context_enlargeIn == 0) {
+                context_enlargeIn = Math.pow(2, context_numBits);
+                context_numBits++;
+            }
+            delete context_dictionaryToCreate[context_w];
+        } else {
+            value = context_dictionary[context_w];
+            for (i = 0; i < context_numBits; i++) {
+                context_data_val = (context_data_val << 1) | (value & 1);
+                if (context_data_position == bitsPerChar - 1) {
+                    context_data_position = 0;
+                    context_data.push(getCharFromInt(context_data_val));
+                    context_data_val = 0;
+                } else {
+                    context_data_position++;
+                }
+                value = value >> 1;
+            }
 
+
+        }
+        context_enlargeIn--;
+        if (context_enlargeIn == 0) {
+            context_enlargeIn = Math.pow(2, context_numBits);
+            context_numBits++;
+        }
+    }
+
+    // Mark the end of the stream
+    value = 2;
+    for (i = 0; i < context_numBits; i++) {
+        context_data_val = (context_data_val << 1) | (value & 1);
+        if (context_data_position == bitsPerChar - 1) {
+            context_data_position = 0;
+            context_data.push(getCharFromInt(context_data_val));
+            context_data_val = 0;
+        } else {
+            context_data_position++;
+        }
+        value = value >> 1;
+    }
+
+    // Flush the last char
+    while (true) {
+        context_data_val = (context_data_val << 1);
+        if (context_data_position == bitsPerChar - 1) {
+            context_data.push(getCharFromInt(context_data_val));
+            break;
+        } else context_data_position++;
+    }
+    return context_data.join('');
+}
+
+function _decompress(length, resetValue, getNextValue) {
+    var dictionary = [],
+        enlargeIn = 4,
+        dictSize = 4,
+        numBits = 3,
+        entry = "",
+        result = [],
+        i,
+        w,
+        bits, resb, maxpower, power,
+        c,
+        data = {val: getNextValue(0), position: resetValue, index: 1};
+
+    for (i = 0; i < 3; i += 1) {
+        dictionary[i] = i;
+    }
+
+    bits = 0;
+    maxpower = Math.pow(2, 2);
+    power = 1;
+    while (power != maxpower) {
+        resb = data.val & data.position;
+        data.position >>= 1;
+        if (data.position == 0) {
+            data.position = resetValue;
+            data.val = getNextValue(data.index++);
+        }
+        bits |= (resb > 0 ? 1 : 0) * power;
+        power <<= 1;
+    }
+
+    switch (bits) {
+        case 0:
+            bits = 0;
+            maxpower = Math.pow(2, 8);
+            power = 1;
+            while (power != maxpower) {
+                resb = data.val & data.position;
+                data.position >>= 1;
+                if (data.position == 0) {
+                    data.position = resetValue;
+                    data.val = getNextValue(data.index++);
+                }
+                bits |= (resb > 0 ? 1 : 0) * power;
+                power <<= 1;
+            }
+            c = f(bits);
+            break;
+        case 1:
+            bits = 0;
+            maxpower = Math.pow(2, 16);
+            power = 1;
+            while (power != maxpower) {
+                resb = data.val & data.position;
+                data.position >>= 1;
+                if (data.position == 0) {
+                    data.position = resetValue;
+                    data.val = getNextValue(data.index++);
+                }
+                bits |= (resb > 0 ? 1 : 0) * power;
+                power <<= 1;
+            }
+            c = f(bits);
+            break;
+        case 2:
+            return "";
+    }
+    dictionary[3] = c;
+    w = c;
+    result.push(c);
+    while (true) {
+        if (data.index > length) {
+            return "";
+        }
+
+        bits = 0;
+        maxpower = Math.pow(2, numBits);
+        power = 1;
+        while (power != maxpower) {
+            resb = data.val & data.position;
+            data.position >>= 1;
+            if (data.position == 0) {
+                data.position = resetValue;
+                data.val = getNextValue(data.index++);
+            }
+            bits |= (resb > 0 ? 1 : 0) * power;
+            power <<= 1;
+        }
+
+        switch (c = bits) {
+            case 0:
                 bits = 0;
-                maxpower = Math.pow(2,2);
-                power=1;
-                while (power!=maxpower) {
+                maxpower = Math.pow(2, 8);
+                power = 1;
+                while (power != maxpower) {
                     resb = data.val & data.position;
                     data.position >>= 1;
                     if (data.position == 0) {
                         data.position = resetValue;
                         data.val = getNextValue(data.index++);
                     }
-                    bits |= (resb>0 ? 1 : 0) * power;
+                    bits |= (resb > 0 ? 1 : 0) * power;
                     power <<= 1;
                 }
 
-                switch (bits) {
-                    case 0:
-                        bits = 0;
-                        maxpower = Math.pow(2,8);
-                        power=1;
-                        while (power!=maxpower) {
-                            resb = data.val & data.position;
-                            data.position >>= 1;
-                            if (data.position == 0) {
-                                data.position = resetValue;
-                                data.val = getNextValue(data.index++);
-                            }
-                            bits |= (resb>0 ? 1 : 0) * power;
-                            power <<= 1;
-                        }
-                        c = f(bits);
-                        break;
-                    case 1:
-                        bits = 0;
-                        maxpower = Math.pow(2,16);
-                        power=1;
-                        while (power!=maxpower) {
-                            resb = data.val & data.position;
-                            data.position >>= 1;
-                            if (data.position == 0) {
-                                data.position = resetValue;
-                                data.val = getNextValue(data.index++);
-                            }
-                            bits |= (resb>0 ? 1 : 0) * power;
-                            power <<= 1;
-                        }
-                        c = f(bits);
-                        break;
-                    case 2:
-                        return "";
+                dictionary[dictSize++] = f(bits);
+                c = dictSize - 1;
+                enlargeIn--;
+                break;
+            case 1:
+                bits = 0;
+                maxpower = Math.pow(2, 16);
+                power = 1;
+                while (power != maxpower) {
+                    resb = data.val & data.position;
+                    data.position >>= 1;
+                    if (data.position == 0) {
+                        data.position = resetValue;
+                        data.val = getNextValue(data.index++);
+                    }
+                    bits |= (resb > 0 ? 1 : 0) * power;
+                    power <<= 1;
                 }
-                dictionary[3] = c;
-                w = c;
-                result.push(c);
-                while (true) {
-                    if (data.index > length) {
-                        return "";
-                    }
+                dictionary[dictSize++] = f(bits);
+                c = dictSize - 1;
+                enlargeIn--;
+                break;
+            case 2:
+                return result.join('');
+        }
 
-                    bits = 0;
-                    maxpower = Math.pow(2,numBits);
-                    power=1;
-                    while (power!=maxpower) {
-                        resb = data.val & data.position;
-                        data.position >>= 1;
-                        if (data.position == 0) {
-                            data.position = resetValue;
-                            data.val = getNextValue(data.index++);
-                        }
-                        bits |= (resb>0 ? 1 : 0) * power;
-                        power <<= 1;
-                    }
+        if (enlargeIn == 0) {
+            enlargeIn = Math.pow(2, numBits);
+            numBits++;
+        }
 
-                    switch (c = bits) {
-                        case 0:
-                            bits = 0;
-                            maxpower = Math.pow(2,8);
-                            power=1;
-                            while (power!=maxpower) {
-                                resb = data.val & data.position;
-                                data.position >>= 1;
-                                if (data.position == 0) {
-                                    data.position = resetValue;
-                                    data.val = getNextValue(data.index++);
-                                }
-                                bits |= (resb>0 ? 1 : 0) * power;
-                                power <<= 1;
-                            }
-
-                            dictionary[dictSize++] = f(bits);
-                            c = dictSize-1;
-                            enlargeIn--;
-                            break;
-                        case 1:
-                            bits = 0;
-                            maxpower = Math.pow(2,16);
-                            power=1;
-                            while (power!=maxpower) {
-                                resb = data.val & data.position;
-                                data.position >>= 1;
-                                if (data.position == 0) {
-                                    data.position = resetValue;
-                                    data.val = getNextValue(data.index++);
-                                }
-                                bits |= (resb>0 ? 1 : 0) * power;
-                                power <<= 1;
-                            }
-                            dictionary[dictSize++] = f(bits);
-                            c = dictSize-1;
-                            enlargeIn--;
-                            break;
-                        case 2:
-                            return result.join('');
-                    }
-
-                    if (enlargeIn == 0) {
-                        enlargeIn = Math.pow(2, numBits);
-                        numBits++;
-                    }
-
-                    if (dictionary[c]) {
-                        entry = dictionary[c];
-                    } else {
-                        if (c === dictSize) {
-                            entry = w + w.charAt(0);
-                        } else {
-                            return null;
-                        }
-                    }
-                    result.push(entry);
-
-                    // Add w+entry[0] to the dictionary.
-                    dictionary[dictSize++] = w + entry.charAt(0);
-                    enlargeIn--;
-
-                    w = entry;
-
-                    if (enlargeIn == 0) {
-                        enlargeIn = Math.pow(2, numBits);
-                        numBits++;
-                    }
-
-                }
+        if (dictionary[c]) {
+            entry = dictionary[c];
+        } else {
+            if (c === dictSize) {
+                entry = w + w.charAt(0);
+            } else {
+                return null;
             }
-        };
-        return LZString;
-    })();
+        }
+        result.push(entry);
 
-    if( module != null ) {
-        module.exports = LZString;
+        // Add w+entry[0] to the dictionary.
+        dictionary[dictSize++] = w + entry.charAt(0);
+        enlargeIn--;
+
+        w = entry;
+
+        if (enlargeIn == 0) {
+            enlargeIn = Math.pow(2, numBits);
+            numBits++;
+        }
+
     }
-}(lzString));
+}
+
+function getBaseValue(alphabet, character) {
+    if (!baseReverseDic[alphabet]) {
+        baseReverseDic[alphabet] = {};
+        for (var i = 0; i < alphabet.length; i++) {
+            baseReverseDic[alphabet][alphabet.charAt(i)] = i;
+        }
+    }
+    return baseReverseDic[alphabet][character];
+}
+
+//compress into a string that is already URI encoded
+function compressToEncodedURIComponent(input) {
+    if (input == null) return "";
+    return _compress(input, 6, function (a) {
+        return keyStrUriSafe.charAt(a);
+    });
+}
+
+//decompress from an output of compressToEncodedURIComponent
+function decompressFromEncodedURIComponent(input) {
+    if (input == null) return "";
+    if (input == "") return null;
+    input = input.replace(/ /g, "+");
+    return _decompress(input.length, 32, function (index) {
+        return getBaseValue(keyStrUriSafe, input.charAt(index));
+    });
+}
 
 var ECompressType;
 (function (ECompressType) {
     ECompressType["URI"] = "URI";
-    ECompressType["COM"] = "COM";
-    ECompressType["B64"] = "B64";
 })(ECompressType || (ECompressType = {}));
 var CompressFuncByType = {
     URI: {
         prefix: '{u}',
-        compress: lzString.exports.compressToEncodedURIComponent,
-        decompress: lzString.exports.decompressFromEncodedURIComponent
+        compress: compressToEncodedURIComponent,
+        decompress: decompressFromEncodedURIComponent
     },
-    COM: {
-        prefix: '{c}',
-        compress: lzString.exports.compress,
-        decompress: lzString.exports.decompress
-    },
-    B64: {
-        prefix: '{b}',
-        compress: lzString.exports.compressToBase64,
-        decompress: lzString.exports.decompressFromBase64
-    }
 };
-var CompressFuncByPrefix = Object.keys(CompressFuncByType).reduce(function (res, key) {
+var CompressFuncByPrefix = keys(CompressFuncByType).reduce(function (res, key) {
     res[CompressFuncByType[key].prefix] = CompressFuncByType[key];
     return res;
 }, {});
@@ -1861,7 +1610,7 @@ var _pctx = {
     encode: compress,
     decode: function (dataString) {
         var data = decompress(dataString || '');
-        if (typeof data !== 'object') {
+        if (!isObject(data)) {
             return null;
         }
         return data;
@@ -1872,25 +1621,25 @@ var useJSONPprv = function () { var _a, _b; return !!((_b = (_a = getGlobalConfi
 var createCookieEncoders = function () { return ({
     _pprv: createCookieEncoder('_pprv', 'mandatory', !useJSONPprv()),
     _pcid: createCookieEncoder('_pcid', 'essential'),
+    _pcus: createCookieEncoder('_pcus', 'optional', true),
     _pctx: _pctx
 }); };
 var cookieEncoders = createCookieEncoders();
 var cookieWrappers = createCookieWrappers(cookieEncoders);
 
 var createCookieAssociation = function () {
-    var cookieWrapperMap = null;
+    var fields = null;
+    var cookieByName = null;
     var registerConfig = function (config) {
-        cookieWrapperMap = {
-            fields: __assign(__assign({}, config.fields), (cookieWrapperMap && cookieWrapperMap.fields)),
-            cookieByName: __assign(__assign({}, config.cookieByName), (cookieWrapperMap && cookieWrapperMap.cookieByName))
-        };
-        return cookieWrapperMap.cookieByName;
+        fields = __assign(__assign({}, config.fields), fields);
+        cookieByName = __assign(__assign({}, config.cookieByName), cookieByName);
+        return cookieByName;
     };
     var get = function () {
         var result = {};
-        if (cookieWrapperMap) {
-            Object.keys(cookieWrapperMap.cookieByName).forEach(function (key) {
-                result = __assign(__assign({}, result), cookieWrapperMap === null || cookieWrapperMap === void 0 ? void 0 : cookieWrapperMap.cookieByName[key].get());
+        if (cookieByName) {
+            keys(cookieByName).forEach(function (key) {
+                result = __assign(__assign({}, result), cookieByName[key].get());
             });
         }
         return result;
@@ -1899,39 +1648,43 @@ var createCookieAssociation = function () {
         if (prevData === void 0) { prevData = null; }
         var groupedData = {};
         // separate data by cookie name
-        Object.keys(data).forEach(function (fieldName) {
+        keys(data).forEach(function (fieldName) {
             var fieldValue = data[fieldName];
-            var cookieWrapperName = cookieWrapperMap === null || cookieWrapperMap === void 0 ? void 0 : cookieWrapperMap.fields[fieldName];
+            var cookieWrapperName = fields === null || fields === void 0 ? void 0 : fields[fieldName];
             if (cookieWrapperName) {
                 if (!groupedData[cookieWrapperName]) {
                     groupedData[cookieWrapperName] = {
-                        wrapper: cookieWrapperMap === null || cookieWrapperMap === void 0 ? void 0 : cookieWrapperMap.cookieByName[cookieWrapperName],
-                        wrapperData: {},
-                        needUpdate: false
+                        wrapper: cookieByName === null || cookieByName === void 0 ? void 0 : cookieByName[cookieWrapperName],
+                        data: {},
+                        update: false
                     };
                 }
-                groupedData[cookieWrapperName].wrapperData[fieldName] = fieldValue;
-                if (!prevData || (!groupedData[cookieWrapperName].needUpdate && fieldValue !== prevData[fieldName])) {
-                    groupedData[cookieWrapperName].needUpdate = true;
+                groupedData[cookieWrapperName].data[fieldName] = fieldValue;
+                if (!prevData || (!groupedData[cookieWrapperName].update && fieldValue !== prevData[fieldName])) {
+                    groupedData[cookieWrapperName].update = true;
                 }
             }
         });
-        Object.keys(groupedData).forEach(function (key) {
-            var _a = groupedData[key], wrapper = _a.wrapper, wrapperData = _a.wrapperData, needUpdate = _a.needUpdate;
-            if (needUpdate) {
-                wrapper.set(wrapperData);
+        keys(groupedData).forEach(function (key) {
+            var _a = groupedData[key], wrapper = _a.wrapper, update = _a.update;
+            if (update) {
+                wrapper.set(groupedData[key].data);
             }
         });
     };
     return {
-        registerConfig: registerConfig,
-        get registeredCookiesWrapper() {
-            return (cookieWrapperMap === null || cookieWrapperMap === void 0 ? void 0 : cookieWrapperMap.cookieByName) || null;
+        register: registerConfig,
+        get wrappers() {
+            return cookieByName;
         },
         get: get,
         set: set
     };
 };
+
+// define global object in window to communicate
+var CONNECTION_NAME_OBJ = '__pctx_connection__';
+var KEY = 'uvm42pas28m';
 
 var shallowEqual = function (obj, obj2) {
     if (obj === obj2) {
@@ -1940,8 +1693,8 @@ var shallowEqual = function (obj, obj2) {
     if (!obj || !obj2) {
         return null;
     }
-    var keys1 = Object.keys(obj);
-    var keys2 = Object.keys(obj2);
+    var keys1 = keys(obj);
+    var keys2 = keys(obj2);
     if (keys1.length !== keys2.length) {
         return false;
     }
@@ -1968,7 +1721,7 @@ var getConnection = function () {
     var updateData = function (_, data) {
         var rejectedData = {};
         var newData = {};
-        Object.keys(data).forEach(function (key) {
+        keys(data).forEach(function (key) {
             if (protectedKeys.has(key)) {
                 rejectedData[key] = (cachedData === null || cachedData === void 0 ? void 0 : cachedData[key]) || null;
             }
@@ -1986,12 +1739,12 @@ var getConnection = function () {
                 return cb(newData);
             });
         }
-        return Object.keys(rejectedData).length > 0 ? rejectedData : null;
+        return keys(rejectedData).length > 0 ? rejectedData : null;
     };
     var setProtection = function (connectKey, data, force) {
         if (force === void 0) { force = false; }
         var rejectKeys = [];
-        Object.keys(data).forEach(function (key) {
+        keys(data).forEach(function (key) {
             var value = data[key];
             var actionIsPermitted = !protectedKeys.has(key) || protectedKeys.get(key) === connectKey || force;
             if (value && actionIsPermitted) {
@@ -2010,7 +1763,7 @@ var getConnection = function () {
         var connectionKey = randomStringCxCompatible();
         connections.set(connectionKey, name);
         if (currentCookieConfig) {
-            cookieAssociation.registerConfig(currentCookieConfig);
+            cookieAssociation.register(currentCookieConfig);
         }
         initCookieData = __assign(__assign({}, cookieAssociation.get()), initCookieData);
         return {
@@ -2037,46 +1790,48 @@ var getConnection = function () {
             // TODO to support legacy version
             setCookieEnabled: function () { return null; },
             get registeredCookiesWrapper() {
-                return cookieAssociation.registeredCookiesWrapper;
+                return cookieAssociation.wrappers;
             }
         };
     };
 };
 // define global object in window to communicate
-var CONNECTION_NAME_OBJ = '__pctx_connection__';
-var KEY = 'uvm42pas28m';
 var GENERATE_NEW_CONNECTION = 'mrlqf5trgho';
-var connect = function (name, cookiesMap) {
-    var connection = getConnection();
-    // @ts-ignore
-    try {
-        // Protect from redefine and reading func
-        Object.defineProperty(window, CONNECTION_NAME_OBJ, {
-            configurable: false,
-            set: function (cb) {
-                var key = cb();
-                if (key === KEY) {
-                    cb(connection);
-                    // TODO Warning! Use this key only for testing and debug
+var createConnectFn = function (configurable) {
+    if (configurable === void 0) { configurable = false; }
+    return function (name, cookiesMap) {
+        var connection = getConnection();
+        // @ts-ignore
+        try {
+            // Protect from redefine and reading func
+            Object.defineProperty(window, CONNECTION_NAME_OBJ, {
+                configurable: configurable,
+                set: function (cb) {
+                    var key = cb();
+                    if (key === KEY) {
+                        cb(connection);
+                        // TODO Warning! Use this key only for testing and debug
+                    }
+                    else if (key === GENERATE_NEW_CONNECTION) {
+                        connection = getConnection();
+                    }
                 }
-                else if (key === GENERATE_NEW_CONNECTION) {
-                    connection = getConnection();
-                }
-            }
-        });
-        // tslint:disable-next-line no-empty
-    }
-    catch (e) { }
-    // Get common connect function
-    // @ts-ignore
-    window[CONNECTION_NAME_OBJ] = function (val) {
-        if (val) {
-            connection = val;
+            });
+            // tslint:disable-next-line no-empty
         }
-        return KEY;
+        catch (e) { }
+        // Get common connect function
+        // @ts-ignore
+        window[CONNECTION_NAME_OBJ] = function (val) {
+            if (val) {
+                connection = val;
+            }
+            return KEY;
+        };
+        return connection(name, cookiesMap);
     };
-    return connection(name, cookiesMap);
 };
+var connect = createConnectFn();
 
 var isMask = function (str) { return str.includes('*'); };
 var createMask = function (name, value) { return [
@@ -2084,7 +1839,7 @@ var createMask = function (name, value) { return [
     value
 ]; };
 var itemsToMask = function (items) {
-    return Object.keys(items)
+    return keys(items)
         .filter(isMask)
         .map(function (i) { return createMask(i, items[i]); });
 };
@@ -2155,7 +1910,7 @@ var createCheckConsentWrapper = function (config) {
     var getConfigByName = function (name) { return items[name] || getByMask(name, masks) || 'optional'; };
     function checkConsent(name, consentValue) {
         var requireConsent = getGlobalConfig$1().requireConsent;
-        var isSingle = !Array.isArray(name);
+        var isSingle = !isArray(name);
         var names = isSingle ? [name] : name;
         var result = (function () {
             var getDefaultResult = function () {
@@ -2253,7 +2008,7 @@ var getMigrationValue = (function () {
 var defaultMigration = [{ ls: '_cX_P' }, 'cX_P'];
 var migrationMaps = {
     PA: {
-        browserId: __spreadArray(['pa_vid', 'atuserid'], defaultMigration, true)
+        browserId: ['pa_vid', 'atuserid'].concat(defaultMigration)
     },
     DMP: {
         browserId: defaultMigration
@@ -2265,7 +2020,7 @@ var DEFAULT_MIGRATION = {
 var migrate = function (_private) {
     var _a;
     var migrationData = __assign(__assign({}, DEFAULT_MIGRATION), validateMigration((_a = getGlobalConfig$1()) === null || _a === void 0 ? void 0 : _a.migration));
-    Object.keys(migrationData).forEach(function (propName) {
+    keys(migrationData).forEach(function (propName) {
         var _a, _b;
         var param = _private.params.get(propName);
         var isDefault = migrationData[propName] === DEFAULT_MIGRATION[propName];
@@ -2282,9 +2037,10 @@ var migrate = function (_private) {
     });
 };
 
-var UPDATE_VALUE = '@@Data-layer/update_value';
-var REFRESH_VALUE = '@@Data-layer/refresh_value';
-var REFRESH_LOCKED_KEY = '@@Data-layer/refresh_locked_key';
+var PREFIX = '@@Data-layer/';
+var UPDATE_VALUE = PREFIX + 'update_value';
+var REFRESH_VALUE = PREFIX + 'refresh_value';
+var REFRESH_LOCKED_KEY = PREFIX + 'refresh_locked_key';
 var getGlobalConfig = function () {
     // @ts-ignore
     var config = __assign({}, window[GLOBAL_CONFIG_NAME]);
@@ -2295,15 +2051,15 @@ var getGlobalConfig = function () {
             secure: toBoolean,
             expires: function (val) { return (val instanceof Date ? val : Number(val)); },
             samesite: function (val) {
-                if (typeof val === 'string') {
+                if (isString(val)) {
                     return val;
                 }
                 return toBoolean(val);
-            },
+            }
         });
     };
     if (config === null || config === void 0 ? void 0 : config.cookies) {
-        config.cookies = Object.keys(config.cookies).reduce(function (res, cookieName) {
+        config.cookies = keys(config.cookies).reduce(function (res, cookieName) {
             res[cookieName] = validateCookieOption(config.cookies[cookieName]);
             return res;
         }, {});
@@ -2336,7 +2092,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
     };
     var setCookieEnabled = function (cookiesEnabled) {
         getCookieWrappers(function (cookieWrappers) {
-            var cookieNames = Object.keys(cookiesEnabled);
+            var cookieNames = keys(cookiesEnabled);
             if (cookieNames.length) {
                 cookieNames.forEach(function (cookieName) {
                     var wrapper = cookieWrappers[cookieName];
@@ -2346,7 +2102,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
                 });
             }
             else {
-                Object.keys(cookieWrappers).forEach(function (key) {
+                keys(cookieWrappers).forEach(function (key) {
                     cookieWrappers[key].setCookieEnabled(cookiesEnabled);
                 });
             }
@@ -2362,11 +2118,17 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
             });
         });
     };
-    var getCookieEnabled = function () {
+    var getCookieConfig = function () {
         var result = null;
         getCookieWrappers(function (cookieWrappers) {
-            result = Object.keys(cookieWrappers).reduce(function (res, key) {
-                res[cookieWrappers[key].cookieName] = cookieWrappers[key].cookieEnabled;
+            result = keys(cookieWrappers).reduce(function (res, key) {
+                var enabled = cookieWrappers[key].cookieEnabled;
+                var fixedAt = cookieWrappers[key].fixedAt || null;
+                var cookieName = cookieWrappers[key].cookieName;
+                res[cookieName] = enabled ? {
+                    enabled: enabled,
+                    fixedAt: fixedAt
+                } : null;
                 return res;
             }, {});
         });
@@ -2378,7 +2140,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
         var cookieOptions = globalConfig.cookieDefault;
         // set cookie options on each cookie wrapper
         getCookieWrappers(function (cookieWrappers) {
-            Object.keys(cookieWrappers).forEach(function (key) {
+            keys(cookieWrappers).forEach(function (key) {
                 var _a, _b, _c, _d;
                 var cookieName = cookieWrappers[key].cookieName;
                 var options = (_a = globalConfig.cookies) === null || _a === void 0 ? void 0 : _a[cookieName];
@@ -2393,7 +2155,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
     var createConfigParameters = function () {
         var configs = {};
         var getValuesByPropName = function (propName) {
-            return Object.keys(configs).reduce(function (res, key) {
+            return keys(configs).reduce(function (res, key) {
                 var config = configs[key];
                 if (config[propName] !== undefined) {
                     res[key] = config[propName];
@@ -2402,15 +2164,15 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
             }, {});
         };
         var updateProtection = function () {
-            var keys = getValuesByPropName('protect');
-            if (Object.keys(keys).length > 0) {
-                getConnection().setProtectionData(keys);
+            var values = getValuesByPropName('protect');
+            if (keys(values).length > 0) {
+                getConnection().setProtectionData(values);
             }
         };
         var updateProtectionUnsafe = function () {
-            var keys = getValuesByPropName('protectUnsafe');
-            if (Object.keys(keys).length > 0) {
-                getConnection().setProtectionDataUnsafe(keys);
+            var values = getValuesByPropName('protectUnsafe');
+            if (keys(values).length > 0) {
+                getConnection().setProtectionDataUnsafe(values);
             }
         };
         return {
@@ -2424,7 +2186,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
         };
     };
     var normalizeCachedValue = function (cachedValues, cb) {
-        return Object.keys(cachedValues).reduce(function (result, paramName) {
+        return keys(cachedValues).reduce(function (result, paramName) {
             var param = params.get(paramName);
             var value = cachedValues[paramName];
             if (param) {
@@ -2450,7 +2212,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
         }
         initConfig(options);
         ready = true;
-        Object.keys(paramsArgs).forEach(function (key) {
+        keys(paramsArgs).forEach(function (key) {
             var param = paramsArgs[key];
             listenersByNames.set(key, new Set());
             params.set(key, param);
@@ -2459,7 +2221,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
         var initCookieData = getConnection().getInitCookieData();
         var cachedData = getConnection().getCachedData();
         var configToChange = createConfigParameters();
-        var initData = Object.keys(paramsArgs).reduce(function (res, key) {
+        var initData = keys(paramsArgs).reduce(function (res, key) {
             var _key = key;
             var param = paramsArgs[key];
             res[key] =
@@ -2483,7 +2245,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
     };
     var onUpdateData = function (data) {
         var cachedValueWasUpdated = false;
-        Object.keys(data).forEach(function (key) {
+        keys(data).forEach(function (key) {
             var _a;
             var _key = key;
             var param = params.get(_key);
@@ -2507,12 +2269,12 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
         if (force === void 0) { force = false; }
         var data = arg1;
         var cookiesActions = stringSet();
-        if (typeof arg1 === 'string') {
+        if (isString(arg1)) {
             data = (_a = {}, _a[arg1] = arg2, _a);
         }
         var configsToResetProtection = createConfigParameters();
         var configsToChange = createConfigParameters();
-        data = Object.keys(data).reduce(function (res, key) {
+        data = keys(data).reduce(function (res, key) {
             var value = data[key];
             var param = params.get(key);
             var keyString = key;
@@ -2554,7 +2316,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
         var rejectedData = getConnection().updateData(data);
         if (rejectedData && force) {
             // reset protection for rejected data
-            var unprotectKeys = Object.keys(rejectedData).reduce(function (res, key) {
+            var unprotectKeys = keys(rejectedData).reduce(function (res, key) {
                 var _a;
                 return (__assign(__assign({}, res), (_a = {}, _a[key] = false, _a)));
             }, {});
@@ -2568,7 +2330,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
     function get(arg1) {
         var _a;
         var cookiesActions = stringSet();
-        var isSingleValue = typeof arg1 === 'string';
+        var isSingleValue = isString(arg1);
         var result;
         // all data
         if (arg1 === undefined) {
@@ -2604,7 +2366,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
     var updateSafeUnsafe = function (arg1, unsafe) {
         if (unsafe === void 0) { unsafe = false; }
         var names = arg1;
-        if (!Array.isArray(arg1)) {
+        if (!isArray(arg1)) {
             names = [arg1];
         }
         return updateValues(names.reduce(function (res, name) {
@@ -2623,7 +2385,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
         if (force === void 0) { force = false; }
         var protectMethod = force ? getConnection().setProtectionDataUnsafe : getConnection().setProtectionData;
         var values = arg1;
-        if (typeof arg1 === 'string') {
+        if (isString(arg1)) {
             values = (_a = {}, _a[arg1] = arg2, _a);
         }
         // @ts-ignore
@@ -2637,7 +2399,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
     }
     function addChangeListener(arg1, arg2) {
         var _a;
-        if (typeof arg1 === 'string') {
+        if (isString(arg1)) {
             (_a = listenersByNames.get(arg1)) === null || _a === void 0 ? void 0 : _a.add(arg2);
             return;
         }
@@ -2669,6 +2431,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
         listenersCommon.clear();
         syncConnection = null;
         ready = false;
+        cachedValue = {};
     };
     var updateMigration = function () {
         if (ready) {
@@ -2686,14 +2449,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
         addChangeListener: addChangeListener,
         removeChangeListener: removeChangeListener,
         terminate: terminate,
-        setUnsafe: setUnsafe,
-        protectUnsafe: protectUnsafe,
-        updateUnsafe: updateUnsafe,
-        setCookieEnabled: setCookieEnabled,
         updateMigration: updateMigration,
-        get cookieEnabled() {
-            return getCookieEnabled();
-        },
         get isReady() {
             return ready;
         },
@@ -2701,7 +2457,18 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
             validateModifier: validateModifier,
             validateConsent: validateConsent,
             checkConsent: checkConsent$1
-        }
+        },
+        get cookies() {
+            return getCookieConfig();
+        },
+        // deprecated methods
+        get cookieEnabled() {
+            return getCookieConfig();
+        },
+        setUnsafe: setUnsafe,
+        protectUnsafe: protectUnsafe,
+        updateUnsafe: updateUnsafe,
+        setCookieEnabled: setCookieEnabled,
     };
 };
 
@@ -2709,7 +2476,7 @@ var getCookieProhibition = function () { return ({
     _pprv: !getGlobalConfig$1().requireConsent
 }); };
 var checkConsent = function (_private) {
-    var items = Object.keys(cookieEncoders).reduce(function (res, cookieName) {
+    var items = keys(cookieEncoders).reduce(function (res, cookieName) {
         res[cookieName] = cookieEncoders[cookieName].consent;
         return res;
     }, {});
@@ -2725,7 +2492,7 @@ var checkConsent = function (_private) {
         var prohibition = getCookieProhibition();
         var cookieWrapperMap = (_a = _private.getConnection()) === null || _a === void 0 ? void 0 : _a.registeredCookiesWrapper;
         if (cookieWrapperMap) {
-            var names = Object.keys(cookieWrapperMap).map(function (key) { return cookieWrapperMap[key].cookieName; });
+            var names = keys(cookieWrapperMap).map(function (key) { return cookieWrapperMap[key].cookieName; });
             check(names, con).forEach(function (_a) {
                 var name = _a.name, allowed = _a.allowed, data = _a.data;
                 var cookieName = name;

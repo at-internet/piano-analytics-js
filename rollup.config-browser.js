@@ -2,7 +2,6 @@ import {babel} from '@rollup/plugin-babel';
 import {eslint} from 'rollup-plugin-eslint';
 import {uglify} from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
-import * as path from "path";
 
 export default {
     input: 'src/exports.js',
@@ -11,9 +10,11 @@ export default {
             configFile: './src/.eslintrc.json'
         }),
         replace({
-            BUILD_BROWSER: 'true'
+            BUILD_BROWSER: 'true',
+            '@piano-sdk/storage': '../storage/storage.js',
+            delimiters: ['', '']
         }),
-        babel({configFile: path.resolve(__dirname, 'babel.config.json'), babelHelpers: 'bundled'}),
+        babel({babelHelpers: 'bundled'}),
         process.env.NODE_ENV === 'production' && uglify()
     ],
     output: [

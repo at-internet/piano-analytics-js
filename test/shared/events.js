@@ -15,8 +15,11 @@ describe('Events :', function () {
             globalPA.sendEvent('page.display', {},
                 {
                     onBeforeBuild: function (PianoAnalytics, model) {
-                        expect(model.build.data);
-                        done();
+                        Utility.promiseThrowCatcher(done, function () {
+                            expect(model.build.data);
+                            done();
+                        });
+
                     }
                 });
         });
@@ -24,8 +27,10 @@ describe('Events :', function () {
             globalPA.sendEvent('page.display', {},
                 {
                     onBeforeSend: function (PianoAnalytics, model) {
-                        expect(model.build.data);
-                        done();
+                        Utility.promiseThrowCatcher(done, function () {
+                            expect(model.build.data);
+                            done();
+                        });
                     }
                 });
         });
@@ -57,21 +62,25 @@ describe('Events :', function () {
             globalPA.sendEvent('page.display', {},
                 {
                     onBeforeBuild: function (PianoAnalytics, model, next) {
-                        model.setConfiguration('path', 'pathtestingvalue');
-                        next();
+                        Utility.promiseThrowCatcher(done, function () {
+                            model.setConfiguration('path', 'pathtestingvalue');
+                            next();
+                        });
                     },
                     onBeforeSend: function (PianoAnalytics, model, next) {
-                        expect(model.build.url.indexOf('/pathtestingvalue') === 0).to.equal(true);
-                        expect(PianoAnalytics.getConfiguration('path')).to.equal('event');
-                        globalPA.sendEvent('page.display', {},
-                            {
-                                onBeforeSend: function (PianoAnalytics, model) {
-                                    expect(model.build.url.indexOf('/pathtestingvalue') < 0).to.equal(true);
-                                    expect(PianoAnalytics.getConfiguration('path')).to.equal('event');
-                                    done();
-                                }
-                            });
-                        next(false);
+                        Utility.promiseThrowCatcher(done, function () {
+                            expect(model.build.url.indexOf('/pathtestingvalue') >= 0).to.equal(true);
+                            expect(PianoAnalytics.getConfiguration('path')).to.equal('event');
+                            globalPA.sendEvent('page.display', {},
+                                {
+                                    onBeforeSend: function (PianoAnalytics, model) {
+                                        expect(model.build.url.indexOf('/pathtestingvalue') < 0).to.equal(true);
+                                        expect(PianoAnalytics.getConfiguration('path')).to.equal('event');
+                                        done();
+                                    }
+                                });
+                            next(false);
+                        });
                     }
                 });
         });
@@ -83,7 +92,7 @@ describe('Events :', function () {
                         next();
                     },
                     onBeforeSend: function (PianoAnalytics, model, next) {
-                        expect(model.build.url.indexOf('/event?s=410501') === 0).to.equal(true);
+                        expect(model.build.url.indexOf('/event?s=410501') > 0).to.equal(true);
                         expect(PianoAnalytics.getConfiguration('site')).to.equal('');
                         globalPA.sendEvent('page.display', {},
                             {

@@ -12,7 +12,7 @@ import {User} from '../business/user';
 import {cloneObject} from '../utils/index';
 import {preloadTagging} from '../business/preload';
 import {AVInsights} from '../business/avinsights';
-import {dataLayer} from '../business/data-layer/data-layer';
+import {dataLayer} from '../business/ext/data-layer/data-layer';
 
 function PianoAnalytics(configuration) {
     _initConfig(this, configuration);

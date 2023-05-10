@@ -10,6 +10,9 @@ function Model(pa, data, config) {
             };
         }
     };
+    this.hasProperty = function (name) {
+        return Object.prototype.hasOwnProperty.call(this.properties, name);
+    };
     this.getConfiguration = config.getConfiguration;
     this.setConfiguration = config.setConfiguration;
     this.options = data.options || {};

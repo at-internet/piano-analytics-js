@@ -1,6 +1,6 @@
 import {nextStep} from './utils/index';
 import {uuid} from '../../utils/index';
-import {dataLayer} from '../../business/data-layer/data-layer';
+import {dataLayer} from '../../business/ext/data-layer/data-layer';
 
 function visitorStep(pa, model, nextSteps) {
     pa._storage.getItem(model.getConfiguration('storageVisitor'), function (storedValue) {

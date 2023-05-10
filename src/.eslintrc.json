@@ -8,8 +8,9 @@
     "sourceType": "module"
   },
   "ignorePatterns": [
-    "business/data-layer/data-layer.js",
-    "business/consent/consent.js",
+    "business/ext/storage/storage.js",
+    "business/ext/data-layer/data-layer.js",
+    "business/ext/consent/consent.js",
     "business/privacy/privacy.js",
     "business/privacy/privacy-template.js",
     "business/avinsights.js",

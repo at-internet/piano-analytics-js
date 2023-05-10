@@ -149,7 +149,7 @@ describe('Metadata in browser :', function () {
             }
         });
     });
-    it('Should add user agent data', function (done) {
+    it('Should add high entropy user agent data', function (done) {
         const checkAndForceDynamicPropertiesToStaticTestingValues = function (events, propsUndefined, propsToForce) {
             for (let prop of propsUndefined) {
                 for (let evt of events) {
@@ -163,21 +163,52 @@ describe('Metadata in browser :', function () {
                 }
             }
         };
+        // ch_ua_arch, ch_ua_bitness, ch_ua_model, ch_ua_platform, ch_ua_platform_version and ch_ua_full_version
+        // are removed because they are empty strings or undefined and so not sent in events
         const CHUA_LIST_PROPERTIES = [
             'ch_ua',
-            'ch_ua_arch',
-            'ch_ua_bitness',
             'ch_ua_full_version_list',
-            'ch_ua_mobile',
-            'ch_ua_model',
-            'ch_ua_platform',
-            'ch_ua_platform_version',
-            'ch_ua_full_version'
+            'ch_ua_mobile'
         ]
         globalPA.sendEvent('toto', {test: 'test'}, {
             onBeforeSend: function (pianoanalytics, model) {
                 Utility.promiseThrowCatcher(done, function () {
                     checkAndForceDynamicPropertiesToStaticTestingValues(model.build.data.events, [], CHUA_LIST_PROPERTIES)
+                    for (const event of model.build.data.events) {
+                        for (const chuaProperty of CHUA_LIST_PROPERTIES) {
+                            expect(event.data[chuaProperty]).to.equal('forced_value_for_test');
+                        }
+                    }
+                    done();
+                });
+            }
+        });
+    });
+    it('Should add low entropy user agent data', function (done) {
+        const checkAndForceDynamicPropertiesToStaticTestingValues = function (events, propsUndefined, propsToForce) {
+            for (let prop of propsUndefined) {
+                for (let evt of events) {
+                    expect(evt.data[prop], `the property ${prop} should NOT be present`).to.equal(undefined);
+                }
+            }
+            for (let prop of propsToForce) {
+                for (let evt of events) {
+                    expect(evt.data[prop], `the property ${prop} should be present`).to.not.equal(undefined);
+                    evt.data[prop] = 'forced_value_for_test';
+                }
+            }
+        };
+        // ch_ua_arch, ch_ua_bitness, ch_ua_model, ch_ua_platform, ch_ua_platform_version and ch_ua_full_version
+        // are removed because they are empty strings or undefined and so not sent in events
+        const CHUA_LIST_PROPERTIES = [
+            'ch_ua',
+            'ch_ua_mobile'
+        ]
+        globalPA.setConfiguration('allowHighEntropyClientHints',false);
+        globalPA.sendEvent('toto', {test: 'test'}, {
+            onBeforeSend: function (pianoanalytics, model) {
+                Utility.promiseThrowCatcher(done, function () {
+                    checkAndForceDynamicPropertiesToStaticTestingValues(model.build.data.events, ['ch_ua_full_version_list'], CHUA_LIST_PROPERTIES)
                     for (const event of model.build.data.events) {
                         for (const chuaProperty of CHUA_LIST_PROPERTIES) {
                             expect(event.data[chuaProperty]).to.equal('forced_value_for_test');
