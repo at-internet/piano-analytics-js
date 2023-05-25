@@ -98,10 +98,10 @@ describe('Metadata not in browser :', function () {
             }
         });
     });
-    it('Should not add page_url', function (done) {
+    it('Should not add event_url_full', function (done) {
         globalPA.sendEvent('toto', {test: 'test'}, {
             onBeforeSend: function (pianoanalytics, model) {
-                expect(model.build.data.events[0].data['page_url']).to.equal(undefined);
+                expect(model.build.data.events[0].data['event_url_full']).to.equal(undefined);
                 done();
             }
         });

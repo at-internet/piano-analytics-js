@@ -137,13 +137,13 @@ describe('Metadata in browser :', function () {
             }
         });
     });
-    it('Should add page_url', function (done) {
+    it('Should add event_url_full', function (done) {
         globalPA.sendEvent('toto', {test: 'test'}, {
             onBeforeSend: function (pianoanalytics, model) {
                 Utility.promiseThrowCatcher(done, function () {
-                    expect(model.build.data.events[0].data['page_url']).to.not.equal(undefined);
-                    expect(typeof model.build.data.events[0].data['page_url']).to.equal('string');
-                    expect(typeof model.build.data.events[0].data['page_url']).to.not.equal('');
+                    expect(model.build.data.events[0].data['event_url_full']).to.not.equal(undefined);
+                    expect(typeof model.build.data.events[0].data['event_url_full']).to.equal('string');
+                    expect(typeof model.build.data.events[0].data['event_url_full']).to.not.equal('');
                     done();
                 });
             }

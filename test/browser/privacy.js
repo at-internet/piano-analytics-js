@@ -319,7 +319,8 @@ describe('Privacy in Browser :', function () {
                                             [
                                                 'event_collection_platform',
                                                 'event_collection_version',
-                                                'page_title_html'
+                                                'page_title_html',
+                                                'page_url'
                                             ],
                                             [
                                                 'has_access',
@@ -331,8 +332,8 @@ describe('Privacy in Browser :', function () {
                                                 'device_timestamp_utc',
                                                 'device_local_hour',
                                                 'device_hour',
+                                                'event_url_full',
                                                 'previous_url',
-                                                'page_url',
                                                 'ch_ua',
                                                 'ch_ua_mobile',
                                                 'ch_ua_full_version_list',
@@ -378,7 +379,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_local_hour': 'forced_value_for_test',
                                                         'device_hour': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'user_id': '123',
                                                         'user_recognition': false,
                                                         'visitor_privacy_consent': true,
@@ -445,7 +446,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_local_hour': 'forced_value_for_test',
                                                         'device_hour': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'user_id': '123',
                                                         'user_recognition': false,
                                                         'visitor_privacy_consent': true,
@@ -490,7 +491,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_local_hour': 'forced_value_for_test',
                                                         'device_hour': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'page': 'page name',
                                                         'page_chapter1': 'chapter 1',
                                                         'page_chapter2': 'chapter 2',
@@ -1090,7 +1091,8 @@ describe('Privacy in Browser :', function () {
                                         checkAndForceDynamicPropertiesToStaticTestingValues(
                                             model.build.data.events,
                                             [
-                                                'page_title_html'
+                                                'page_title_html',
+                                                'page_url'
                                             ],
                                             [
                                                 'has_access',
@@ -1108,7 +1110,7 @@ describe('Privacy in Browser :', function () {
                                                 'ch_ua_full_version_list',
                                                 'ch_ua_mobile',
                                                 'previous_url',
-                                                'page_url',
+                                                'event_url_full'
                                             ]
                                         );
 
@@ -1165,7 +1167,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_display_width': 'forced_value_for_test',
                                                         'device_display_height': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'ch_ua': 'forced_value_for_test',
                                                         "ch_ua_arch": "",
                                                         "ch_ua_bitness": "",
@@ -1228,7 +1230,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_display_width': 'forced_value_for_test',
                                                         'device_display_height': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'ch_ua': 'forced_value_for_test',
                                                         "ch_ua_arch": "",
                                                         "ch_ua_bitness": "",
@@ -1291,7 +1293,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_display_width': 'forced_value_for_test',
                                                         'device_display_height': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'ch_ua': 'forced_value_for_test',
                                                         "ch_ua_arch": "",
                                                         "ch_ua_bitness": "",
@@ -1354,7 +1356,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_display_width': 'forced_value_for_test',
                                                         'device_display_height': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'ch_ua': 'forced_value_for_test',
                                                         "ch_ua_arch": "",
                                                         "ch_ua_bitness": "",
@@ -1424,7 +1426,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_display_width': 'forced_value_for_test',
                                                         'device_display_height': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'ch_ua': 'forced_value_for_test',
                                                         "ch_ua_arch": "",
                                                         "ch_ua_bitness": "",
@@ -1494,7 +1496,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_display_width': 'forced_value_for_test',
                                                         'device_display_height': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'ch_ua': 'forced_value_for_test',
                                                         "ch_ua_arch": "",
                                                         "ch_ua_bitness": "",
@@ -1560,7 +1562,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_display_width': 'forced_value_for_test',
                                                         'device_display_height': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'ch_ua': 'forced_value_for_test',
                                                         "ch_ua_arch": "",
                                                         "ch_ua_bitness": "",
@@ -1617,7 +1619,8 @@ describe('Privacy in Browser :', function () {
                                                 'browser_language',
                                                 'browser_language_local',
                                                 'has_access',
-                                                'page_title_html'
+                                                'page_title_html',
+                                                'page_url'
                                             ],
                                             [
                                                 'device_display_height',
@@ -1632,7 +1635,7 @@ describe('Privacy in Browser :', function () {
                                                 'ch_ua_mobile',
                                                 'pageview_id',
                                                 'previous_url',
-                                                'page_url'
+                                                'event_url_full'
                                             ]
                                         );
 
@@ -1670,7 +1673,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'user_category': '456789',
@@ -1711,7 +1714,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'user_category': '456789',
@@ -1752,7 +1755,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'user_category': '456789',
@@ -1783,7 +1786,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'page': 'page name',
@@ -1818,7 +1821,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'page': 'page name',
@@ -1863,7 +1866,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'page': 'page name',
@@ -1921,7 +1924,8 @@ describe('Privacy in Browser :', function () {
                                             [
                                                 'browser_language',
                                                 'browser_language_local',
-                                                'page_title_html'
+                                                'page_title_html',
+                                                'page_url'
                                             ],
                                             [
                                                 'device_display_height',
@@ -1934,7 +1938,7 @@ describe('Privacy in Browser :', function () {
                                                 'ch_ua',
                                                 'ch_ua_full_version_list',
                                                 'ch_ua_mobile',
-                                                'page_url',
+                                                'event_url_full',
                                                 'pageview_id',
                                                 'previous_url'
                                             ]
@@ -1974,7 +1978,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'user_category': '456789',
@@ -2015,7 +2019,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'user_category': '456789',
@@ -2056,7 +2060,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'user_category': '456789',
@@ -2087,7 +2091,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'page': 'page name',
@@ -2122,7 +2126,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'page': 'page name',
@@ -2167,7 +2171,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'page': 'page name',
@@ -2231,7 +2235,8 @@ describe('Privacy in Browser :', function () {
                                             [
                                                 'browser_language',
                                                 'browser_language_local',
-                                                'page_title_html'
+                                                'page_title_html',
+                                                'page_url'
                                             ],
                                             [
                                                 'device_display_height',
@@ -2244,7 +2249,7 @@ describe('Privacy in Browser :', function () {
                                                 'ch_ua',
                                                 'ch_ua_full_version_list',
                                                 'ch_ua_mobile',
-                                                'page_url',
+                                                'event_url_full',
                                                 'pageview_id',
                                                 'previous_url'
                                             ]
@@ -2284,7 +2289,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'user_category': '456789',
@@ -2325,7 +2330,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'user_category': '456789',
@@ -2366,7 +2371,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'user_category': '456789',
@@ -2397,7 +2402,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'page': 'page name',
@@ -2432,7 +2437,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'page': 'page name',
@@ -2477,7 +2482,7 @@ describe('Privacy in Browser :', function () {
                                                         'device_timestamp_utc': 'forced_value_for_test',
                                                         'event_collection_platform': 'forced_value_for_test',
                                                         'event_collection_version': 'forced_value_for_test',
-                                                        'page_url': 'forced_value_for_test',
+                                                        'event_url_full': 'forced_value_for_test',
                                                         'pageview_id': 'forced_value_for_test',
                                                         'previous_url': 'forced_value_for_test',
                                                         'page': 'page name',

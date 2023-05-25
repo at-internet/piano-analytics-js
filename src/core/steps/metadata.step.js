@@ -55,7 +55,7 @@ function metadataStep(pa, model, nextSteps) {
                     }
                     const isAlreadyInEvent = typeof event.data[propFinalName] !== 'undefined';
                     if (!isAlreadyInProperties && !isAlreadyInEvent) {
-                        if (pa._privacy.call('isPropAllowed', name)) {
+                        if (pa._privacy.call('isPropAllowed', propFinalName)) {
                             event.data[propFinalName] = content[propContent];
                         }
                     }
@@ -87,7 +87,7 @@ function metadataStep(pa, model, nextSteps) {
         }
         const eventUrlWithQueryString = model.getConfiguration('addEventURL').toString() === 'true';
         if (eventUrlWithQueryString || (model.getConfiguration('addEventURL') === 'withoutQS')) {
-            model.setProperty('page_url', eventUrlWithQueryString ? window.location.href.split('#')[0] : `${window.location.protocol}//${window.location.host}${window.location.pathname}`);
+            model.setProperty('event_url_full', eventUrlWithQueryString ? window.location.href.split('#')[0] : `${window.location.protocol}//${window.location.host}${window.location.pathname}`);
         }
 
         try {

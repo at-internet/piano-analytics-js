@@ -1,5 +1,12 @@
 # Changelog
 
+## 6.9.1
+### Changes
+- Event URL is now sent in property `event_url_full` instead of `page_url`
+### Fixes
+- Privacy rules were not applied properly to content properties in version 6.9.0
+
+
 ## 6.9.0
 ### New
 
