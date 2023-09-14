@@ -337,6 +337,7 @@ describe('Privacy in Browser :', function () {
                                                 'ch_ua',
                                                 'ch_ua_mobile',
                                                 'ch_ua_full_version_list',
+                                                'cookie_creation_date'
                                             ]
                                         );
                                         expect(model.build.data).to.deep.equal({
@@ -356,6 +357,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'custom.allisgreen': 'custom.allisgreen',
                                                         'customprop1_sub1': '11',
                                                         'customprop1_sub1_deep2': '112',
@@ -402,6 +404,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'click': 'click navigation',
                                                         'click_chapter1': 'click chapter 1',
                                                         'click_chapter2': 'click chapter 2',
@@ -469,6 +472,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'customprop1_sub1': '11',
                                                         'customprop1_sub1_deep2': '112',
                                                         'customprop1_sub2': '12',
@@ -1109,6 +1113,7 @@ describe('Privacy in Browser :', function () {
                                                 'ch_ua',
                                                 'ch_ua_full_version_list',
                                                 'ch_ua_mobile',
+                                                'cookie_creation_date',
                                                 'previous_url',
                                                 'event_url_full'
                                             ]
@@ -1177,6 +1182,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                     }
                                                 },
                                                 {
@@ -1240,6 +1246,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                     }
                                                 },
                                                 {
@@ -1303,6 +1310,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                     }
                                                 },
                                                 {
@@ -1366,6 +1374,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                     }
                                                 },
                                                 {
@@ -1436,6 +1445,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                     }
                                                 },
                                                 {
@@ -1506,6 +1516,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                     }
                                                 },
                                                 {
@@ -1572,6 +1583,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                     }
                                                 }
                                             ]
@@ -1633,6 +1645,7 @@ describe('Privacy in Browser :', function () {
                                                 'ch_ua',
                                                 'ch_ua_full_version_list',
                                                 'ch_ua_mobile',
+                                                'cookie_creation_date',
                                                 'pageview_id',
                                                 'previous_url',
                                                 'event_url_full'
@@ -1652,6 +1665,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'customprop1_sub1_deep1': '111',
                                                         'customprop1_sub2_deep2': '122',
                                                         'customprop2_sub1': '21',
@@ -1693,6 +1707,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'customprop1_sub1_deep1': '111',
                                                         'customprop1_sub2_deep2': '122',
                                                         'customprop2_sub1': '21',
@@ -1734,6 +1749,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'customprop1_sub1_deep1': '111',
                                                         'customprop1_sub2_deep2': '122',
                                                         'customprop2_sub1': '21',
@@ -1775,6 +1791,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'click': 'click exit',
                                                         'click_chapter1': 'click chapter 1',
                                                         'click_chapter2': 'click chapter 2',
@@ -1810,6 +1827,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'click': 'click navigation',
                                                         'click_chapter1': 'click chapter 1',
                                                         'click_chapter2': 'click chapter 2',
@@ -1845,6 +1863,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'customprop1_sub1_deep1': '111',
                                                         'customprop1_sub2_deep2': '122',
                                                         'customprop2_sub1': '21',
@@ -1938,6 +1957,7 @@ describe('Privacy in Browser :', function () {
                                                 'ch_ua',
                                                 'ch_ua_full_version_list',
                                                 'ch_ua_mobile',
+                                                'cookie_creation_date',
                                                 'event_url_full',
                                                 'pageview_id',
                                                 'previous_url'
@@ -1957,6 +1977,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'customprop1_sub1_deep1': '111',
                                                         'customprop1_sub2_deep2': '122',
                                                         'customprop2_sub1': '21',
@@ -1998,6 +2019,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'customprop1_sub1_deep1': '111',
                                                         'customprop1_sub2_deep2': '122',
                                                         'customprop2_sub1': '21',
@@ -2039,6 +2061,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'customprop1_sub1_deep1': '111',
                                                         'customprop1_sub2_deep2': '122',
                                                         'customprop2_sub1': '21',
@@ -2080,6 +2103,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'click': 'click exit',
                                                         'click_chapter1': 'click chapter 1',
                                                         'click_chapter2': 'click chapter 2',
@@ -2115,6 +2139,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'click': 'click navigation',
                                                         'click_chapter1': 'click chapter 1',
                                                         'click_chapter2': 'click chapter 2',
@@ -2150,6 +2175,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'customprop1_sub1_deep1': '111',
                                                         'customprop1_sub2_deep2': '122',
                                                         'customprop2_sub1': '21',
@@ -2249,6 +2275,7 @@ describe('Privacy in Browser :', function () {
                                                 'ch_ua',
                                                 'ch_ua_full_version_list',
                                                 'ch_ua_mobile',
+                                                'cookie_creation_date',
                                                 'event_url_full',
                                                 'pageview_id',
                                                 'previous_url'
@@ -2268,6 +2295,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'customprop1_sub1_deep1': '111',
                                                         'customprop1_sub2_deep2': '122',
                                                         'customprop2_sub1': '21',
@@ -2309,6 +2337,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'customprop1_sub1_deep1': '111',
                                                         'customprop1_sub2_deep2': '122',
                                                         'customprop2_sub1': '21',
@@ -2350,6 +2379,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'customprop1_sub1_deep1': '111',
                                                         'customprop1_sub2_deep2': '122',
                                                         'customprop2_sub1': '21',
@@ -2391,6 +2421,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'click': 'click exit',
                                                         'click_chapter1': 'click chapter 1',
                                                         'click_chapter2': 'click chapter 2',
@@ -2430,6 +2461,7 @@ describe('Privacy in Browser :', function () {
                                                         'click_chapter1': 'click chapter 1',
                                                         'click_chapter2': 'click chapter 2',
                                                         'click_chapter3': 'click chapter 3',
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'device_display_height': 'forced_value_for_test',
                                                         'device_display_width': 'forced_value_for_test',
                                                         'device_screen_height': 'forced_value_for_test',
@@ -2461,6 +2493,7 @@ describe('Privacy in Browser :', function () {
                                                         "ch_ua_model": "",
                                                         "ch_ua_platform": "",
                                                         "ch_ua_platform_version": "",
+                                                        'cookie_creation_date': 'forced_value_for_test',
                                                         'customprop1_sub1_deep1': '111',
                                                         'customprop1_sub2_deep2': '122',
                                                         'customprop2_sub1': '21',
@@ -2660,6 +2693,7 @@ describe('Privacy in Browser :', function () {
                         'click_full_name': true,
                         'connection_monitor': true,
                         'connection_organisation': true,
+                        'cookie_creation_date': true,
                         'date': true,
                         'date_day': true,
                         'date_daynumber': true,

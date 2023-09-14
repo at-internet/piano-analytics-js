@@ -1,6 +1,6 @@
 /**
  * @license
- * Piano Browser SDK-DataLayer@2.8.2.
+ * Piano Browser SDK-DataLayer@2.9.1.
  * Copyright 2010-2022 Piano Software Inc.
  */
 import { cookie } from '@piano-sdk/storage';
@@ -47,11 +47,12 @@ var createStaticParam = function (defaultValue) { return (__assign(__assign({}, 
 
 var userState = createBaseParam('anon');
 
-var keys = function (v) { return Object.keys(v); };
+var keys = function (v) { return v ? Object.keys(v) : []; };
 var isArray = function (v) { return Array.isArray(v); };
 var isNotEmpty = function (val) { return val !== null && val !== undefined; };
 var isObject = function (val) { return typeof val === 'object'; };
 var isString = function (val) { return typeof val === 'string'; };
+var isNumber = function (val) { return typeof val === 'number'; };
 
 /**
  * cx.js backwards compatible function.
@@ -154,6 +155,24 @@ var toJSON = function (data, useBase64) {
     var str = JSON.stringify(data);
     return tryFn(function () { return (useBase64 ? window.btoa(str) : str); }) || str;
 };
+var shallowEqual = function (obj, obj2) {
+    if (obj === obj2) {
+        return true;
+    }
+    if (!obj || !obj2) {
+        return null;
+    }
+    var keys1 = keys(obj);
+    var keys2 = keys(obj2);
+    if (keys1.length !== keys2.length) {
+        return false;
+    }
+    return !keys1.some(function (key) {
+        var val1 = obj[key];
+        var val2 = obj2[key];
+        return val1 !== val2;
+    });
+};
 
 var removeCxUsers = function (allUsers) {
     return filterObjectValues(allUsers, function (val) { return (val === null || val === void 0 ? void 0 : val.type) !== 'CX'; });
@@ -213,7 +232,8 @@ var browserId = __assign(__assign({}, createBaseParam(null, '_pcid')), { init: f
     } });
 
 var RESERVED_PRODUCT = 'DL';
-var PRODUCTS = ['PA', 'DMP', 'COMPOSER', 'ID', 'VX', 'ESP', 'Social Flow', RESERVED_PRODUCT].map(function (name, id) { return ({
+var PRODUCTS_LIST = ['PA', 'DMP', 'COMPOSER', 'ID', 'VX', 'ESP', 'SOCIAL_FLOW', RESERVED_PRODUCT];
+var PRODUCTS = PRODUCTS_LIST.map(function (name, id) { return ({
     name: name,
     id: id
 }); });
@@ -222,8 +242,278 @@ var PRODUCTS_MAP = PRODUCTS.reduce(function (res, _a, index) {
     var name = _a.name;
     return (__assign(__assign({}, res), (_b = {}, _b[name] = index, _b[name.toLowerCase()] = index, _b)));
 }, {});
+// support legacy value
+PRODUCTS_MAP['social flow'] = PRODUCTS_MAP.SOCIAL_FLOW;
+PRODUCTS_MAP['Social Flow'] = PRODUCTS_MAP.SOCIAL_FLOW;
+var onChangeConfigProducts = onMemo(function () { var _a; return (_a = validateConsentMemo(getGlobalConfig$1().consent)) === null || _a === void 0 ? void 0 : _a.products; });
+var getProducts = (function () {
+    var result = PRODUCTS;
+    return function () {
+        onChangeConfigProducts(function (config) {
+            if (config) {
+                result = PRODUCTS.filter(function (product) {
+                    return config.includes(product.name) || product.name === RESERVED_PRODUCT;
+                });
+            }
+            else {
+                result = PRODUCTS;
+            }
+        });
+        return result;
+    };
+})();
+var filterByProduct = function (value, prevValue, updateConfig) {
+    var newData = getProducts().reduce(function (res, product) {
+        var pid = product.id;
+        res[pid] = updateConfig(value === null || value === void 0 ? void 0 : value[pid], prevValue === null || prevValue === void 0 ? void 0 : prevValue[pid], pid);
+        return res;
+    }, {});
+    if (shallowEqual(newData, prevValue)) {
+        return prevValue;
+    }
+    return newData;
+};
+var getPid = function (key) {
+    var pid = Number(key);
+    if (Number.isNaN(pid)) {
+        var product = PRODUCTS_MAP[key.toLowerCase()];
+        return product !== null && product !== void 0 ? product : null;
+    }
+    return pid < PRODUCTS.length ? pid : null;
+};
+var fillProductNameReduce = function (dataObj, reduce) { return keys(dataObj).reduce(function (res, productId) {
+    var productName = PRODUCTS[Number(productId)].name;
+    var value = dataObj[productId];
+    res[productName] = reduce ? reduce(value, productName) : value;
+    return res;
+}, {}); };
 
-var modes = ['opt-in', 'opt-out', 'essential'];
+var OPT_IN_MODE = 'opt-in';
+var ESSENTIAL_MODE = 'essential';
+var OPT_OUT_MODE = 'opt-out';
+var CUSTOM_MODE = 'custom';
+var modeListBase = [OPT_IN_MODE, ESSENTIAL_MODE, OPT_OUT_MODE];
+var modesList = modeListBase.concat(CUSTOM_MODE);
+var modeIdMap = modesList.reduce(function (res, mode, index) {
+    var _a;
+    return (__assign(__assign({}, res), (_a = {}, _a[index] = mode, _a)));
+}, {});
+var priorityList = [OPT_IN_MODE, CUSTOM_MODE, ESSENTIAL_MODE, OPT_OUT_MODE];
+var getStrictMode = function (mode1, mode2) {
+    var index1 = priorityList.indexOf(mode1);
+    var index2 = priorityList.indexOf(mode2);
+    return priorityList[Math.max(index1, index2)];
+};
+var isConsentMode = function (mode) { return modesList.includes(mode); };
+var isConsentBaseMode = function (mode) { return modeListBase.includes(mode); };
+
+var purposeByProduct = {
+    AD: ['DMP', 'SOCIAL_FLOW'],
+    CP: ['COMPOSER'],
+    AM: ['PA'],
+    PR: ['ESP', 'VX', 'ID'],
+    DL: ['DL']
+};
+var initialPurposeMap = keys(purposeByProduct)
+    .reduce(function (res, purpose) {
+        purposeByProduct[purpose].forEach(function (product) {
+            var productId = PRODUCTS_MAP[product];
+            res[productId] = purpose;
+        });
+        return res;
+    }, {});
+var onChangeConfigPurpose = onMemo(function () { var _a; return (_a = validateConsentMemo(getGlobalConfig$1().consent)) === null || _a === void 0 ? void 0 : _a.defaultPurposes; });
+var getDefaultPurposes = (function () {
+    var result = __assign({}, initialPurposeMap);
+    return function () {
+        onChangeConfigPurpose(function (defaultPurpose) {
+            result = __assign({}, initialPurposeMap);
+            if (defaultPurpose) {
+                keys(defaultPurpose).forEach(function (productName) {
+                    var _a;
+                    var productId = PRODUCTS_MAP[productName];
+                    result[productId] = (_a = defaultPurpose[productName]) === null || _a === void 0 ? void 0 : _a.substring(0, 32);
+                });
+            }
+        });
+        return result;
+    };
+})();
+var filterByProductPurposes = function (value, prevValue) { return filterByProduct(value, prevValue, function (config, prevConfig, pid) { return config || prevConfig || getDefaultPurposes()[pid]; }); };
+var convertToPurposes = function (val) { return keys(val).reduce(function (res, key) {
+    var pid = getPid(key);
+    var purpose = toPurpose(val[key]);
+    if (pid === null) {
+        return res;
+    }
+    if (purpose === RESERVED_PURPOSE || pid === PRODUCTS_MAP[RESERVED_PRODUCT]) {
+        return res;
+    }
+    if (purpose) {
+        res[pid] = purpose;
+    }
+    return res;
+}, {}); };
+var purposes = __assign(__assign({}, createBaseParam(null, '_pprv')), { init: function (valueFromCookie) {
+        return isRequireConsentV2()
+            ? filterByProductPurposes(valueFromCookie || null, null)
+            : null;
+    }, set: function (val, prevVal) {
+        if (!isRequireConsentV2()) {
+            return null;
+        }
+        if (val === null || val === undefined) {
+            return prevVal;
+        }
+        return filterByProductPurposes(convertToPurposes(val), prevVal);
+    } });
+
+var getGlobalConfigModifiers = function () { return getGlobalConfig$1().consent_modifiers || null; };
+var getRequireConsent = function () { return !!getGlobalConfig$1().requireConsent; };
+var isRequireConsentV2 = function () { return getGlobalConfig$1().requireConsent === 'v2'; };
+var isInvalidCustomMode = function (mode, product) {
+    var _a;
+    return mode === CUSTOM_MODE
+        && !((_a = getGlobalConfigModifiers()) === null || _a === void 0 ? void 0 : _a[product]);
+};
+var RESERVED_PURPOSE = 'DL';
+var purposesMap = ['AD', 'AM', 'CP', 'PR', RESERVED_PURPOSE]
+    .reduce(function (res, i) {
+        var _a;
+        return (__assign(__assign({}, res), (_a = {}, _a[i] = i, _a[i.toLowerCase()] = i, _a)));
+    }, {});
+var toBasePurpose = function (purpose) { return purposesMap[(purpose === null || purpose === void 0 ? void 0 : purpose.toLowerCase()) || ''] || null; };
+var toPurpose = function (purpose) { return toBasePurpose(purpose) || (purpose === null || purpose === void 0 ? void 0 : purpose.substring(0, 32)); };
+var productsString = function (products, single, plural) {
+    return "".concat(products.join(', '), " ").concat(products.length > 1 ? plural : single);
+};
+var consentV2IsDisabled = 'Consent v2 is disabled';
+var errorDlReserved = 'the "DL" purpose is reserved';
+var errorDlProductReserved = function (purpose) { return "\"".concat(purpose, "\" can not be applied for the dl product"); };
+var modeIsUnknown = function (mode) { return "".concat(mode, " is unknown consent mode"); };
+var productsDoesntHaveModifier = function (products) { return productsString(products, 'does', 'do') +
+    "n't have modifier in the pdl. Custom mode can't be applied"; };
+var unknownPurpose = "Unknown purpose. Provide a product or define within pdl config";
+var unknownProducts = function (products) { return 'Custom purpose: '
+    + productsString(products, 'is', 'are')
+    + ' unknown'; };
+function setExtendedConsent(purposes, consent, modeOrType, mode, products) {
+    var error = function (msg) { return ({
+        error: msg
+    }); };
+    var getConsentsByProducts = function (modeLocal, purposeLocal, productsLocal) {
+        var invalidProducts = [];
+        if (!isConsentMode(modeLocal)) {
+            return error(modeIsUnknown(modeLocal));
+        }
+        var newConsent = getProducts().reduce(function (res, _a) {
+            var id = _a.id, name = _a.name;
+            if (!purposeLocal || (purposes === null || purposes === void 0 ? void 0 : purposes[id]) === purposeLocal || (productsLocal === null || productsLocal === void 0 ? void 0 : productsLocal.includes(id))) {
+                if (isInvalidCustomMode(modeLocal, name)) {
+                    invalidProducts.push(name);
+                }
+                else {
+                    res[id] = { mode: modeLocal };
+                }
+            }
+            return res;
+        }, {});
+        if (invalidProducts.length) {
+            return error(productsDoesntHaveModifier(invalidProducts));
+        }
+        if (!Object.keys(newConsent).length) {
+            return null;
+        }
+        return {
+            consent: newConsent
+        };
+    };
+    var setAllModes = function (modeLocal) { return getConsentsByProducts(modeLocal); };
+    var setByPurpose = function (modeLocal, purposeRaw) {
+        var purpose = toPurpose(purposeRaw);
+        if (!purposesMap[purpose] && !Object.values(purposes || {}).includes(purpose)) {
+            return error(unknownPurpose);
+        }
+        return getConsentsByProducts(modeLocal, purpose);
+    };
+    var setByPurposeAndProduct = function (modelLocal, purposeRaw, productsRaw) {
+        var purpose = toPurpose(purposeRaw);
+        var productArrayRaw = (isArray(productsRaw) ? productsRaw : [productsRaw]);
+        var pids = productArrayRaw.map(getPid).filter(isNotEmpty);
+        if (!pids.length) {
+            if (!toBasePurpose(purposeRaw)) {
+                return error(unknownProducts(productArrayRaw));
+            }
+            return setByPurpose(modelLocal, purposeRaw);
+        }
+        if (purpose !== RESERVED_PURPOSE && pids.includes(PRODUCTS_MAP.DL)) {
+            return {
+                error: errorDlProductReserved(purpose)
+            };
+        }
+        if (purpose === RESERVED_PURPOSE && pids.some(function (product) { return product !== PRODUCTS_MAP.DL; })) {
+            return error(errorDlReserved);
+        }
+        var consentResult = getConsentsByProducts(modelLocal, purpose, pids);
+        if (consentResult === null || consentResult === void 0 ? void 0 : consentResult.error) {
+            return consentResult;
+        }
+        var newPurposes = pids.reduce(function (res, productId) {
+            res[productId] = purpose;
+            return res;
+        }, {});
+        return {
+            consent: (consentResult === null || consentResult === void 0 ? void 0 : consentResult.consent) || null,
+            purposes: newPurposes,
+        };
+    };
+    if (!isRequireConsentV2()) {
+        return error(consentV2IsDisabled);
+    }
+    if (products) {
+        return setByPurposeAndProduct(mode, modeOrType, products);
+    }
+    else if (mode) {
+        return setByPurpose(mode, modeOrType);
+    }
+    else {
+        return setAllModes(modeOrType);
+    }
+}
+var getExtendedConsent = function (consent, purposes) {
+    if (!consent) {
+        return null;
+    }
+    var purposesLocal = purposes || initialPurposeMap;
+    var purposesNames = fillProductNameReduce(purposesLocal);
+    return getProducts().reduce(function (res, _a) {
+        var _b;
+        var productName = _a.name;
+        var purpose = purposesNames[productName];
+        var productMode = ((_b = consent[productName]) === null || _b === void 0 ? void 0 : _b.mode) || OPT_IN_MODE;
+        if (!res[purpose]) {
+            res[purpose] = {
+                mode: productMode,
+                products: [productName],
+            };
+        }
+        else {
+            res[purpose].mode = getStrictMode(res[purpose].mode, productMode);
+            res[purpose].products.push(productName);
+        }
+        return res;
+    }, {});
+};
+var getNotAcquiredConsent = function () { return isRequireConsentV2()
+    ? keys(purposeByProduct).reduce(function (res, purpose) {
+        res[purpose] = {
+            mode: 'not-acquired',
+            products: purposeByProduct[purpose],
+        };
+        return res;
+    }, {})
+    : null; };
+
 var actions = ['include', 'exclude', 'obfuscate'];
 var oneOf = function (name, value) { return "\"".concat(name, "\" should be one of ").concat(value.join(', ')); };
 // tslint:disable-next-line no-empty
@@ -243,15 +533,15 @@ var toProduct = function (product, log) {
     return null;
 };
 var toMode = function (mode) {
-    return modes.includes(mode) ? mode : null;
+    return isConsentBaseMode(mode) ? mode : null;
 };
 var validateModifier = function (modifier, log) {
     if (log === void 0) { log = emptyFn; }
     var source = modifier.source;
     var newPatches = modifier.patches || [];
     if (!toMode(source)) {
-        log(oneOf('source', modes));
-        source = 'opt-in';
+        log(oneOf('source', modeListBase));
+        source = OPT_IN_MODE;
     }
     if (!isArray(newPatches)) {
         log('"patches" should be an array');
@@ -279,7 +569,7 @@ var validateModifier = function (modifier, log) {
         patches: newPatches
     };
 };
-var validateConsent = function (consent, log) {
+var validateConsent$1 = function (consent, log) {
     if (log === void 0) { log = emptyFn; }
     if (!consent) {
         return null;
@@ -304,7 +594,7 @@ var validateConsent = function (consent, log) {
             var product = toProduct(productKey, addPrefix('consent.defaultPreset: ', log));
             var mode = toMode(consent.defaultPreset[productKey]);
             if (!mode) {
-                log('consent.defaultPreset: ' + oneOf(productKey, modes));
+                log('consent.defaultPreset: ' + oneOf(productKey, modeListBase));
             }
             if (product && mode) {
                 res[product] = mode;
@@ -312,9 +602,25 @@ var validateConsent = function (consent, log) {
             return res;
         }, {});
     }
+    var purposes = consent.defaultPurposes;
+    if (purposes) {
+        result.defaultPurposes = keys(purposes).reduce(function (res, productKey) {
+            var purposeLog = addPrefix('consent.defaultPurposes: ', log);
+            var product = toProduct(productKey, purposeLog);
+            var rawPurpose = purposes[productKey];
+            var purpose = toPurpose(rawPurpose);
+            if (purpose === RESERVED_PURPOSE || product === RESERVED_PRODUCT) {
+                purposeLog("\"".concat(productKey, ": ").concat(rawPurpose, "\" - invalid config"));
+            }
+            else if (product && purpose) {
+                res[product] = purpose;
+            }
+            return res;
+        }, {});
+    }
     return result;
 };
-var validateConsentMemo = memo(validateConsent);
+var validateConsentMemo = memo(validateConsent$1);
 var validateMigration = function (migration, log) {
     if (log === void 0) { log = emptyFn; }
     return keys(migration || {}).reduce(function (res, propName) {
@@ -325,13 +631,10 @@ var validateMigration = function (migration, log) {
     }, {});
 };
 
-var modeIdMap = ['opt-in', 'essential', 'opt-out'].reduce(function (res, mode, index) {
-    var _a;
-    return (__assign(__assign({}, res), (_a = {}, _a[index] = mode, _a)));
-}, {});
 // opt-in - 0
 // essential - 1
 // opt-out - 2
+// custom - 3
 /*!
 | \#  | name/product                                                              | PA        | DMP     | COMPOSER  | ID        | VX        | ESP     | Social Flow |
 | --- | -------------------------------------------------------------------------- | --------- | ------- | --------- | --------- | --------- | ------- | ----------- |
@@ -392,12 +695,7 @@ var getPresets = (function () {
     };
 })();
 var getDefaultPreset = function () { return getPresets()[0].preset; };
-
-var isConsentMode = function (mode) { return ['opt-in', 'essential', 'opt-out', 'custom'].includes(mode); };
-// @ts-ignore
-var getGlobalConfigModifiers = function () { return getGlobalConfig$1().consent_modifiers || null; };
-var getRequireConsent = function () { return !!getGlobalConfig$1().requireConsent; };
-var setPresets = function (presetIndexes) {
+var getCalculatedPreset = function (presetIndexes) {
     var currentPreset = null;
     presetIndexes.forEach(function (presetIndex) {
         var preset = PRESETS_TABLE[presetIndex];
@@ -409,60 +707,41 @@ var setPresets = function (presetIndexes) {
             return;
         }
         currentPreset = currentPreset.map(function (indexMode, productIndex) {
-            if (preset[productIndex] === undefined) {
-                return indexMode;
-            }
             return Math.min(indexMode, preset[productIndex]);
         });
     });
     return currentPreset && convertIndexModes(currentPreset);
 };
-var convertToConsent = function (val) {
-    return keys(val).reduce(function (res, key) {
-        var _a;
-        // @ts-ignore
+
+// @ts-ignore
+var convertToConsent = function (val) { return keys(val)
+    .reduce(function (res, key) {
         var config = val[key];
-        var numberKey = Number(key);
-        if (Number.isNaN(numberKey)) {
-            numberKey = PRODUCTS_MAP[key.toLowerCase()];
-            if (numberKey === undefined) {
-                return res;
-            }
-        }
-        if (!isConsentMode(config.mode)) {
+        var pid = getPid(key);
+        if (pid === null) {
             return res;
         }
-        return __assign(__assign({}, res), (_a = {}, _a[numberKey] = {
-            mode: config.mode
-        }, _a));
-    }, null);
-};
-var onChangeConfigProducts = onMemo(function () { var _a; return (_a = validateConsentMemo(getGlobalConfig$1().consent)) === null || _a === void 0 ? void 0 : _a.products; });
-var getProducts = (function () {
-    var result = PRODUCTS;
-    return function () {
-        onChangeConfigProducts(function (config) {
-            if (config) {
-                result = PRODUCTS.filter(function (product) {
-                    return config.includes(product.name) || product.name === RESERVED_PRODUCT;
-                });
+        var mode = isConsentMode(config.mode) ? config.mode : null;
+        if (mode) {
+            if (!res) {
+                res = {};
             }
-            else {
-                result = PRODUCTS;
-            }
-        });
-        return result;
-    };
-})();
-var filterByProduct = function (value) {
-    return getProducts().reduce(function (res, product) {
-        res[product.id] = value[product.id] || getDefaultPreset()[product.id];
+            res[pid] = { mode: mode };
+        }
         return res;
-    }, {});
-};
+    }, null); };
+var filterByProductConsent = function (value, prevValue) { return filterByProduct(value, prevValue, function (config, prevConfig, pid) {
+    var mode = (config === null || config === void 0 ? void 0 : config.mode) || (prevConfig === null || prevConfig === void 0 ? void 0 : prevConfig.mode) || getDefaultPreset()[pid].mode;
+    if (mode !== (prevConfig === null || prevConfig === void 0 ? void 0 : prevConfig.mode)) {
+        return {
+            mode: mode,
+        };
+    }
+    return prevConfig;
+}); };
 var consent = __assign(__assign({}, createBaseParam(null, '_pprv')), { init: function (valueFromCookie) {
         return getRequireConsent() && valueFromCookie
-            ? filterByProduct(__assign(__assign({}, getDefaultPreset()), valueFromCookie))
+            ? filterByProductConsent(valueFromCookie, null)
             : null;
     }, set: function (val, prevVal) {
         var _a;
@@ -473,30 +752,28 @@ var consent = __assign(__assign({}, createBaseParam(null, '_pprv')), { init: fun
             return prevVal;
         }
         var newConsent;
-        if (typeof val === 'number') {
+        if (isNumber(val)) { // deprecated value
             newConsent = ((_a = getPresets()[val]) === null || _a === void 0 ? void 0 : _a.preset) || null;
         }
-        else if (isArray(val)) {
-            newConsent = setPresets(val);
+        else if (isArray(val)) { // deprecated value
+            newConsent = getCalculatedPreset(val);
         }
         else {
             newConsent = convertToConsent(val);
         }
         return newConsent
-            ? filterByProduct(__assign(__assign({}, prevVal), newConsent))
+            ? filterByProductConsent(newConsent, prevVal)
             : prevVal;
     }, get: memo(function (value) {
         return value &&
-            keys(value).reduce(function (res, key) {
+            fillProductNameReduce(value, function (config, productName) {
                 var _a;
-                var productName = PRODUCTS[Number(key)].name;
-                var config = __assign({}, value[Number(key)]);
-                if (config.mode === 'custom') {
-                    config.modifier = ((_a = getGlobalConfigModifiers()) === null || _a === void 0 ? void 0 : _a[productName]) || null;
+                var newConfig = __assign({}, config);
+                if (newConfig.mode === CUSTOM_MODE) {
+                    newConfig.modifier = ((_a = getGlobalConfigModifiers()) === null || _a === void 0 ? void 0 : _a[productName]) || null;
                 }
-                res[productName] = config;
-                return res;
-            }, {});
+                return newConfig;
+            });
     }, function () { return getGlobalConfigModifiers(); }) });
 var consentPresets = __assign(__assign({}, createStaticParam()), { init: getPresets, set: getPresets });
 var products = __assign(__assign({}, createStaticParam()), { init: getProducts, set: getProducts });
@@ -918,8 +1195,9 @@ var PropertiesMap = {
     consentPresets: consentPresets,
     products: products,
     consentModifiers: consentModifiers,
+    purposes: purposes,
     content: content,
-    userSegments: userSegments
+    userSegments: userSegments,
 };
 
 var domainExceptions = ['pantheon.io', 'go-vip.net', 'go-vip.co'];
@@ -1024,8 +1302,12 @@ var initFixedUtils = function (rawData, _a) {
     };
 };
 
+var ESSENTIAL_CONFIG = 'essential';
+var OPTIONAL_CONFIG = 'optional';
+var MANDATORY_CONFIG = 'mandatory';
+
 var createCookieEncoder = function (cookieName, consent, useBase64) {
-    if (consent === void 0) { consent = 'optional'; }
+    if (consent === void 0) { consent = OPTIONAL_CONFIG; }
     if (useBase64 === void 0) { useBase64 = false; }
     return ({
         cookieName: cookieName,
@@ -1606,7 +1888,7 @@ var decompress = function (data) {
 // closed encoded cookie
 var _pctx = {
     cookieName: '_pctx',
-    consent: 'mandatory',
+    consent: MANDATORY_CONFIG,
     encode: compress,
     decode: function (dataString) {
         var data = decompress(dataString || '');
@@ -1619,9 +1901,9 @@ var _pctx = {
 
 var useJSONPprv = function () { var _a, _b; return !!((_b = (_a = getGlobalConfig$1().cookies) === null || _a === void 0 ? void 0 : _a._pprv) === null || _b === void 0 ? void 0 : _b.jsonOnly); };
 var createCookieEncoders = function () { return ({
-    _pprv: createCookieEncoder('_pprv', 'mandatory', !useJSONPprv()),
-    _pcid: createCookieEncoder('_pcid', 'essential'),
-    _pcus: createCookieEncoder('_pcus', 'optional', true),
+    _pprv: createCookieEncoder('_pprv', MANDATORY_CONFIG, !useJSONPprv()),
+    _pcid: createCookieEncoder('_pcid', ESSENTIAL_CONFIG),
+    _pcus: createCookieEncoder('_pcus', OPTIONAL_CONFIG, true),
     _pctx: _pctx
 }); };
 var cookieEncoders = createCookieEncoders();
@@ -1686,24 +1968,6 @@ var createCookieAssociation = function () {
 var CONNECTION_NAME_OBJ = '__pctx_connection__';
 var KEY = 'uvm42pas28m';
 
-var shallowEqual = function (obj, obj2) {
-    if (obj === obj2) {
-        return true;
-    }
-    if (!obj || !obj2) {
-        return null;
-    }
-    var keys1 = keys(obj);
-    var keys2 = keys(obj2);
-    if (keys1.length !== keys2.length) {
-        return false;
-    }
-    return !keys1.some(function (key) {
-        var val1 = obj[key];
-        var val2 = obj2[key];
-        return val1 !== val2;
-    });
-};
 var emptyObjectData = {};
 var getConnection = function () {
     var cookieAssociation = createCookieAssociation();
@@ -1882,12 +2146,12 @@ var getConsentModifier = function (itemType, modifierNoStrict, log) {
 };
 var checkMode = function (mode, config) {
     switch (mode) {
-        case 'opt-in':
+        case OPT_IN_MODE:
             return true;
-        case 'essential':
-            return config === 'essential' || config === 'mandatory';
-        case 'opt-out':
-            return config === 'mandatory';
+        case ESSENTIAL_MODE:
+            return config === ESSENTIAL_CONFIG || config === MANDATORY_CONFIG;
+        case OPT_OUT_MODE:
+            return config === MANDATORY_CONFIG;
         default:
             // TODO util debug console
             return true;
@@ -1907,7 +2171,7 @@ var getData = function (action, data) { return (action === 'obfuscate' ? data : 
 var createCheckConsentWrapper = function (config) {
     var items = Object.assign({}, config.items);
     var masks = itemsToMask(items);
-    var getConfigByName = function (name) { return items[name] || getByMask(name, masks) || 'optional'; };
+    var getConfigByName = function (name) { return items[name] || getByMask(name, masks) || OPTIONAL_CONFIG; };
     function checkConsent(name, consentValue) {
         var requireConsent = getGlobalConfig$1().requireConsent;
         var isSingle = !isArray(name);
@@ -1923,7 +2187,7 @@ var createCheckConsentWrapper = function (config) {
             if (!consent) {
                 return getDefaultResult();
             }
-            if (consent.mode === 'custom') {
+            if (consent.mode === CUSTOM_MODE) {
                 var consentModifier_1 = getConsentModifier(config.type, consent.modifier, config.log);
                 if (!consentModifier_1) {
                     return getDefaultResult();
@@ -2439,6 +2703,30 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
             migrate(_getPrivateContext());
         }
     };
+    function setConsent(arg1, arg2, arg3) {
+        // @ts-ignore
+        var consent = get('consent');
+        // @ts-ignore
+        var purposes = get('purposes');
+        var result = setExtendedConsent(purposes, consent, arg1, arg2, arg3);
+        if (!result) {
+            return null;
+        }
+        if (result.error) {
+            return result.error;
+        }
+        set({
+            // @ts-ignore
+            consent: result.consent,
+            purposes: result.purposes
+        });
+        return null;
+    }
+    var getConsent = function () {
+        // @ts-ignore
+        var _a = get(['consent', 'purposes']), consent = _a.consent, purposes = _a.purposes;
+        return getExtendedConsent(consent, purposes);
+    };
     return {
         init: init,
         set: set,
@@ -2455,8 +2743,11 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
         },
         utils: {
             validateModifier: validateModifier,
-            validateConsent: validateConsent,
-            checkConsent: checkConsent$1
+            validateConsent: validateConsent$1,
+            checkConsent: checkConsent$1,
+            setConsent: setConsent,
+            getConsent: getConsent,
+            notAcquiredConsent: getNotAcquiredConsent(),
         },
         get cookies() {
             return getCookieConfig();
@@ -2511,9 +2802,65 @@ var checkConsent = function (_private) {
     checkCookieWrappers(prevValueConsent);
 };
 
+var log = function (product, mode, type) {
+    var prefix = type === 1 ? "can not be" : 'was';
+    // tslint:disable-next-line
+    console.warn("[DL]: Consent v2: the \"".concat(product, "\" has a conflicted consent mode, ") +
+        "mode ".concat(prefix, " changed to \"").concat(mode, "\""));
+};
+var validateConsent = function (_private) {
+    var timer = null;
+    var customInvalidProducts = {};
+    var validate = function (consent) {
+        var currentConsent = getExtendedConsent(consent, _private.get('purposes'));
+        if (currentConsent && consent) {
+            var needUpdate_1 = false;
+            var newConsent = keys(currentConsent).reduce(function (res, key) {
+                var newMode = currentConsent[key].mode;
+                currentConsent[key].products.forEach(function (productName) {
+                    var _a;
+                    if (newMode !== ((_a = consent[productName]) === null || _a === void 0 ? void 0 : _a.mode)) {
+                        if (isInvalidCustomMode(newMode, productName)) {
+                            if (!customInvalidProducts[productName]) {
+                                customInvalidProducts[productName] = true;
+                                log(productName, newMode, 1);
+                            }
+                        }
+                        else {
+                            res[productName] = { mode: newMode };
+                            needUpdate_1 = true;
+                            log(productName, newMode, 2);
+                        }
+                    }
+                });
+                return res;
+            }, {});
+            if (needUpdate_1) {
+                _private.updateValues({ consent: newConsent });
+            }
+        }
+    };
+    _private.addChangeListener('consent', function (consent) {
+        if (isRequireConsentV2()) {
+            if (timer) {
+                clearTimeout(timer);
+                timer = null;
+            }
+            timer = setTimeout(function () {
+                validate(consent);
+                timer = null;
+            }, 200);
+        }
+    });
+    if (isRequireConsentV2()) {
+        validate(_private.get('consent'));
+    }
+};
+
 var onDataLayerInit = function (_private) {
     checkConsent(_private);
     migrate(_private);
+    validateConsent(_private);
 };
 
 var dataLayer = DataLayer(PropertiesMap, cookieWrappers, onDataLayerInit);

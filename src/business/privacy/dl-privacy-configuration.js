@@ -42,6 +42,7 @@ const baseConfig = {
         'click_full_name': 'essential',
         'connection_monitor': 'essential',
         'connection_organisation': 'essential',
+        'cookie_creation_date': 'essential',
         'date': 'essential',
         'date_day': 'essential',
         'date_daynumber': 'essential',

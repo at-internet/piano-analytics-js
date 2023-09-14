@@ -322,7 +322,7 @@ const AVInsights = function (pa) {
         const _initTimers = function () {
             _timers = new Timers();
             if (BUILD_BROWSER) {
-                addEvtListener(window, 'unload', function () {
+                addEvtListener(window, 'pagehide', function () {
                     _timers.stopHeartbeatTimer(false);
                     _timers.stopHeartbeatTimer(true);
                 });

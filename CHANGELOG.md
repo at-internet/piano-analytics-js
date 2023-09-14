@@ -1,5 +1,20 @@
 # Changelog
 
+## 6.11.0
+### New
+
+- [browser] New property `cookie_creation_date` (date of the visitor cookie creation)
+- [browser] New configuration `globalVarName` to change default global instance variable name (`pa` by default) 
+
+### Fixes
+- [browser] Improved potential conflict for queuing variable (`_paq` by default)
+
+## 6.10.0
+### Changes
+- Event URL is now sent in property `event_url_full` instead of `page_url`
+### Fixes
+- Privacy rules were not applied properly to content properties in version 6.9.0
+
 ## 6.9.1
 ### Changes
 - Event URL is now sent in property `event_url_full` instead of `page_url`

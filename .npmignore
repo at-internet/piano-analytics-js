@@ -2,11 +2,12 @@
 .npm*
 babel.*
 Gruntfile.js
-karma.conf.js
 package*
 yarn*
 rollup.*
 src/
 test/
+karma.conf*
+polyfills/
 .cc-metadata.yml
 CODE_OF_CONDUCT.md

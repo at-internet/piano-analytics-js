@@ -15,29 +15,42 @@ function preloadTagging(root, srcArray, isAsync, asyncArrayName) {
     const _queue = srcArray || [];
     let _paTaggingActive = false;
     let _unknownTaggingActive = false;
+    let _conflictDetected = false;
     if (_queue.length > 0) {
         for (let i = 0; i < _queue.length; i++) {
-            const paramsArray = _queue[i];
-            const tagType = _functionCallFromString(root, paramsArray[0].split('.'), paramsArray.slice(1), context);
-            if(tagType){
+            _callFromStringWrapper(_queue[i], context);
+        }
+        _checkConflict();
+    }
+    if (isAsync) {
+        const _push = window[asyncArrayName].push.bind(window[asyncArrayName]);
+        window[asyncArrayName].push = function (params) {
+            _callFromStringWrapper(params);
+            _checkConflict();
+            _push(params);
+        };
+    }
+
+    function _callFromStringWrapper(_paramsArray, _context) {
+        try {
+            const tagType = _functionCallFromString(root, _paramsArray[0].split('.'), _paramsArray.slice(1), _context);
+            if (tagType) {
                 _unknownTaggingActive = true;
             } else {
                 _paTaggingActive = true;
             }
+        } catch (e) {
+            _unknownTaggingActive = true;
         }
-        if(_unknownTaggingActive && _paTaggingActive){
+    }
+    function _checkConflict() {
+        if (_unknownTaggingActive && _paTaggingActive && !_conflictDetected) {
             console.error(`Piano Analytics SDK - window.${asyncArrayName} is used for Piano Analytics integration and somewhere else. Please check "queueVarName" configuration if needed.`);
+            _conflictDetected = true;
         }
     }
-    if (isAsync) {
-        window[asyncArrayName] = {
-            push: function (paramsArray) {
-                _functionCallFromString(root, paramsArray[0].split('.'), paramsArray.slice(1));
-            }
-        };
-    }
-
 }
+
 
 export {
     preloadTagging

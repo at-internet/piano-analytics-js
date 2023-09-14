@@ -26,6 +26,16 @@ function metadataStep(pa, model, nextSteps) {
     model.setProperty('device_hour', date.getHours());
 
     if (BUILD_BROWSER) {
+        try {
+            const cookieCreationDate = new Date(dataLayer.cookies._pcid.fixedAt[0]).toISOString();
+            for (const event of model.events) {
+                if (_isPropertiesAbsentForEvent('cookie_creation_date', model, event)) {
+                    model.setProperty('cookie_creation_date', cookieCreationDate);
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
         const content = dataLayer.get('content');
         for (const propContent in content) {
             if (Object.prototype.hasOwnProperty.call(content, propContent)) {
@@ -35,26 +45,7 @@ function metadataStep(pa, model, nextSteps) {
                 };
                 const propFinalName = (propContent === 'createdAt' || propContent === 'tags') ? MAP_PA_DL[propContent] : _camelToSnake(`content_${propContent}`);
                 for (const event of model.events) {
-                    let isAlreadyInProperties = false;
-                    if (model.hasProperty(propFinalName)) {
-                        const propertyEventsOption = model.properties[propFinalName].options.events;
-                        if (propertyEventsOption) {
-                            if (propertyEventsOption.indexOf(event.name) > -1) {
-                                isAlreadyInProperties = true;
-                            } else {
-                                for (const eventAllowed of propertyEventsOption) {
-                                    if (eventAllowed.charAt(eventAllowed.length - 1) === '*' && event.name.indexOf(eventAllowed.substring(0, eventAllowed.length - 1)) === 0) {
-                                        isAlreadyInProperties = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        } else if (!propertyEventsOption) {
-                            isAlreadyInProperties = true;
-                        }
-                    }
-                    const isAlreadyInEvent = typeof event.data[propFinalName] !== 'undefined';
-                    if (!isAlreadyInProperties && !isAlreadyInEvent) {
+                    if (_isPropertiesAbsentForEvent(propFinalName, model, event)) {
                         if (pa._privacy.call('isPropAllowed', propFinalName)) {
                             event.data[propFinalName] = content[propContent];
                         }
@@ -124,6 +115,21 @@ function metadataStep(pa, model, nextSteps) {
     } else {
         nextStep(pa, model, nextSteps);
     }
+}
+
+function _isPropertiesAbsentForEvent(name, model, event) {
+    if (model.hasProperty(name) && model.properties[name].options.events) {
+        const propertyEventsOption = model.properties[name].options.events;
+        if (propertyEventsOption.indexOf(event.name) > -1) {
+            return false;
+        }
+        for (const eventAllowed of propertyEventsOption) {
+            if (eventAllowed.charAt(eventAllowed.length - 1) === '*' && event.name.indexOf(eventAllowed.substring(0, eventAllowed.length - 1)) === 0) {
+                return false;
+            }
+        }
+    }
+    return typeof event.data[name] === 'undefined';
 }
 
 function _isDefined(variable) {

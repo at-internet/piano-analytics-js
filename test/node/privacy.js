@@ -1786,6 +1786,7 @@ describe('Privacy not in Browser :', function () {
                         'click_full_name': true,
                         'connection_monitor': true,
                         'connection_organisation': true,
+                        'cookie_creation_date': true,
                         'date': true,
                         'date_day': true,
                         'date_daynumber': true,
