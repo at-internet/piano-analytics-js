@@ -33,9 +33,7 @@ function metadataStep(pa, model, nextSteps) {
                     model.setProperty('cookie_creation_date', cookieCreationDate);
                 }
             }
-        } catch (e) {
-            console.error(e);
-        }
+        } catch (e) { /* empty */ }
         const content = dataLayer.get('content');
         for (const propContent in content) {
             if (Object.prototype.hasOwnProperty.call(content, propContent)) {

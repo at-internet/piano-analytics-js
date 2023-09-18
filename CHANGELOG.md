@@ -1,4 +1,8 @@
 # Changelog
+## 6.11.1
+### Fixes
+
+- [browser] No more error log when `cookie_creation_date` not available
 
 ## 6.11.0
 ### New
