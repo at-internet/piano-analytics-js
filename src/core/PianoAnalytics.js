@@ -190,7 +190,12 @@ PianoAnalytics.prototype.PA = PianoAnalytics;
 
 if (BUILD_BROWSER) {
     PianoAnalytics.prototype.refresh = function () {
-        dataLayer.refresh();
+        if (this.getConfiguration('isManualPageRefresh') === null) {
+            this.setConfiguration('isManualPageRefresh', true);
+        }
+        if (this.getConfiguration('isManualPageRefresh')) {
+            dataLayer.refresh();
+        }
     };
     PianoAnalytics.prototype.setContentProperty = function (name, value) {
         const MAP_PA_DL = {

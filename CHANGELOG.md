@@ -1,4 +1,10 @@
 # Changelog
+## 6.12.0
+
+### New
+- [browser] Automatic page context refresh added
+- [browser] New configuration to manage automatic page context refresh (`enableAutomaticPageRefresh`)
+  
 ## 6.11.1
 ### Fixes
 

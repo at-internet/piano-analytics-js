@@ -23,11 +23,12 @@ export default {
     ],
     'storageVisitor': 'pa_vid',
     'storageUser': 'pa_user',
-    'version': '6.11.1',
+    'version': '6.12.0',
     'minHeartbeat': 5,
     'minBufferingHeartbeat': 1,
     'queueVarName': '_paq',
     'globalVarName': 'pa',
+    'enableAutomaticPageRefresh': true,
     'allowHighEntropyClientHints': true,
     'sendEmptyProperties': true,
     'privacy': {

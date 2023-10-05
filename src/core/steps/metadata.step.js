@@ -26,6 +26,30 @@ function metadataStep(pa, model, nextSteps) {
     model.setProperty('device_hour', date.getHours());
 
     if (BUILD_BROWSER) {
+        const manualConfig = 'isManualPageRefresh',
+            pageviewidProp = 'pageview_id',
+            notFirstPageConfig = '_isNotFirstPageView';
+        for (const event of model.events) {
+            if (event.name === 'page.display') {
+                if (pa.getConfiguration(manualConfig) === null && pa.getConfiguration(notFirstPageConfig)) {
+                    pa.setConfiguration(manualConfig, false);
+                }
+
+                if (pa.getConfiguration('enableAutomaticPageRefresh') && pa.getConfiguration(manualConfig) === false && pa.getConfiguration(notFirstPageConfig)) {
+                    dataLayer.refresh();
+                }
+                if (!pa.getConfiguration(notFirstPageConfig)) {
+                    pa.setConfiguration(notFirstPageConfig, true);
+                }
+
+            }
+            if (_isPropertiesAbsentForEvent(pageviewidProp, model, event)) {
+                if (pa._privacy.call('isPropAllowed', pageviewidProp)) {
+                    event.data[pageviewidProp] = dataLayer.get('pageViewId');
+                }
+            }
+        }
+
         try {
             const cookieCreationDate = new Date(dataLayer.cookies._pcid.fixedAt[0]).toISOString();
             for (const event of model.events) {
@@ -33,7 +57,8 @@ function metadataStep(pa, model, nextSteps) {
                     model.setProperty('cookie_creation_date', cookieCreationDate);
                 }
             }
-        } catch (e) { /* empty */ }
+        } catch (e) { /* empty */
+        }
         const content = dataLayer.get('content');
         for (const propContent in content) {
             if (Object.prototype.hasOwnProperty.call(content, propContent)) {
@@ -53,7 +78,6 @@ function metadataStep(pa, model, nextSteps) {
         }
 
         model.setProperty('has_access', dataLayer.get('userStatus'));
-        model.setProperty('pageview_id', dataLayer.get('pageViewId'));
         model.setProperty('device_screen_width', window.screen.width);
         model.setProperty('device_screen_height', window.screen.height);
         model.setProperty('device_display_width',
