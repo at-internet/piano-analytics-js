@@ -51,7 +51,7 @@ function metadataStep(pa, model, nextSteps) {
         }
 
         try {
-            const cookieCreationDate = new Date(dataLayer.cookies._pcid.fixedAt[0]).toISOString();
+            const cookieCreationDate = new Date((new Date(dataLayer.cookies._pcid.fixedAt[0])).setUTCHours(0, 0, 0, 0)).toISOString();
             for (const event of model.events) {
                 if (_isPropertiesAbsentForEvent('cookie_creation_date', model, event)) {
                     model.setProperty('cookie_creation_date', cookieCreationDate);

@@ -58,8 +58,17 @@ function _initPrivacy(pa) {
                     storageMode: 'fixed'
                 }
             };
-        } else if (window.pdl && window.pdl.requireConsent) {
-            pa.setConfiguration('isLegacyPrivacy', false);
+        } else {
+            if (window.pdl.requireConsent) {
+                pa.setConfiguration('isLegacyPrivacy', false);
+            }
+            if (typeof window.pdl.cookies === 'undefined') {
+                window.pdl.cookies = {
+                    storageMode: 'fixed'
+                };
+            } else if (window.pdl.cookies && typeof window.pdl.cookies.storageMode === 'undefined') {
+                window.pdl.cookies.storageMode = 'fixed';
+            }
         }
         dataLayer.init({
             cookieDefault: {
