@@ -1,6 +1,6 @@
 /**
  * @license
- * Piano Browser SDK-DataLayer@2.9.1.
+ * Piano Browser SDK-DataLayer@2.9.3.
  * Copyright 2010-2022 Piano Software Inc.
  */
 import { cookie } from '@piano-sdk/storage';
@@ -47,9 +47,10 @@ var createStaticParam = function (defaultValue) { return (__assign(__assign({}, 
 
 var userState = createBaseParam('anon');
 
-var keys = function (v) { return v ? Object.keys(v) : []; };
+var keys = function (v) { return (v ? Object.keys(v) : []); };
 var isArray = function (v) { return Array.isArray(v); };
-var isNotEmpty = function (val) { return val !== null && val !== undefined; };
+var isEmpty = function (val) { return val === null || val === undefined; };
+var isNotEmpty = function (val) { return !isEmpty(val); };
 var isObject = function (val) { return typeof val === 'object'; };
 var isString = function (val) { return typeof val === 'string'; };
 var isNumber = function (val) { return typeof val === 'number'; };
@@ -281,12 +282,14 @@ var getPid = function (key) {
     }
     return pid < PRODUCTS.length ? pid : null;
 };
-var fillProductNameReduce = function (dataObj, reduce) { return keys(dataObj).reduce(function (res, productId) {
-    var productName = PRODUCTS[Number(productId)].name;
-    var value = dataObj[productId];
-    res[productName] = reduce ? reduce(value, productName) : value;
-    return res;
-}, {}); };
+var fillProductNameReduce = function (dataObj, reduce) {
+    return keys(dataObj).reduce(function (res, productId) {
+        var productName = PRODUCTS[Number(productId)].name;
+        var value = dataObj[productId];
+        res[productName] = reduce ? reduce(value, productName) : value;
+        return res;
+    }, {});
+};
 
 var OPT_IN_MODE = 'opt-in';
 var ESSENTIAL_MODE = 'essential';
@@ -314,14 +317,13 @@ var purposeByProduct = {
     PR: ['ESP', 'VX', 'ID'],
     DL: ['DL']
 };
-var initialPurposeMap = keys(purposeByProduct)
-    .reduce(function (res, purpose) {
-        purposeByProduct[purpose].forEach(function (product) {
-            var productId = PRODUCTS_MAP[product];
-            res[productId] = purpose;
-        });
-        return res;
-    }, {});
+var initialPurposeMap = keys(purposeByProduct).reduce(function (res, purpose) {
+    purposeByProduct[purpose].forEach(function (product) {
+        var productId = PRODUCTS_MAP[product];
+        res[productId] = purpose;
+    });
+    return res;
+}, {});
 var onChangeConfigPurpose = onMemo(function () { var _a; return (_a = validateConsentMemo(getGlobalConfig$1().consent)) === null || _a === void 0 ? void 0 : _a.defaultPurposes; });
 var getDefaultPurposes = (function () {
     var result = __assign({}, initialPurposeMap);
@@ -339,25 +341,27 @@ var getDefaultPurposes = (function () {
         return result;
     };
 })();
-var filterByProductPurposes = function (value, prevValue) { return filterByProduct(value, prevValue, function (config, prevConfig, pid) { return config || prevConfig || getDefaultPurposes()[pid]; }); };
-var convertToPurposes = function (val) { return keys(val).reduce(function (res, key) {
-    var pid = getPid(key);
-    var purpose = toPurpose(val[key]);
-    if (pid === null) {
+var filterByProductPurposes = function (value, prevValue) {
+    return filterByProduct(value, prevValue, function (config, prevConfig, pid) { return config || prevConfig || getDefaultPurposes()[pid]; });
+};
+var convertToPurposes = function (val) {
+    return keys(val).reduce(function (res, key) {
+        var pid = getPid(key);
+        var purpose = toPurpose(val[key]);
+        if (pid === null) {
+            return res;
+        }
+        if (purpose === RESERVED_PURPOSE || pid === PRODUCTS_MAP[RESERVED_PRODUCT]) {
+            return res;
+        }
+        if (purpose) {
+            res[pid] = purpose;
+        }
         return res;
-    }
-    if (purpose === RESERVED_PURPOSE || pid === PRODUCTS_MAP[RESERVED_PRODUCT]) {
-        return res;
-    }
-    if (purpose) {
-        res[pid] = purpose;
-    }
-    return res;
-}, {}); };
+    }, {});
+};
 var purposes = __assign(__assign({}, createBaseParam(null, '_pprv')), { init: function (valueFromCookie) {
-        return isRequireConsentV2()
-            ? filterByProductPurposes(valueFromCookie || null, null)
-            : null;
+        return isRequireConsentV2() ? filterByProductPurposes(valueFromCookie || null, null) : null;
     }, set: function (val, prevVal) {
         if (!isRequireConsentV2()) {
             return null;
@@ -371,19 +375,22 @@ var purposes = __assign(__assign({}, createBaseParam(null, '_pprv')), { init: fu
 var getGlobalConfigModifiers = function () { return getGlobalConfig$1().consent_modifiers || null; };
 var getRequireConsent = function () { return !!getGlobalConfig$1().requireConsent; };
 var isRequireConsentV2 = function () { return getGlobalConfig$1().requireConsent === 'v2'; };
-var isInvalidCustomMode = function (mode, product) {
-    var _a;
-    return mode === CUSTOM_MODE
-        && !((_a = getGlobalConfigModifiers()) === null || _a === void 0 ? void 0 : _a[product]);
-};
+var isInvalidCustomMode = function (mode, product) { var _a; return mode === CUSTOM_MODE && !((_a = getGlobalConfigModifiers()) === null || _a === void 0 ? void 0 : _a[product]); };
 var RESERVED_PURPOSE = 'DL';
-var purposesMap = ['AD', 'AM', 'CP', 'PR', RESERVED_PURPOSE]
-    .reduce(function (res, i) {
-        var _a;
-        return (__assign(__assign({}, res), (_a = {}, _a[i] = i, _a[i.toLowerCase()] = i, _a)));
-    }, {});
+var purposesMap = [
+    'AD',
+    'AM',
+    'CP',
+    'PR',
+    RESERVED_PURPOSE
+].reduce(function (res, i) {
+    var _a;
+    return (__assign(__assign({}, res), (_a = {}, _a[i] = i, _a[i.toLowerCase()] = i, _a)));
+}, {});
 var toBasePurpose = function (purpose) { return purposesMap[(purpose === null || purpose === void 0 ? void 0 : purpose.toLowerCase()) || ''] || null; };
-var toPurpose = function (purpose) { return toBasePurpose(purpose) || (purpose === null || purpose === void 0 ? void 0 : purpose.substring(0, 32)); };
+var toPurpose = function (purpose) {
+    return toBasePurpose(purpose) || (purpose === null || purpose === void 0 ? void 0 : purpose.substring(0, 32));
+};
 var productsString = function (products, single, plural) {
     return "".concat(products.join(', '), " ").concat(products.length > 1 ? plural : single);
 };
@@ -391,12 +398,13 @@ var consentV2IsDisabled = 'Consent v2 is disabled';
 var errorDlReserved = 'the "DL" purpose is reserved';
 var errorDlProductReserved = function (purpose) { return "\"".concat(purpose, "\" can not be applied for the dl product"); };
 var modeIsUnknown = function (mode) { return "".concat(mode, " is unknown consent mode"); };
-var productsDoesntHaveModifier = function (products) { return productsString(products, 'does', 'do') +
-    "n't have modifier in the pdl. Custom mode can't be applied"; };
+var productsDoesntHaveModifier = function (products) {
+    return productsString(products, 'does', 'do') + "n't have modifier in the pdl. Custom mode can't be applied";
+};
 var unknownPurpose = "Unknown purpose. Provide a product or define within pdl config";
-var unknownProducts = function (products) { return 'Custom purpose: '
-    + productsString(products, 'is', 'are')
-    + ' unknown'; };
+var unknownProducts = function (products) {
+    return 'Custom purpose: ' + productsString(products, 'is', 'are') + ' unknown';
+};
 function setExtendedConsent(purposes, consent, modeOrType, mode, products) {
     var error = function (msg) { return ({
         error: msg
@@ -438,7 +446,7 @@ function setExtendedConsent(purposes, consent, modeOrType, mode, products) {
     };
     var setByPurposeAndProduct = function (modelLocal, purposeRaw, productsRaw) {
         var purpose = toPurpose(purposeRaw);
-        var productArrayRaw = (isArray(productsRaw) ? productsRaw : [productsRaw]);
+        var productArrayRaw = isArray(productsRaw) ? productsRaw : [productsRaw];
         var pids = productArrayRaw.map(getPid).filter(isNotEmpty);
         if (!pids.length) {
             if (!toBasePurpose(purposeRaw)) {
@@ -464,7 +472,7 @@ function setExtendedConsent(purposes, consent, modeOrType, mode, products) {
         }, {});
         return {
             consent: (consentResult === null || consentResult === void 0 ? void 0 : consentResult.consent) || null,
-            purposes: newPurposes,
+            purposes: newPurposes
         };
     };
     if (!isRequireConsentV2()) {
@@ -494,7 +502,7 @@ var getExtendedConsent = function (consent, purposes) {
         if (!res[purpose]) {
             res[purpose] = {
                 mode: productMode,
-                products: [productName],
+                products: [productName]
             };
         }
         else {
@@ -504,15 +512,17 @@ var getExtendedConsent = function (consent, purposes) {
         return res;
     }, {});
 };
-var getNotAcquiredConsent = function () { return isRequireConsentV2()
-    ? keys(purposeByProduct).reduce(function (res, purpose) {
-        res[purpose] = {
-            mode: 'not-acquired',
-            products: purposeByProduct[purpose],
-        };
-        return res;
-    }, {})
-    : null; };
+var getNotAcquiredConsent = function () {
+    return isRequireConsentV2()
+        ? keys(purposeByProduct).reduce(function (res, purpose) {
+            res[purpose] = {
+                mode: 'not-acquired',
+                products: purposeByProduct[purpose]
+            };
+            return res;
+        }, {})
+        : null;
+};
 
 var actions = ['include', 'exclude', 'obfuscate'];
 var oneOf = function (name, value) { return "\"".concat(name, "\" should be one of ").concat(value.join(', ')); };
@@ -714,8 +724,8 @@ var getCalculatedPreset = function (presetIndexes) {
 };
 
 // @ts-ignore
-var convertToConsent = function (val) { return keys(val)
-    .reduce(function (res, key) {
+var convertToConsent = function (val) {
+    return keys(val).reduce(function (res, key) {
         var config = val[key];
         var pid = getPid(key);
         if (pid === null) {
@@ -729,20 +739,21 @@ var convertToConsent = function (val) { return keys(val)
             res[pid] = { mode: mode };
         }
         return res;
-    }, null); };
-var filterByProductConsent = function (value, prevValue) { return filterByProduct(value, prevValue, function (config, prevConfig, pid) {
-    var mode = (config === null || config === void 0 ? void 0 : config.mode) || (prevConfig === null || prevConfig === void 0 ? void 0 : prevConfig.mode) || getDefaultPreset()[pid].mode;
-    if (mode !== (prevConfig === null || prevConfig === void 0 ? void 0 : prevConfig.mode)) {
-        return {
-            mode: mode,
-        };
-    }
-    return prevConfig;
-}); };
+    }, null);
+};
+var filterByProductConsent = function (value, prevValue) {
+    return filterByProduct(value, prevValue, function (config, prevConfig, pid) {
+        var mode = (config === null || config === void 0 ? void 0 : config.mode) || (prevConfig === null || prevConfig === void 0 ? void 0 : prevConfig.mode) || getDefaultPreset()[pid].mode;
+        if (mode !== (prevConfig === null || prevConfig === void 0 ? void 0 : prevConfig.mode)) {
+            return {
+                mode: mode
+            };
+        }
+        return prevConfig;
+    });
+};
 var consent = __assign(__assign({}, createBaseParam(null, '_pprv')), { init: function (valueFromCookie) {
-        return getRequireConsent() && valueFromCookie
-            ? filterByProductConsent(valueFromCookie, null)
-            : null;
+        return getRequireConsent() && valueFromCookie ? filterByProductConsent(valueFromCookie, null) : null;
     }, set: function (val, prevVal) {
         var _a;
         if (!getRequireConsent()) {
@@ -752,18 +763,18 @@ var consent = __assign(__assign({}, createBaseParam(null, '_pprv')), { init: fun
             return prevVal;
         }
         var newConsent;
-        if (isNumber(val)) { // deprecated value
+        if (isNumber(val)) {
+            // deprecated value
             newConsent = ((_a = getPresets()[val]) === null || _a === void 0 ? void 0 : _a.preset) || null;
         }
-        else if (isArray(val)) { // deprecated value
+        else if (isArray(val)) {
+            // deprecated value
             newConsent = getCalculatedPreset(val);
         }
         else {
             newConsent = convertToConsent(val);
         }
-        return newConsent
-            ? filterByProductConsent(newConsent, prevVal)
-            : prevVal;
+        return newConsent ? filterByProductConsent(newConsent, prevVal) : prevVal;
     }, get: memo(function (value) {
         return value &&
             fillProductNameReduce(value, function (config, productName) {
@@ -906,9 +917,7 @@ var readMetaValues = function (configs) {
 var append = function (data, name, config) {
     var validate = Validators[name];
     var exist = Boolean(data[name]);
-    var readValue = typeof config === 'function'
-        ? config
-        : function () { return (isArray(config) ? readMetaValues(config) : readMetaValue(config)); };
+    var readValue = typeof config === 'function' ? config : function () { return (isArray(config) ? readMetaValues(config) : readMetaValue(config)); };
     if (!exist && validate) {
         var value = readValue();
         var validatedValue = value && validate(value);
@@ -1172,17 +1181,34 @@ var readMetaElements = function () {
     appendLegacyCrawler(data);
     return data;
 };
-var content = __assign(__assign({}, createStaticParam(null)), { init: function () { return readMetaElements(); }, set: function (value, prevValue) {
+var content = __assign(__assign({}, createStaticParam(null)), { init: function () { return readMetaElements(); }, refresh: function (prevValue) {
+        var newValue = readMetaElements();
+        if (prevValue === null || prevValue === void 0 ? void 0 : prevValue._fixed_) {
+            prevValue === null || prevValue === void 0 ? void 0 : prevValue._fixed_.forEach(function (fieldName) {
+                delete newValue[fieldName];
+            });
+        }
+        return __assign(__assign({}, prevValue), newValue);
+    }, set: function (value, prevValue) {
         if (value === null) {
             return {};
         }
-        return filterObjectValues(__assign(__assign({}, prevValue), value), function (val) { return val !== undefined && val !== null; });
-    } });
+        var fixedSet = new Set(prevValue && prevValue._fixed_);
+        var proceedValue = function (filter, forEachCb) {
+            keys(filterObjectValues(value, filter)).forEach(forEachCb);
+        };
+        proceedValue(isNotEmpty, function (val) { fixedSet.add(val); });
+        proceedValue(isEmpty, function (val) { fixedSet.delete(val); });
+        return filterObjectValues(__assign(__assign(__assign({}, prevValue), value), { _fixed_: Array.from(fixedSet.values()) }), isNotEmpty);
+    }, get: memo(function (value) {
+        var getValue = __assign({}, value);
+        delete getValue._fixed_;
+        return value && getValue;
+    }) });
 
 var userSegments = __assign(__assign({}, createBaseParam(null, '_pcus')), { init: function (valueFromCookie) {
         if (valueFromCookie === void 0) { valueFromCookie = null; }
-        return valueFromCookie
-            && filterObjectValues(valueFromCookie, function (val) { return isObject(val) && Array.isArray(val.segments); });
+        return valueFromCookie && filterObjectValues(valueFromCookie, function (val) { return isObject(val) && Array.isArray(val.segments); });
     } });
 
 var PropertiesMap = {
@@ -1197,7 +1223,7 @@ var PropertiesMap = {
     consentModifiers: consentModifiers,
     purposes: purposes,
     content: content,
-    userSegments: userSegments,
+    userSegments: userSegments
 };
 
 var domainExceptions = ['pantheon.io', 'go-vip.net', 'go-vip.co'];
@@ -1223,9 +1249,7 @@ var createDateByExpires = function (expires) {
     return date;
 };
 var dateToString = function (date) { return date.getTime().toString(36); };
-var stringToDate = function (date) { return date
-    ? tryFn(function () { return new Date(parseInt(date, 36)); })
-    : null; };
+var stringToDate = function (date) { return (date ? tryFn(function () { return new Date(parseInt(date, 36)); }) : null); };
 var expirationName = '_t';
 var initFixedUtils = function (rawData, _a) {
     var encode = _a.encode, decode = _a.decode;
@@ -1298,7 +1322,7 @@ var initFixedUtils = function (rawData, _a) {
         },
         bindOptions: bindOptions,
         decode: decodeData,
-        encode: encodeData,
+        encode: encodeData
     };
 };
 
@@ -1320,6 +1344,7 @@ var createCookieWrapper = function (encoder) {
     var cookieName = encoder.cookieName, consent = encoder.consent;
     var cookieInitialData = cookie.get(cookieName);
     var cookieEnabled = !!cookieInitialData;
+    var cookieCreated = cookieEnabled;
     var fixedUtils = initFixedUtils(cookieInitialData, encoder);
     var expirationIsUpdated = !!fixedUtils.fixedAt;
     var lazy = cookieEnabled;
@@ -1340,6 +1365,7 @@ var createCookieWrapper = function (encoder) {
         if (cookieString) {
             expirationIsUpdated = true;
             cookie.set(cookieName, cookieString, fixedUtils.bindOptions(newOptions));
+            cookieCreated = true;
         }
     };
     var getOptions = function (options) { return (__assign(__assign({}, boundedCookieOptions), filterObjectValues(options || {}, isNotEmpty))); };
@@ -1354,7 +1380,13 @@ var createCookieWrapper = function (encoder) {
         setCookie(options);
     };
     var remove = function (options) {
-        cookie.remove(cookieName, getOptions(options));
+        if (!isEnabled()) {
+            return;
+        }
+        if (cookieCreated) {
+            cookie.remove(cookieName, getOptions(options));
+        }
+        cookieCreated = false;
     };
     var checkAndCreateCookie = function (enable, lazyActive) {
         var nowEnabled = enable && lazyActive;
@@ -1438,17 +1470,18 @@ var createCookieWrappers = function (cookieEncoders) {
 // private property
 /* tslint:disable */
 var f = String.fromCharCode;
-var keyStrUriSafe = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$";
+var keyStrUriSafe = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$';
 var baseReverseDic = {};
 
 function _compress(uncompressed, bitsPerChar, getCharFromInt) {
-    if (uncompressed == null) return "";
-    var i, value,
+    if (uncompressed == null) return '';
+    var i,
+        value,
         context_dictionary = {},
         context_dictionaryToCreate = {},
-        context_c = "",
-        context_wc = "",
-        context_w = "",
+        context_c = '',
+        context_wc = '',
+        context_w = '',
         context_enlargeIn = 2, // Compensate for the first entry which should not count
         context_dictSize = 3,
         context_numBits = 2,
@@ -1471,7 +1504,7 @@ function _compress(uncompressed, bitsPerChar, getCharFromInt) {
             if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate, context_w)) {
                 if (context_w.charCodeAt(0) < 256) {
                     for (i = 0; i < context_numBits; i++) {
-                        context_data_val = (context_data_val << 1);
+                        context_data_val = context_data_val << 1;
                         if (context_data_position == bitsPerChar - 1) {
                             context_data_position = 0;
                             context_data.push(getCharFromInt(context_data_val));
@@ -1537,8 +1570,6 @@ function _compress(uncompressed, bitsPerChar, getCharFromInt) {
                     }
                     value = value >> 1;
                 }
-
-
             }
             context_enlargeIn--;
             if (context_enlargeIn == 0) {
@@ -1552,11 +1583,11 @@ function _compress(uncompressed, bitsPerChar, getCharFromInt) {
     }
 
     // Output the code for w.
-    if (context_w !== "") {
+    if (context_w !== '') {
         if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate, context_w)) {
             if (context_w.charCodeAt(0) < 256) {
                 for (i = 0; i < context_numBits; i++) {
-                    context_data_val = (context_data_val << 1);
+                    context_data_val = context_data_val << 1;
                     if (context_data_position == bitsPerChar - 1) {
                         context_data_position = 0;
                         context_data.push(getCharFromInt(context_data_val));
@@ -1622,8 +1653,6 @@ function _compress(uncompressed, bitsPerChar, getCharFromInt) {
                 }
                 value = value >> 1;
             }
-
-
         }
         context_enlargeIn--;
         if (context_enlargeIn == 0) {
@@ -1648,7 +1677,7 @@ function _compress(uncompressed, bitsPerChar, getCharFromInt) {
 
     // Flush the last char
     while (true) {
-        context_data_val = (context_data_val << 1);
+        context_data_val = context_data_val << 1;
         if (context_data_position == bitsPerChar - 1) {
             context_data.push(getCharFromInt(context_data_val));
             break;
@@ -1662,13 +1691,16 @@ function _decompress(length, resetValue, getNextValue) {
         enlargeIn = 4,
         dictSize = 4,
         numBits = 3,
-        entry = "",
+        entry = '',
         result = [],
         i,
         w,
-        bits, resb, maxpower, power,
+        bits,
+        resb,
+        maxpower,
+        power,
         c,
-        data = {val: getNextValue(0), position: resetValue, index: 1};
+        data = { val: getNextValue(0), position: resetValue, index: 1 };
 
     for (i = 0; i < 3; i += 1) {
         dictionary[i] = i;
@@ -1688,7 +1720,7 @@ function _decompress(length, resetValue, getNextValue) {
         power <<= 1;
     }
 
-    switch (bits) {
+    switch ((bits)) {
         case 0:
             bits = 0;
             maxpower = Math.pow(2, 8);
@@ -1722,14 +1754,14 @@ function _decompress(length, resetValue, getNextValue) {
             c = f(bits);
             break;
         case 2:
-            return "";
+            return '';
     }
     dictionary[3] = c;
     w = c;
     result.push(c);
     while (true) {
         if (data.index > length) {
-            return "";
+            return '';
         }
 
         bits = 0;
@@ -1746,7 +1778,7 @@ function _decompress(length, resetValue, getNextValue) {
             power <<= 1;
         }
 
-        switch (c = bits) {
+        switch ((c = bits)) {
             case 0:
                 bits = 0;
                 maxpower = Math.pow(2, 8);
@@ -1814,7 +1846,6 @@ function _decompress(length, resetValue, getNextValue) {
             enlargeIn = Math.pow(2, numBits);
             numBits++;
         }
-
     }
 }
 
@@ -1830,7 +1861,7 @@ function getBaseValue(alphabet, character) {
 
 //compress into a string that is already URI encoded
 function compressToEncodedURIComponent(input) {
-    if (input == null) return "";
+    if (input == null) return '';
     return _compress(input, 6, function (a) {
         return keyStrUriSafe.charAt(a);
     });
@@ -1838,9 +1869,9 @@ function compressToEncodedURIComponent(input) {
 
 //decompress from an output of compressToEncodedURIComponent
 function decompressFromEncodedURIComponent(input) {
-    if (input == null) return "";
-    if (input == "") return null;
-    input = input.replace(/ /g, "+");
+    if (input == null) return '';
+    if (input == '') return null;
+    input = input.replace(/ /g, '+');
     return _decompress(input.length, 32, function (index) {
         return getBaseValue(keyStrUriSafe, input.charAt(index));
     });
@@ -1855,7 +1886,7 @@ var CompressFuncByType = {
         prefix: '{u}',
         compress: compressToEncodedURIComponent,
         decompress: decompressFromEncodedURIComponent
-    },
+    }
 };
 var CompressFuncByPrefix = keys(CompressFuncByType).reduce(function (res, key) {
     res[CompressFuncByType[key].prefix] = CompressFuncByType[key];
@@ -1938,18 +1969,23 @@ var createCookieAssociation = function () {
                     groupedData[cookieWrapperName] = {
                         wrapper: cookieByName === null || cookieByName === void 0 ? void 0 : cookieByName[cookieWrapperName],
                         data: {},
-                        update: false
+                        update: false,
+                        remove: true,
                     };
                 }
                 groupedData[cookieWrapperName].data[fieldName] = fieldValue;
+                groupedData[cookieWrapperName].remove = groupedData[cookieWrapperName].remove && fieldValue === null;
                 if (!prevData || (!groupedData[cookieWrapperName].update && fieldValue !== prevData[fieldName])) {
                     groupedData[cookieWrapperName].update = true;
                 }
             }
         });
         keys(groupedData).forEach(function (key) {
-            var _a = groupedData[key], wrapper = _a.wrapper, update = _a.update;
-            if (update) {
+            var _a = groupedData[key], wrapper = _a.wrapper, update = _a.update, remove = _a.remove;
+            if (remove) {
+                wrapper.remove();
+            }
+            if (update && !remove) {
                 wrapper.set(groupedData[key].data);
             }
         });
@@ -2389,10 +2425,12 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
                 var enabled = cookieWrappers[key].cookieEnabled;
                 var fixedAt = cookieWrappers[key].fixedAt || null;
                 var cookieName = cookieWrappers[key].cookieName;
-                res[cookieName] = enabled ? {
-                    enabled: enabled,
-                    fixedAt: fixedAt
-                } : null;
+                res[cookieName] = enabled
+                    ? {
+                        enabled: enabled,
+                        fixedAt: fixedAt
+                    }
+                    : null;
                 return res;
             }, {});
         });
@@ -2747,7 +2785,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
             checkConsent: checkConsent$1,
             setConsent: setConsent,
             getConsent: getConsent,
-            notAcquiredConsent: getNotAcquiredConsent(),
+            notAcquiredConsent: getNotAcquiredConsent()
         },
         get cookies() {
             return getCookieConfig();
@@ -2759,7 +2797,7 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
         setUnsafe: setUnsafe,
         protectUnsafe: protectUnsafe,
         updateUnsafe: updateUnsafe,
-        setCookieEnabled: setCookieEnabled,
+        setCookieEnabled: setCookieEnabled
     };
 };
 
@@ -2803,10 +2841,9 @@ var checkConsent = function (_private) {
 };
 
 var log = function (product, mode, type) {
-    var prefix = type === 1 ? "can not be" : 'was';
+    var prefix = type === 1 ? 'can not be' : 'was';
     // tslint:disable-next-line
-    console.warn("[DL]: Consent v2: the \"".concat(product, "\" has a conflicted consent mode, ") +
-        "mode ".concat(prefix, " changed to \"").concat(mode, "\""));
+    console.warn("[DL]: Consent v2: the \"".concat(product, "\" has a conflicted consent mode, ") + "mode ".concat(prefix, " changed to \"").concat(mode, "\""));
 };
 var validateConsent = function (_private) {
     var timer = null;

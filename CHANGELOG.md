@@ -1,8 +1,11 @@
 # Changelog
+## 6.12.2
+### Fixes
+- - [browser] Cookie `_pcus` being created by mistake
+
 ## 6.12.1
 ### Fixes
 - [browser] Fix cookies expiration date being expanded when using consent without specifying storageMode
-- [browser] Cookie `_pcus` being created by mistake
 
 ### Changes
 - [browser] `cookie_creation_date` is now anonymized (time set to 0)
