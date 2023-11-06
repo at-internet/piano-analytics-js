@@ -1,4 +1,8 @@
 # Changelog
+## 6.13.0
+### New
+- [browser] New configuration `enableExtendedOptout` to enable enhanced tracking of optout visitors (`false` by default)
+
 ## 6.12.2
 ### Fixes
 - - [browser] Cookie `_pcus` being created by mistake

@@ -25,7 +25,7 @@ function DlPrivacy(pa) {
         },
         'opt-out': {
             'visitor_privacy_consent': false,
-            'visitor_privacy_mode': 'optout'
+            'visitor_privacy_mode': pa.getConfiguration('enableExtendedOptout') === true ? 'extended-optout' : 'optout'
         },
         'essential': {
             'visitor_privacy_consent': false,
@@ -100,9 +100,15 @@ function DlPrivacy(pa) {
         return this.consentItems;
     };
     this.isPropAllowed = (function (propertyName) {
+        if (pa.getConfiguration('enableExtendedOptout') === true && this.getMode() === 'opt-out') {
+            return true;
+        }
         return this.propertyConsent.check(propertyName).allowed;
     }).bind(this);
     this.isEventAllowed = (function (eventName) {
+        if (pa.getConfiguration('enableExtendedOptout') === true && this.getMode() === 'opt-out') {
+            return true;
+        }
         return this.eventConsent.check(eventName).allowed;
     }).bind(this);
     this.isKeyAllowed = (function (storageKey) {

@@ -1,6 +1,6 @@
 /**
  * @license
- * Piano Browser SDK-DataLayer@2.9.3.
+ * Piano Browser SDK-DataLayer@2.9.4.
  * Copyright 2010-2022 Piano Software Inc.
  */
 import { cookie } from '@piano-sdk/storage';
@@ -2801,10 +2801,25 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
     };
 };
 
-var getCookieProhibition = function () { return ({
-    _pprv: !getGlobalConfig$1().requireConsent
-}); };
+var isPAConsentOnly = function (con) {
+    var _a, _b;
+    var conf = getGlobalConfig$1();
+    var products = ((_a = conf.consent) === null || _a === void 0 ? void 0 : _a.products) || [];
+    var paOnly = products.length === 1 && products[0] === 'PA';
+    var isOptOut = ((_b = con === null || con === void 0 ? void 0 : con.PA) === null || _b === void 0 ? void 0 : _b.mode) === 'opt-out';
+    return !!conf.requireConsent && paOnly && isOptOut;
+};
+var getCookieProhibition = function (con) {
+    var prohibitForPaProducts = isPAConsentOnly(con);
+    return {
+        _pprv: !getGlobalConfig$1().requireConsent,
+        _pctx: prohibitForPaProducts,
+        _pcid: prohibitForPaProducts,
+        _pcus: prohibitForPaProducts,
+    };
+};
 var checkConsent = function (_private) {
+    var _a;
     var items = keys(cookieEncoders).reduce(function (res, cookieName) {
         res[cookieName] = cookieEncoders[cookieName].consent;
         return res;
@@ -2815,10 +2830,11 @@ var checkConsent = function (_private) {
         type: 'cookie',
         getConsent: getConsent
     });
-    var prevValueConsent = getConsent();
-    var checkCookieWrappers = function (con) {
+    var prevValueDlConsent = getConsent();
+    var prevValuePAConsent = ((_a = _private.get('consent')) === null || _a === void 0 ? void 0 : _a.PA) || null;
+    var checkCookieWrappers = function (con, allConsents) {
         var _a;
-        var prohibition = getCookieProhibition();
+        var prohibition = getCookieProhibition(allConsents);
         var cookieWrapperMap = (_a = _private.getConnection()) === null || _a === void 0 ? void 0 : _a.registeredCookiesWrapper;
         if (cookieWrapperMap) {
             var names = keys(cookieWrapperMap).map(function (key) { return cookieWrapperMap[key].cookieName; });
@@ -2831,13 +2847,15 @@ var checkConsent = function (_private) {
         }
     };
     _private.addChangeListener('consent', function (data) {
-        var newValue = (data === null || data === void 0 ? void 0 : data.DL) || null;
-        if ((prevValueConsent === null || prevValueConsent === void 0 ? void 0 : prevValueConsent.mode) !== (newValue === null || newValue === void 0 ? void 0 : newValue.mode)) {
-            prevValueConsent = newValue;
-            checkCookieWrappers(newValue);
+        var newDLValue = (data === null || data === void 0 ? void 0 : data.DL) || null;
+        var newPAValue = (data === null || data === void 0 ? void 0 : data.PA) || null;
+        if ((prevValueDlConsent === null || prevValueDlConsent === void 0 ? void 0 : prevValueDlConsent.mode) !== (newDLValue === null || newDLValue === void 0 ? void 0 : newDLValue.mode) || (prevValuePAConsent === null || prevValuePAConsent === void 0 ? void 0 : prevValuePAConsent.mode) !== (newPAValue === null || newPAValue === void 0 ? void 0 : newPAValue.mode)) {
+            prevValueDlConsent = newDLValue;
+            prevValuePAConsent = newPAValue;
+            checkCookieWrappers(newDLValue, data);
         }
     });
-    checkCookieWrappers(prevValueConsent);
+    checkCookieWrappers(prevValueDlConsent, _private.get('consent'));
 };
 
 var log = function (product, mode, type) {

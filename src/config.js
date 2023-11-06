@@ -23,7 +23,7 @@ export default {
     ],
     'storageVisitor': 'pa_vid',
     'storageUser': 'pa_user',
-    'version': '6.12.2',
+    'version': '6.13.0',
     'minHeartbeat': 5,
     'minBufferingHeartbeat': 1,
     'queueVarName': '_paq',
@@ -31,6 +31,7 @@ export default {
     'enableAutomaticPageRefresh': true,
     'allowHighEntropyClientHints': true,
     'sendEmptyProperties': true,
+    'enableExtendedOptout': false,
     'privacy': {
         'storageKey': 'pa_privacy',
         'legacyKeys': {
