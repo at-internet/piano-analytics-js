@@ -1,6 +1,6 @@
 /**
  * @license
- * Piano Browser SDK-DataLayer@2.9.4.
+ * Piano Browser SDK-DataLayer@2.9.5.
  * Copyright 2010-2022 Piano Software Inc.
  */
 import { cookie } from '@piano-sdk/storage';
