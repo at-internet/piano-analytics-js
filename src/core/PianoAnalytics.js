@@ -124,7 +124,7 @@ function _sendEvent(events, options) {
         }
         events[i] = eventFormatted;
     }
-    const data = {events: events, options: options};
+    const data = {events: cloneObject(events), options: cloneObject(options)};
     if (steps.length > 0 && typeof steps[0] === 'function') {
         const clonedConfig = new Configuration(this.cfg.cloneData());
         steps[0](this, new Model(this, data, clonedConfig), steps.slice(1));

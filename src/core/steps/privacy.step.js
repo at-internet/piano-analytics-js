@@ -9,7 +9,7 @@ function privacyStep(pa, model, nextSteps) {
         let metadata = pa._privacy.call('getModeMetadata') || {};
         for (const property in metadata) {
             if (Object.prototype.hasOwnProperty.call(metadata, property)) {
-                model.setProperty(property, metadata[property]);
+                model.addEventsProperty(property, metadata[property]);
             }
         }
     }

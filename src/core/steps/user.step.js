@@ -9,9 +9,9 @@ function userStep(pa, model, nextSteps) {
                 const opts = {
                     persistent: true
                 };
-                model.setProperty('user_id', userStored.id, opts);
-                model.setProperty('user_category', userStored.category, opts);
-                model.setProperty('user_recognition', true, opts);
+                model.addEventsProperty('user_id', userStored.id, opts);
+                model.addEventsProperty('user_category', userStored.category, opts);
+                model.addEventsProperty('user_recognition', true, opts);
             }
             nextStep(pa, model, nextSteps);
         });

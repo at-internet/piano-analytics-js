@@ -1,4 +1,14 @@
 # Changelog
+## 6.14.0
+### New
+- [browser] New consent methods using `purposes`
+
+### Changes
+- All events properties can now be overridden (using setProperty(ies) or specifying the property directly in events sent)
+
+### Fixes
+- Fixed a conflict with global variables used in multiple taggings
+
 ## 6.13.1
 ### Fixes
 - [browser] Cookie testing is now secure on suitable URLs

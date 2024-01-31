@@ -36,6 +36,9 @@ function DlPrivacy(pa) {
             'visitor_privacy_mode': 'custom'
         }
     };
+    const isConsentv2 = function () {
+        return window.pdl.requireConsent === 'v2';
+    };
 
     this.init = function () {
         this.consentItems = getConsentItems();
@@ -54,7 +57,7 @@ function DlPrivacy(pa) {
             productName: 'PA',
             items: this.consentItems.cookieItems
         });
-        if(!pa.getConfiguration('isLegacyPrivacy')){
+        if (!pa.getConfiguration('isLegacyPrivacy')) {
             this.initMode();
             this.filterKeys();
         }
@@ -90,6 +93,19 @@ function DlPrivacy(pa) {
     this.setCustomModeMetadata = function (consentValue, modeName) {
         this.modeMetadata['custom'].visitor_privacy_mode = modeName || 'custom';
         this.modeMetadata['custom'].visitor_privacy_consent = consentValue;
+    };
+    this.setAllPurposes = function (mode) {
+        if(isConsentv2()){
+            return dataLayer.utils.setConsent(mode);
+        }
+    };
+    this.setByPurpose = function (purpose, mode, products) {
+        if(isConsentv2()){
+            dataLayer.utils.setConsent(purpose, mode, products);
+        }
+    };
+    this.getByPurpose = function () {
+        return dataLayer.utils.getConsent();
     };
 
     /* internal use */
@@ -136,7 +152,6 @@ function DlPrivacy(pa) {
             }
         }
     };
-
     this.setItem = function (key, value, expiration, callback) {
         if (this.isKeyAllowed(key)) {
             pa._storage.setItem(key, value, expiration, callback);

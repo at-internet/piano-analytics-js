@@ -22,7 +22,7 @@ function propertiesStep(pa, model, nextSteps) {
                 } else if (!propertyEventsOption) {
                     isEventOptionOk = true;
                 }
-                if (isEventOptionOk) {
+                if (isEventOptionOk && typeof event.data[property] === 'undefined') {
                     event.data[property] = model.properties[property].value;
                     isAdded = true;
                 }

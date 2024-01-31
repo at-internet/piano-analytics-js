@@ -18,7 +18,7 @@ function _addCampaignParams(pa, model, href, prefix, destPrefix) {
     let found = false;
     for (const param in campaignParams) {
         if (Object.prototype.hasOwnProperty.call(campaignParams, param) && !model.properties[param]) {
-            model.setProperty(param, campaignParams[param], {persistent: true});
+            model.addEventsProperty(param, campaignParams[param], {persistent: true});
         }
         found = true;
     }
