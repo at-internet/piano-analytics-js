@@ -187,7 +187,7 @@ describe('Properties :', function () {
                 }
             });
         });
-        it('Should not override values of privacy specific properties', function (done) {
+        it('Should be able to override values of privacy specific properties', function (done) {
             globalPA.setProperty('visitor_privacy_consent', 'myconsent');
             globalPA.setProperty('visitor_privacy_mode', 'test');
             globalPA.sendEvent('toto', {'visitor_privacy_mode': 'mymode'}, {
@@ -200,7 +200,7 @@ describe('Properties :', function () {
                 }
             });
         });
-        it('Should not override values of metadata specific properties', function (done) {
+        it('Should be able to override values of metadata specific properties', function (done) {
             globalPA.setProperty('event_collection_platform', '1');
             globalPA.setProperty('event_collection_version', '22');
             globalPA.sendEvent('toto', {
@@ -439,22 +439,22 @@ describe('Properties :', function () {
                 }
             });
         });
-        it('Should not override values of privacy specific properties', function (done) {
+        it('Should be able to override values of privacy specific properties', function (done) {
             globalPA.setProperties({
                 'visitor_privacy_consent': 'myconsent',
                 'visitor_privacy_mode': 'test'
             });
-            globalPA.sendEvent('toto', {'visitor_privacy_mode': 'mymode'}, {
+            globalPA.sendEvent('toto', {}, {
                 onBeforeSend: function (pianoanalytics, model) {
                     Utility.promiseThrowCatcher(done, function () {
                         expect(model.build.data.events[0].data['visitor_privacy_consent']).to.equal('myconsent');
-                        expect(model.build.data.events[0].data['visitor_privacy_mode']).to.equal('mymode');
+                        expect(model.build.data.events[0].data['visitor_privacy_mode']).to.equal('test');
                         done();
                     });
                 }
             });
         });
-        it('Should not override values of metadata specific properties', function (done) {
+        it('Should be able to override values of metadata specific properties', function (done) {
             globalPA.setProperties({
                 'event_collection_platform': '1',
             }, {events: ['tata']});
@@ -465,15 +465,55 @@ describe('Properties :', function () {
             globalPA.setProperties({
                 'device_local_hour': '4'
             }, {events: ['to*']});
-            globalPA.sendEvent('toto', {'device_timestamp_utc': '3'}, {
+            globalPA.sendEvent('toto', {}, {
                 onBeforeSend: function (pianoanalytics, model) {
                     Utility.promiseThrowCatcher(done, function () {
                         expect(model.build.data.events[0].data['event_collection_platform']).to.not.equal('1');
                         expect(model.build.data.events[0].data['event_collection_platform']).to.not.equal(undefined);
                         expect(model.build.data.events[0].data['event_collection_version']).to.equal('2');
-                        expect(model.build.data.events[0].data['device_timestamp_utc']).to.equal('3');
+                        expect(model.build.data.events[0].data['device_timestamp_utc']).to.equal('test');
                         expect(model.build.data.events[0].data['device_local_hour']).to.equal('4');
                         done();
+                    });
+                }
+            });
+        });
+        it('Should be synchronized with sendEvent(s) method (using the same queue)', function (done) {
+            let call1 = false;
+            let call2 = false;
+            globalPA.setProperties({
+                'event_collection_version': '1',
+                'device_timestamp_utc': '2'
+            });
+            globalPA.sendEvent('toto', {}, {
+                onBeforeSend: function (pianoanalytics, model, next) {
+                    Utility.promiseThrowCatcher(done, function () {
+                        expect(model.build.data.events[0].data['event_collection_version']).to.equal('1');
+                        expect(model.build.data.events[0].data['device_timestamp_utc']).to.equal('2');
+                        call1 = true;
+                        if (call2) {
+                            done();
+                        } else {
+                            next(false);
+                        }
+                    });
+                }
+            });
+            globalPA.setProperties({
+                'event_collection_version': '3',
+                'device_timestamp_utc': '4'
+            });
+            globalPA.sendEvent('toto', {}, {
+                onBeforeSend: function (pianoanalytics, model) {
+                    Utility.promiseThrowCatcher(done, function () {
+                        expect(model.build.data.events[0].data['event_collection_version']).to.equal('3');
+                        expect(model.build.data.events[0].data['device_timestamp_utc']).to.equal('4');
+                        call2 = true;
+                        if (call1) {
+                            done();
+                        } else {
+                            next(false);
+                        }
                     });
                 }
             });

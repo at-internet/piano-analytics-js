@@ -95,8 +95,9 @@ describe('Visitor id :', function () {
                     expect(visitorIdStored).to.equal(model.visitorId);
                     setTimeout(function () {
                         globalPA.sendEvent('tata', {test: 'visitor'}, {
-                            onBeforeSend: function (pa2, model2) {
+                            onBeforeSend: function (pa2, model2, next2) {
                                 expect(model2.visitorId).to.equal(visitorIdStored);
+                                next2(false);
                             }
                         });
                     }, 2000);

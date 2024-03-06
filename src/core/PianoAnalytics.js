@@ -20,6 +20,8 @@ function PianoAnalytics(configuration) {
     this._queue = new PianoAnalyticsQueue(this);
     this._properties = {};
     this._sendEvent = _sendEvent;
+    this._setProperty = _setProperty;
+    this._deleteProperty = _deleteProperty;
     _initPrivacy(this);
     this.user = new User(this);
     AVInsights(this);
@@ -131,6 +133,21 @@ function _sendEvent(events, options) {
     }
 }
 
+function _setProperty(pa, property, value, options) {
+    if (pa._privacy.call('isPropAllowed', property)) {
+        pa._properties[property] = {
+            value: value,
+            options: options || {}
+        };
+    }
+    pa._queue.next();
+}
+
+function _deleteProperty(pa, property) {
+    delete pa._properties[property];
+    pa._queue.next();
+}
+
 function _processCallbackIfPresent(value, cb) {
     if (cb) {
         cb(value);
@@ -139,12 +156,7 @@ function _processCallbackIfPresent(value, cb) {
 }
 
 PianoAnalytics.prototype.setProperty = function (property, value, options) {
-    if (this._privacy.call('isPropAllowed', property)) {
-        this._properties[property] = {
-            value: value,
-            options: options || {}
-        };
-    }
+    this._queue.push(['_setProperty', this, property, value, options]);
 };
 PianoAnalytics.prototype.setProperties = function (properties, options) {
     for (const prop in properties) {
@@ -154,7 +166,7 @@ PianoAnalytics.prototype.setProperties = function (properties, options) {
     }
 };
 PianoAnalytics.prototype.deleteProperty = function (propertyName) {
-    delete this._properties[propertyName];
+    this._queue.push(['_deleteProperty', this, propertyName]);
 };
 PianoAnalytics.prototype.sendEvent = function (eventName, eventData, options) {
     this._queue.push(['_sendEvent', [{name: eventName, data: eventData}], options]);

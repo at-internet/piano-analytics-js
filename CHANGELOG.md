@@ -1,4 +1,8 @@
 # Changelog
+## 6.14.1
+### Fixes
+- [browser] Fixed a bug when several `setProperty(ies)` and `sendEvent(s)` methods were chained without delays
+
 ## 6.14.0
 ### New
 - [browser] New consent methods using `purposes`
