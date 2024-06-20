@@ -1,4 +1,8 @@
 # Changelog
+## 6.14.2
+### Fixes
+- [react-native] Fixed android user-agent value to prevent default processing exclusion
+
 ## 6.14.1
 ### Fixes
 - [browser] Fixed a bug when several `setProperty(ies)` and `sendEvent(s)` methods were chained without delays

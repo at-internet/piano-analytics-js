@@ -23,11 +23,15 @@ export default {
         babel({babelHelpers: 'bundled'}),
         process.env.NODE_ENV === 'production' && uglify()
     ],
+    external: ['react-native'],
     output: [
         {
             file: 'dist/browserless/piano-analytics.react-native.umd.js',
             format: 'umd',
-            name: 'pianoAnalytics'
+            name: 'pianoAnalytics',
+            globals: {
+                'react-native': 'reactNative',
+            }
         }
     ]
 };
