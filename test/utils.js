@@ -33,6 +33,7 @@
             }
         }
     };
+    // this is to properly catch throwing expects happening while using browser promise window.navigator.userAgentData.getHighEntropyValues
     exports.promiseThrowCatcher = function (done, expects) {
         try {
             expects();

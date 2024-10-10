@@ -1,4 +1,18 @@
 # Changelog
+## 6.15.0
+### New
+- [browser] New AV Insights method (`media.playbackKill`) to technically stop a playback session
+- [browser] `browserId` can now be set from `pdl`
+- [browser] Cookie testing (`_cookie_test`) skipped when cookie domain configured
+
+### Fixes
+- [browser] Fixed empty campaign parameters sent with `undefined` value
+- [browser] Fixed an issue with empty cookie domain when none configured
+- [browser] Manage case where `PA` is not part of `consent.products`
+
+### Changes
+- [dev] Configuration file does not contain the version by default. Version is now added during build
+
 ## 6.14.2
 ### Fixes
 - [react-native] Fixed android user-agent value to prevent default processing exclusion

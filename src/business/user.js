@@ -1,6 +1,6 @@
 function User(pa) {
     const storageUser = pa.getConfiguration('storageUser');
-    this.setUser = function (id, category, enableStorage) {
+    pa.setUser = function (id, category, enableStorage) {
         const _user = {
             id: id,
             category: category
@@ -18,7 +18,7 @@ function User(pa) {
             pa._privacy.call('setItem', storageUser, _user, expirationDate);
         }
     };
-    this.getUser = function (callback) {
+    pa.getUser = function (callback) {
         pa._storage.getItem(storageUser, function (data) {
             let userData = data;
             if (!data && pa._properties['user_id']) {
@@ -30,7 +30,7 @@ function User(pa) {
             callback && callback(userData);
         });
     };
-    this.deleteUser = function (callback) {
+    pa.deleteUser = function (callback) {
         pa.deleteProperty('user_id');
         pa.deleteProperty('user_category');
         pa.deleteProperty('user_recognition');

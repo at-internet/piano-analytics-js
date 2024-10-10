@@ -7,12 +7,14 @@ import {
     propertiesStep, sendStep, userStep, visitorStep
 } from './steps/index';
 import {Storage} from '../storage/storage';
-import {AtPrivacy, DlPrivacy, Privacy} from '../business/privacy/index';
 import {User} from '../business/user';
 import {cloneObject} from '../utils/index';
 import {preloadTagging} from '../business/preload';
 import {AVInsights} from '../business/avinsights';
-import {dataLayer} from '../business/ext/data-layer/data-layer';
+import {VisitorId} from '../business/visitor-id';
+import {initPageViewId} from '../business/pageview-id';
+import {initContentProperties} from '../business/content-properties';
+import {initPrivacy} from '../business/privacy/privacy';
 
 function PianoAnalytics(configuration) {
     _initConfig(this, configuration);
@@ -22,10 +24,13 @@ function PianoAnalytics(configuration) {
     this._sendEvent = _sendEvent;
     this._setProperty = _setProperty;
     this._deleteProperty = _deleteProperty;
-    _initPrivacy(this);
+    this._visitorId = new VisitorId(this);
+    initPrivacy(this);
     this.user = new User(this);
     AVInsights(this);
     if (BUILD_BROWSER) {
+        initPageViewId(this);
+        initContentProperties(this);
         _runAsyncTagging(this);
     }
 }
@@ -44,56 +49,6 @@ function _initConfig(pa, configuration) {
             }
         }
     }
-}
-
-function _initPrivacy(pa) {
-    pa.setConfiguration('isLegacyPrivacy', true);
-    if (BUILD_BROWSER) {
-        if (typeof window.pdl === 'undefined') {
-            window.pdl = {
-                migration: {
-                    browserId: {
-                        source: 'PA'
-                    }
-                },
-                cookies: {
-                    storageMode: 'fixed'
-                }
-            };
-        } else {
-            if (window.pdl.requireConsent) {
-                pa.setConfiguration('isLegacyPrivacy', false);
-            }
-            if (typeof window.pdl.cookies === 'undefined') {
-                window.pdl.cookies = {
-                    storageMode: 'fixed'
-                };
-            } else if (window.pdl.cookies && typeof window.pdl.cookies.storageMode === 'undefined') {
-                window.pdl.cookies.storageMode = 'fixed';
-            }
-        }
-        dataLayer.init({
-            cookieDefault: {
-                domain: pa.getConfiguration('cookieDomain'),
-                secure: pa.getConfiguration('cookieSecure'),
-                path: pa.getConfiguration('cookiePath'),
-                samesite: pa.getConfiguration('cookieSameSite')
-            },
-            cookies: {
-                _pcid: {
-                    expires: pa.getConfiguration('storageLifetimeVisitor')
-                }
-            }
-        });
-    }
-    // public privacy api (deprecated for browser tagging)
-    pa.privacy = new AtPrivacy(pa);
-    if (BUILD_BROWSER) {
-        // public consent api (new browser tagging for privacy)
-        pa.consent = new DlPrivacy(pa);
-    }
-    // apis wrapper for internal use
-    pa._privacy = new Privacy(pa);
 }
 
 function _runAsyncTagging(pa) {
@@ -148,13 +103,6 @@ function _deleteProperty(pa, property) {
     pa._queue.next();
 }
 
-function _processCallbackIfPresent(value, cb) {
-    if (cb) {
-        cb(value);
-    }
-    return value;
-}
-
 PianoAnalytics.prototype.setProperty = function (property, value, options) {
     this._queue.push(['_setProperty', this, property, value, options]);
 };
@@ -174,70 +122,6 @@ PianoAnalytics.prototype.sendEvent = function (eventName, eventData, options) {
 PianoAnalytics.prototype.sendEvents = function (events, options) {
     this._queue.push(['_sendEvent', events, options]);
 };
-PianoAnalytics.prototype.getVisitorId = function (callback) {
-    let forcedValue = this.getConfiguration('visitorId') || null;
-    let result = null;
-    if (BUILD_BROWSER) {
-        result = _processCallbackIfPresent(forcedValue || dataLayer.get('browserId'), callback);
-    } else {
-        this._storage.getItem(this.getConfiguration('storageVisitor'), (function (storedValue) {
-            result = _processCallbackIfPresent(forcedValue || storedValue, callback);
-        }).bind(this));
-    }
-    if (typeof callback === 'undefined') {
-        return result;
-    }
-};
-PianoAnalytics.prototype.setVisitorId = function (value) {
-    this.setConfiguration('visitorId', value);
-    const expirationDate = new Date();
-    expirationDate.setTime(expirationDate.getTime() + (this.getConfiguration('storageLifetimeVisitor') * 24 * 60 * 60 * 1000));
-    this._privacy.call('setItem', this.getConfiguration('storageVisitor'), value, expirationDate, function () {
-        if (BUILD_BROWSER) {
-            dataLayer.updateMigration();
-        }
-    });
-};
-PianoAnalytics.prototype.setUser = function (id, category, enableStorage) {
-    this.user.setUser(id, category, enableStorage);
-};
-PianoAnalytics.prototype.getUser = function (callback) {
-    this.user.getUser(callback);
-};
-PianoAnalytics.prototype.deleteUser = function () {
-    this.user.deleteUser();
-};
 PianoAnalytics.prototype.PA = PianoAnalytics;
-
-if (BUILD_BROWSER) {
-    PianoAnalytics.prototype.refresh = function () {
-        if (this.getConfiguration('isManualPageRefresh') === null) {
-            this.setConfiguration('isManualPageRefresh', true);
-        }
-        if (this.getConfiguration('isManualPageRefresh')) {
-            dataLayer.refresh();
-        }
-    };
-    PianoAnalytics.prototype.setContentProperty = function (name, value) {
-        const MAP_PA_DL = {
-            'content_publication_date': 'createdAt',
-            'tags_array': 'tags'
-        };
-        const temp = {};
-        if (name === 'content_publication_date' || name === 'tags_array') {
-            temp[MAP_PA_DL[name]] = value;
-        } else {
-            temp[name] = value;
-        }
-        dataLayer.set('content', temp);
-    };
-    PianoAnalytics.prototype.setContentProperties = function (content) {
-        for (const prop in content) {
-            if (Object.prototype.hasOwnProperty.call(content, prop)) {
-                this.setContentProperty(prop, content[prop]);
-            }
-        }
-    };
-}
 
 export default PianoAnalytics;

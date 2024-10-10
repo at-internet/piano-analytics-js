@@ -1,6 +1,6 @@
 /**
  * @license
- * Piano Browser SDK-DataLayer@2.9.5.
+ * Piano Browser SDK-DataLayer@2.11.0.
  * Copyright 2010-2022 Piano Software Inc.
  */
 import { cookie } from '@piano-sdk/storage';
@@ -191,7 +191,7 @@ var GLOBAL_CONFIG_NAME = 'pdl';
 // @ts-ignore
 var getGlobalConfig$1 = function () { return window[GLOBAL_CONFIG_NAME] || {}; };
 
-var generateInitProtectedValue = function (_prev, changeConfig) {
+var generateInitProtectedValue$3 = function (_prev, changeConfig) {
     changeConfig({
         protect: true // protect rewriting after init (page loading)
     });
@@ -203,31 +203,9 @@ var generateAnewProtectedValue = function (_prev, changeConfig) {
     });
     return randomStringCxCompatible();
 };
-var pageViewId = __assign(__assign({}, createStaticParam()), { init: generateInitProtectedValue, refresh: generateAnewProtectedValue, update: generateAnewProtectedValue, set: function (value, _prevValue, changeConfig) {
+var pageViewId = __assign(__assign({}, createStaticParam()), { init: generateInitProtectedValue$3, refresh: generateAnewProtectedValue, update: generateAnewProtectedValue, set: function (value, _prevValue, changeConfig) {
         changeConfig({
             protect: true // protect rewriting after change
-        });
-        return value;
-    } });
-
-var browserId = __assign(__assign({}, createBaseParam(null, '_pcid')), { init: function (_cookieInitValue, changeConfig) {
-        changeConfig({
-            protect: true
-        });
-        // Get the value from cookie. If there is no data, then generate a new random string
-        return _cookieInitValue || randomStringCxCompatible();
-    },
-    // Need to update value - generate a new value
-    update: function (_prev, changeConfig) {
-        changeConfig({
-            protect: true
-        });
-        return randomStringCxCompatible();
-    },
-    // Need to set a specific value
-    set: function (value, _prev, changeConfig) {
-        changeConfig({
-            protect: true
         });
         return value;
     } });
@@ -246,11 +224,12 @@ var PRODUCTS_MAP = PRODUCTS.reduce(function (res, _a, index) {
 // support legacy value
 PRODUCTS_MAP['social flow'] = PRODUCTS_MAP.SOCIAL_FLOW;
 PRODUCTS_MAP['Social Flow'] = PRODUCTS_MAP.SOCIAL_FLOW;
-var onChangeConfigProducts = onMemo(function () { var _a; return (_a = validateConsentMemo(getGlobalConfig$1().consent)) === null || _a === void 0 ? void 0 : _a.products; });
+var getPdlProductNames = function () { var _a; return (_a = validateConsentMemo(getGlobalConfig$1().consent)) === null || _a === void 0 ? void 0 : _a.products; };
+var onChangePdlProducts = onMemo(getPdlProductNames);
 var getProducts = (function () {
     var result = PRODUCTS;
     return function () {
-        onChangeConfigProducts(function (config) {
+        onChangePdlProducts(function (config) {
             if (config) {
                 result = PRODUCTS.filter(function (product) {
                     return config.includes(product.name) || product.name === RESERVED_PRODUCT;
@@ -525,6 +504,10 @@ var getNotAcquiredConsent = function () {
 };
 
 var actions = ['include', 'exclude', 'obfuscate'];
+var validateBrowserId = function (val) {
+    var length = val && val.length;
+    return length === 16 || length === 36 ? val : null;
+};
 var oneOf = function (name, value) { return "\"".concat(name, "\" should be one of ").concat(value.join(', ')); };
 // tslint:disable-next-line no-empty
 var emptyFn = function () { };
@@ -640,6 +623,41 @@ var validateMigration = function (migration, log) {
         return res;
     }, {});
 };
+
+var generateInitProtectedValue$2 = function (_cookieInitValue, changeConfig) {
+    changeConfig({
+        protect: true // protect rewriting after init (page loading)
+    });
+    // Get the value from cookie. If there is no data, then generate a new random string
+    return validateBrowserId(getGlobalConfig$1().browserId || null) || _cookieInitValue || randomStringCxCompatible();
+};
+var browserId = __assign(__assign({}, createBaseParam(null, '_pcid')), { init: generateInitProtectedValue$2,
+    // Need to update value - generate a new value
+    update: function (_prev, changeConfig) {
+        changeConfig({
+            protect: true
+        });
+        return randomStringCxCompatible();
+    },
+    // Need to set a specific value
+    set: function (value, _prev, changeConfig) {
+        changeConfig({
+            protect: true
+        });
+        return value;
+    } });
+
+// https://developer.mozilla.org/en-US/docs/Web/API/Document/referrer
+var generateInitProtectedValue$1 = function () {
+    return getGlobalConfig$1().referrer || document.referrer;
+};
+var referrer = __assign(__assign({}, createStaticParam()), { init: generateInitProtectedValue$1 });
+
+var generateInitProtectedValue = function () {
+    return getGlobalConfig$1().sessionReferrer || document.referrer;
+};
+// The same as referrer, but holds initial value for user session
+var sessionReferrer = __assign(__assign({}, createStaticParam()), { init: generateInitProtectedValue });
 
 // opt-in - 0
 // essential - 1
@@ -944,6 +962,24 @@ var appendLegacyComposer = function (prevValue) {
     append(prevValue, 'authors', name('author'));
 };
 
+function isArticle(ldJsonPart) {
+    return ldJsonPart && isString(ldJsonPart['@type']) && ldJsonPart['@type'].includes('Article');
+}
+function findArticle(parsedLdJson) {
+    if (isArray(parsedLdJson)) {
+        return parsedLdJson.find(function (part) { return isArticle(part); }) || {};
+    }
+    return {};
+}
+function readLdJson() {
+    var ldJsonElements = document.querySelectorAll('script[type="application/ld+json"]');
+    if (ldJsonElements) {
+        var parsedLdJsons = Array.from(ldJsonElements).flatMap(function (element) { return parseJSON(element.innerHTML); });
+        return findArticle(parsedLdJsons);
+    }
+    return {};
+}
+
 var monthNames = {
     januar: '01',
     january: '01',
@@ -1087,14 +1123,21 @@ var publishTimeConfig = [
         getContent: function (el) { return el.getAttribute('datetime'); }
     }),
     takeLast({
-        selector: 'time[datetime]',
+        selector: 'time[itemprop="datePublished"][datetime]',
         getContent: function (el) { return el.getAttribute('datetime'); }
     })
 ];
 // cxenseinternal-modifiedtime
-var modifiedTimeConfig = {
-    selector: 'meta[property="article:modified_time"]' // take first
-};
+var modifiedTimeConfig = [
+    takeLast({
+        attr: ['name', 'property', 'itemprop'],
+        names: ['article:modified_time', 'datemodified']
+    }),
+    takeLast({
+        selector: 'time[itemprop="dateModified"][datetime]',
+        getContent: function (el) { return el.getAttribute('datetime'); }
+    })
+];
 // cxenseinternal-author
 var authorConfig = [
     {
@@ -1150,12 +1193,38 @@ var internalTitle = [
         names: ['og:title']
     })
 ];
+var appendLdJsonCrawler = function (data) {
+    var maybeArticle = readLdJson();
+    if (isArticle(maybeArticle)) {
+        append(data, 'createdAt', function () {
+            var datePublished = maybeArticle.datePublished;
+            return datePublished ? anyDateToISODate(datePublished.toLowerCase()) : null;
+        });
+        append(data, 'modifiedAt', function () {
+            var dateModified = maybeArticle.dateModified;
+            return dateModified ? anyDateToISODate(dateModified.toLowerCase()) : null;
+        });
+        append(data, 'authors', function () {
+            var author = maybeArticle.author;
+            return author ? (isArray(author) ? author.map(function (a) { return a.name; }).join(', ') : author.name) : null;
+        });
+        append(data, 'keywords', function () {
+            var keywords = maybeArticle.keywords;
+            return isString(keywords) && keywords.length <= 1024 ? keywords : null;
+        });
+        append(data, 'title', function () { return maybeArticle.headline; });
+        append(data, 'description', function () { return maybeArticle.description; });
+    }
+};
 var appendLegacyCrawler = function (data) {
     append(data, 'createdAt', function () {
         var publishTime = readMetaValues(publishTimeConfig);
         return publishTime ? anyDateToISODate(publishTime.toLowerCase()) : null;
     });
-    append(data, 'modifiedAt', modifiedTimeConfig);
+    append(data, 'modifiedAt', function () {
+        var modifiedTime = readMetaValues(modifiedTimeConfig);
+        return modifiedTime ? anyDateToISODate(modifiedTime.toLowerCase()) : null;
+    });
     append(data, 'authors', authorConfig);
     append(data, 'keywords', function () {
         var keywords = readMetaValues(keywordsConfig); // check length 1024
@@ -1179,6 +1248,7 @@ var readMetaElements = function () {
     queryMetasMemo.refresh();
     appendLegacyComposer(data);
     appendLegacyCrawler(data);
+    appendLdJsonCrawler(data);
     return data;
 };
 var content = __assign(__assign({}, createStaticParam(null)), { init: function () { return readMetaElements(); }, refresh: function (prevValue) {
@@ -1197,8 +1267,12 @@ var content = __assign(__assign({}, createStaticParam(null)), { init: function (
         var proceedValue = function (filter, forEachCb) {
             keys(filterObjectValues(value, filter)).forEach(forEachCb);
         };
-        proceedValue(isNotEmpty, function (val) { fixedSet.add(val); });
-        proceedValue(isEmpty, function (val) { fixedSet.delete(val); });
+        proceedValue(isNotEmpty, function (val) {
+            fixedSet.add(val);
+        });
+        proceedValue(isEmpty, function (val) {
+            fixedSet.delete(val);
+        });
         return filterObjectValues(__assign(__assign(__assign({}, prevValue), value), { _fixed_: Array.from(fixedSet.values()) }), isNotEmpty);
     }, get: memo(function (value) {
         var getValue = __assign({}, value);
@@ -1208,7 +1282,7 @@ var content = __assign(__assign({}, createStaticParam(null)), { init: function (
 
 var userSegments = __assign(__assign({}, createBaseParam(null, '_pcus')), { init: function (valueFromCookie) {
         if (valueFromCookie === void 0) { valueFromCookie = null; }
-        return valueFromCookie && filterObjectValues(valueFromCookie, function (val) { return isObject(val) && Array.isArray(val.segments); });
+        return valueFromCookie && filterObjectValues(valueFromCookie, function (val) { return isObject(val) && isArray(val.segments); });
     } });
 
 var PropertiesMap = {
@@ -1223,16 +1297,26 @@ var PropertiesMap = {
     consentModifiers: consentModifiers,
     purposes: purposes,
     content: content,
-    userSegments: userSegments
+    userSegments: userSegments,
+    referrer: referrer,
+    sessionReferrer: sessionReferrer
 };
 
 var domainExceptions = ['pantheon.io', 'go-vip.net', 'go-vip.co'];
+var defaultDomain = (function () {
+    var _a, _b;
+    var pdlDefaultDomain = (_b = (_a = getGlobalConfig$1()) === null || _a === void 0 ? void 0 : _a.cookieDefault) === null || _b === void 0 ? void 0 : _b.domain;
+    if (pdlDefaultDomain === undefined) {
+        return cookie.getTopLevelDomain(domainExceptions);
+    }
+    return pdlDefaultDomain;
+})();
 var DEFAULT_COOKIE_OPTIONS = {
     path: '/',
     expires: 395,
     samesite: 'lax',
     secure: window.location.protocol === 'https:',
-    domain: cookie.getTopLevelDomain(domainExceptions)
+    domain: defaultDomain
 };
 
 var createDateByExpires = function (expires) {
@@ -1721,40 +1805,40 @@ function _decompress(length, resetValue, getNextValue) {
     }
 
     switch ((bits)) {
-        case 0:
-            bits = 0;
-            maxpower = Math.pow(2, 8);
-            power = 1;
-            while (power != maxpower) {
-                resb = data.val & data.position;
-                data.position >>= 1;
-                if (data.position == 0) {
-                    data.position = resetValue;
-                    data.val = getNextValue(data.index++);
-                }
-                bits |= (resb > 0 ? 1 : 0) * power;
-                power <<= 1;
+    case 0:
+        bits = 0;
+        maxpower = Math.pow(2, 8);
+        power = 1;
+        while (power != maxpower) {
+            resb = data.val & data.position;
+            data.position >>= 1;
+            if (data.position == 0) {
+                data.position = resetValue;
+                data.val = getNextValue(data.index++);
             }
-            c = f(bits);
-            break;
-        case 1:
-            bits = 0;
-            maxpower = Math.pow(2, 16);
-            power = 1;
-            while (power != maxpower) {
-                resb = data.val & data.position;
-                data.position >>= 1;
-                if (data.position == 0) {
-                    data.position = resetValue;
-                    data.val = getNextValue(data.index++);
-                }
-                bits |= (resb > 0 ? 1 : 0) * power;
-                power <<= 1;
+            bits |= (resb > 0 ? 1 : 0) * power;
+            power <<= 1;
+        }
+        c = f(bits);
+        break;
+    case 1:
+        bits = 0;
+        maxpower = Math.pow(2, 16);
+        power = 1;
+        while (power != maxpower) {
+            resb = data.val & data.position;
+            data.position >>= 1;
+            if (data.position == 0) {
+                data.position = resetValue;
+                data.val = getNextValue(data.index++);
             }
-            c = f(bits);
-            break;
-        case 2:
-            return '';
+            bits |= (resb > 0 ? 1 : 0) * power;
+            power <<= 1;
+        }
+        c = f(bits);
+        break;
+    case 2:
+        return '';
     }
     dictionary[3] = c;
     w = c;
@@ -1779,45 +1863,45 @@ function _decompress(length, resetValue, getNextValue) {
         }
 
         switch ((c = bits)) {
-            case 0:
-                bits = 0;
-                maxpower = Math.pow(2, 8);
-                power = 1;
-                while (power != maxpower) {
-                    resb = data.val & data.position;
-                    data.position >>= 1;
-                    if (data.position == 0) {
-                        data.position = resetValue;
-                        data.val = getNextValue(data.index++);
-                    }
-                    bits |= (resb > 0 ? 1 : 0) * power;
-                    power <<= 1;
+        case 0:
+            bits = 0;
+            maxpower = Math.pow(2, 8);
+            power = 1;
+            while (power != maxpower) {
+                resb = data.val & data.position;
+                data.position >>= 1;
+                if (data.position == 0) {
+                    data.position = resetValue;
+                    data.val = getNextValue(data.index++);
                 }
+                bits |= (resb > 0 ? 1 : 0) * power;
+                power <<= 1;
+            }
 
-                dictionary[dictSize++] = f(bits);
-                c = dictSize - 1;
-                enlargeIn--;
-                break;
-            case 1:
-                bits = 0;
-                maxpower = Math.pow(2, 16);
-                power = 1;
-                while (power != maxpower) {
-                    resb = data.val & data.position;
-                    data.position >>= 1;
-                    if (data.position == 0) {
-                        data.position = resetValue;
-                        data.val = getNextValue(data.index++);
-                    }
-                    bits |= (resb > 0 ? 1 : 0) * power;
-                    power <<= 1;
+            dictionary[dictSize++] = f(bits);
+            c = dictSize - 1;
+            enlargeIn--;
+            break;
+        case 1:
+            bits = 0;
+            maxpower = Math.pow(2, 16);
+            power = 1;
+            while (power != maxpower) {
+                resb = data.val & data.position;
+                data.position >>= 1;
+                if (data.position == 0) {
+                    data.position = resetValue;
+                    data.val = getNextValue(data.index++);
                 }
-                dictionary[dictSize++] = f(bits);
-                c = dictSize - 1;
-                enlargeIn--;
-                break;
-            case 2:
-                return result.join('');
+                bits |= (resb > 0 ? 1 : 0) * power;
+                power <<= 1;
+            }
+            dictionary[dictSize++] = f(bits);
+            c = dictSize - 1;
+            enlargeIn--;
+            break;
+        case 2:
+            return result.join('');
         }
 
         if (enlargeIn == 0) {
@@ -1970,7 +2054,7 @@ var createCookieAssociation = function () {
                         wrapper: cookieByName === null || cookieByName === void 0 ? void 0 : cookieByName[cookieWrapperName],
                         data: {},
                         update: false,
-                        remove: true,
+                        remove: true
                     };
                 }
                 groupedData[cookieWrapperName].data[fieldName] = fieldValue;
@@ -2182,29 +2266,37 @@ var getConsentModifier = function (itemType, modifierNoStrict, log) {
 };
 var checkMode = function (mode, config) {
     switch (mode) {
-        case OPT_IN_MODE:
-            return true;
-        case ESSENTIAL_MODE:
-            return config === ESSENTIAL_CONFIG || config === MANDATORY_CONFIG;
-        case OPT_OUT_MODE:
-            return config === MANDATORY_CONFIG;
-        default:
-            // TODO util debug console
-            return true;
+    case OPT_IN_MODE:
+        return true;
+    case ESSENTIAL_MODE:
+        return config === ESSENTIAL_CONFIG || config === MANDATORY_CONFIG;
+    case OPT_OUT_MODE:
+        return config === MANDATORY_CONFIG;
+    default:
+        // TODO util debug console
+        return true;
     }
 };
 var checkAction = function (action) {
     switch (action) {
-        case 'include':
-            return true;
-        case 'exclude':
-            return false;
-        case 'obfuscate':
-            return true;
+    case 'include':
+        return true;
+    case 'exclude':
+        return false;
+    case 'obfuscate':
+        return true;
     }
 };
 var getData = function (action, data) { return (action === 'obfuscate' ? data : null); };
+var checkProductDisabled = function (productName) {
+    if (productName && productName !== RESERVED_PRODUCT) {
+        var pdlProducts = getPdlProductNames();
+        return !!(pdlProducts && !pdlProducts.includes(productName));
+    }
+    return false;
+};
 var createCheckConsentWrapper = function (config) {
+    var productName = config.product || null;
     var items = Object.assign({}, config.items);
     var masks = itemsToMask(items);
     var getConfigByName = function (name) { return items[name] || getByMask(name, masks) || OPTIONAL_CONFIG; };
@@ -2216,7 +2308,7 @@ var createCheckConsentWrapper = function (config) {
             var getDefaultResult = function () {
                 return names.map(function (cName) { return ({
                     name: cName,
-                    allowed: !requireConsent
+                    allowed: !requireConsent || checkProductDisabled(productName)
                 }); });
             };
             var consent = consentValue || config.getConsent();
@@ -2270,10 +2362,6 @@ var localStorageGet = function (name) {
     return ttl && ttl <= Date.now() ? null : value;
 };
 
-var validateBrowserId = function (val) {
-    var length = val && val.length;
-    return length === 16 || length === 36 ? val : null;
-};
 var getMigrationValue = (function () {
     var cookies = {
         pa_vid: function (data) { return validateBrowserId(parseJSON(data || '', true) || data); },
@@ -2305,33 +2393,26 @@ var getMigrationValue = (function () {
         return null;
     };
 })();
-var defaultMigration = [{ ls: '_cX_P' }, 'cX_P'];
 var migrationMaps = {
     PA: {
-        browserId: ['pa_vid', 'atuserid'].concat(defaultMigration)
-    },
-    DMP: {
-        browserId: defaultMigration
+        browserId: ['pa_vid', 'atuserid']
     }
-};
-var DEFAULT_MIGRATION = {
-    browserId: { source: 'DMP' }
 };
 var migrate = function (_private) {
     var _a;
-    var migrationData = __assign(__assign({}, DEFAULT_MIGRATION), validateMigration((_a = getGlobalConfig$1()) === null || _a === void 0 ? void 0 : _a.migration));
+    var migrationData = __assign({}, validateMigration((_a = getGlobalConfig$1()) === null || _a === void 0 ? void 0 : _a.migration));
     keys(migrationData).forEach(function (propName) {
         var _a, _b;
         var param = _private.params.get(propName);
-        var isDefault = migrationData[propName] === DEFAULT_MIGRATION[propName];
         var product = (_a = migrationData[propName]) === null || _a === void 0 ? void 0 : _a.source;
         var configs = (product && ((_b = migrationMaps[product]) === null || _b === void 0 ? void 0 : _b[propName])) || [];
         if (param && configs.length) {
+            var fromGlobalConfig = getGlobalConfig$1()[propName];
             var migrationValue = getMigrationValue(configs);
-            if (migrationValue) {
+            if (migrationValue && !fromGlobalConfig) {
                 param.readonly = false;
                 _private.updateValues(propName, migrationValue, true); // force update from migrated value
-                param.readonly = !isDefault; // prohibit overwriting value
+                param.readonly = true; // prohibit overwriting value
             }
         }
     });
@@ -2785,7 +2866,9 @@ var DataLayer = function (paramsArgs, cookiesArgs, onInit) {
             checkConsent: checkConsent$1,
             setConsent: setConsent,
             getConsent: getConsent,
-            notAcquiredConsent: getNotAcquiredConsent()
+            notAcquiredConsent: getNotAcquiredConsent(),
+            compressLz: compressToEncodedURIComponent,
+            decompressLz: decompressFromEncodedURIComponent
         },
         get cookies() {
             return getCookieConfig();
@@ -2815,7 +2898,7 @@ var getCookieProhibition = function (con) {
         _pprv: !getGlobalConfig$1().requireConsent,
         _pctx: prohibitForPaProducts,
         _pcid: prohibitForPaProducts,
-        _pcus: prohibitForPaProducts,
+        _pcus: prohibitForPaProducts
     };
 };
 var checkConsent = function (_private) {

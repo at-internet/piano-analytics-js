@@ -40,6 +40,9 @@ function DlPrivacy(pa) {
         return window.pdl.requireConsent === 'v2';
     };
 
+    this.isPAConsentDisabled = function () {
+        return typeof dataLayer.get('consent')['PA'] === 'undefined';
+    };
     this.init = function () {
         this.consentItems = getConsentItems();
         this.propertyConsent = consent.createProperty({
@@ -57,7 +60,7 @@ function DlPrivacy(pa) {
             productName: 'PA',
             items: this.consentItems.cookieItems
         });
-        if (!pa.getConfiguration('isLegacyPrivacy')) {
+        if (!pa._privacy.isLegacyPrivacy) {
             this.initMode();
             this.filterKeys();
         }
@@ -95,12 +98,12 @@ function DlPrivacy(pa) {
         this.modeMetadata['custom'].visitor_privacy_consent = consentValue;
     };
     this.setAllPurposes = function (mode) {
-        if(isConsentv2()){
+        if (isConsentv2()) {
             return dataLayer.utils.setConsent(mode);
         }
     };
     this.setByPurpose = function (purpose, mode, products) {
-        if(isConsentv2()){
+        if (isConsentv2()) {
             dataLayer.utils.setConsent(purpose, mode, products);
         }
     };
@@ -116,19 +119,19 @@ function DlPrivacy(pa) {
         return this.consentItems;
     };
     this.isPropAllowed = (function (propertyName) {
-        if (pa.getConfiguration('enableExtendedOptout') === true && this.getMode() === 'opt-out') {
+        if (this.isPAConsentDisabled() || (pa.getConfiguration('enableExtendedOptout') === true && this.getMode() === 'opt-out')) {
             return true;
         }
         return this.propertyConsent.check(propertyName).allowed;
     }).bind(this);
     this.isEventAllowed = (function (eventName) {
-        if (pa.getConfiguration('enableExtendedOptout') === true && this.getMode() === 'opt-out') {
+        if (this.isPAConsentDisabled() || (pa.getConfiguration('enableExtendedOptout') === true && this.getMode() === 'opt-out')) {
             return true;
         }
         return this.eventConsent.check(eventName).allowed;
     }).bind(this);
     this.isKeyAllowed = (function (storageKey) {
-        return this.storageConsent.check(storageKey).allowed;
+        return this.isPAConsentDisabled() ? true : this.storageConsent.check(storageKey).allowed;
     }).bind(this);
 
     this.filterProps = function (properties) {

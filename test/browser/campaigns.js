@@ -43,6 +43,32 @@ describe('Campaigns :', function () {
             }
         });
     });
+    it('Should add a campaign from querystring with empty values', function (done) {
+        window.location.href = baseURL + '&at_source=&at_medium=mymedium&at_campaign=mycampaign&at_platform=&at_creation=&at_variant=myvariant&at_network=&at_term=myterm';
+        globalPA.sendEvent('toto', {}, {
+            onBeforeSend: function (pa, model) {
+                Utility.promiseThrowCatcher(done, function () {
+                    expect(model.build.data.events[0].data['src_source']).to.equal('');
+                    expect(model.build.data.events[0].data['src_medium']).to.equal('mymedium');
+                    expect(model.build.data.events[0].data['src_campaign']).to.equal('mycampaign');
+                    expect(model.build.data.events[0].data['src_platform']).to.equal('');
+                    expect(model.build.data.events[0].data['src_creation']).to.equal('');
+                    expect(model.build.data.events[0].data['src_variant']).to.equal('myvariant');
+                    expect(model.build.data.events[0].data['src_network']).to.equal('');
+                    expect(model.build.data.events[0].data['src_term']).to.equal('myterm');
+                    expect(model.build.data.events[0].data['utm_source']).to.equal(undefined);
+                    expect(model.build.data.events[0].data['utm_medium']).to.equal(undefined);
+                    expect(model.build.data.events[0].data['utm_campaign']).to.equal(undefined);
+                    expect(model.build.data.events[0].data['utm_platform']).to.equal(undefined);
+                    expect(model.build.data.events[0].data['utm_creation']).to.equal(undefined);
+                    expect(model.build.data.events[0].data['utm_variant']).to.equal(undefined);
+                    expect(model.build.data.events[0].data['utm_network']).to.equal(undefined);
+                    expect(model.build.data.events[0].data['utm_term']).to.equal(undefined);
+                    done();
+                });
+            }
+        });
+    });
     it('Should add a campaign from querystring with uri encoded-decoded values', function (done) {
         window.location.href = baseURL + '&at_source=mysource%26%C3%A9%22(-%C3%A8_%C3%A7%C3%A0)%3D%7D%5D%40%5E%60%7C%5B%7B%23~%C2%B2%2C%3B%3A!%C3%B9*%5E%24%3F.%2F%C2%A7%25%C2%B5%C2%A8%C2%A3%2B%C2%B0encodedvalue&at_medium=mymedium&at_campaign=mycampaign%26%C3%A9%22(-%C3%A8_%C3%A7%C3%A0)%3D%7D%5D%40%5E%60%7C%5B%7B%23~%C2%B2%2C%3B%3A!%C3%B9*%5E%24%3F.%2F%C2%A7%25%C2%B5%C2%A8%C2%A3%2B%C2%B0encodedvalue&at_platform=myplatform&at_creation=mycreation&at_variant=myvariant&at_network=mynetwork&at_term=myterm%26%C3%A9%22(-%C3%A8_%C3%A7%C3%A0)%3D%7D%5D%40%5E%60%7C%5B%7B%23~%C2%B2%2C%3B%3A!%C3%B9*%5E%24%3F.%2F%C2%A7%25%C2%B5%C2%A8%C2%A3%2B%C2%B0encodedvalue';
         globalPA.sendEvent('toto', {}, {
@@ -109,16 +135,16 @@ describe('Campaigns :', function () {
         });
     });
     it('Should add an utm campaign from querystring', function (done) {
-        window.location.href = baseURL + '&utm_source=mysource&utm_medium=mymedium&utm_campaign=mycampaign&utm_platform=myplatform&utm_creation=mycreation&utm_variant=myvariant&utm_network=mynetwork&utm_term=myterm';
+        window.location.href = baseURL + '&utm_source=mysource&utm_medium=mymedium&utm_campaign=mycampaign&utm_platform=&utm_creation=mycreation&utm_variant=&utm_network=mynetwork&utm_term=myterm';
         globalPA.sendEvent('toto', {}, {
             onBeforeSend: function (pa, model) {
                 Utility.promiseThrowCatcher(done, function () {
                     expect(model.build.data.events[0].data['utm_source']).to.equal('mysource');
                     expect(model.build.data.events[0].data['utm_medium']).to.equal('mymedium');
                     expect(model.build.data.events[0].data['utm_campaign']).to.equal('mycampaign');
-                    expect(model.build.data.events[0].data['utm_platform']).to.equal('myplatform');
+                    expect(model.build.data.events[0].data['utm_platform']).to.equal('');
                     expect(model.build.data.events[0].data['utm_creation']).to.equal('mycreation');
-                    expect(model.build.data.events[0].data['utm_variant']).to.equal('myvariant');
+                    expect(model.build.data.events[0].data['utm_variant']).to.equal('');
                     expect(model.build.data.events[0].data['utm_network']).to.equal('mynetwork');
                     expect(model.build.data.events[0].data['utm_term']).to.equal('myterm');
                     expect(model.build.data.events[0].data['src_source']).to.equal(undefined);

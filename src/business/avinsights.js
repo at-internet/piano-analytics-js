@@ -624,6 +624,17 @@ const AVInsights = function (pa) {
             _resetSession();
 
         };
+        _thisMedia.playbackKill = function () {
+            _timers.initBaseTime();
+            _context.isPlaying = false;
+            _context.isPlaybackActivated = false;
+            _timers.stopHeartbeatTimer(false);
+            _timers.stopHeartbeatTimer(true);
+            _timers.resetProperties();
+            _restoreDelayConfiguration(false);
+            _restoreDelayConfiguration(true);
+            _resetSession();
+        };
         _thisMedia.seek = function (oldCursorPosition, newCursorPosition, eventOptions, extraProps) {
 
             const processedOldPosition = _utility.value2Number(oldCursorPosition);

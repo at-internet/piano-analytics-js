@@ -8,7 +8,7 @@ function AtPrivacy(pa) {
     this._storageKeys = Object.assign(config.legacyKeys, config.storageKeys);
 
     this.init = function () {
-        if (pa.getConfiguration('isLegacyPrivacy')) {
+        if (pa._privacy.isLegacyPrivacy) {
             if (BUILD_BROWSER) {
                 window._pac = window._pac || {privacy: []};
                 preloadTagging(this, window._pac.privacy);
@@ -26,9 +26,9 @@ function AtPrivacy(pa) {
         this.currentMode = mode;
         pa._storage.getItem(config.storageKey, (function (storedMode) {
             if (mode === 'optout' || mode === 'no-consent' || mode === 'no-storage') {
-                pa.setConfiguration('visitorId', this.modes[mode].visitorId);
-            } else if (pa.getConfiguration('visitorId') === 'OPT-OUT' || pa.getConfiguration('visitorId') === 'no-consent' || pa.getConfiguration('visitorId') === 'no-storage') {
-                pa.cfg.deleteProperty('visitorId');
+                pa._visitorId.value = this.modes[mode].visitorId;
+            } else if (pa._visitorId.value === 'OPT-OUT' || pa._visitorId.value === 'no-consent' || pa._visitorId.value === 'no-storage') {
+                pa._visitorId.value = null;
             }
             this.filterProps(pa._properties);
             this.filterKeys();

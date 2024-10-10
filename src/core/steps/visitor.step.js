@@ -5,13 +5,13 @@ import {dataLayer} from '../../business/ext/data-layer/data-layer';
 function visitorStep(pa, model, nextSteps) {
     pa._storage.getItem(model.getConfiguration('storageVisitor'), function (storedValue) {
         if (model.getConfiguration('isVisitorClientSide')) {
-            model.visitorId = model.getConfiguration('visitorId') || (BUILD_BROWSER ? dataLayer.get('browserId') : (storedValue || uuid.v4()));
+            model.visitorId = pa._visitorId.value || (BUILD_BROWSER ? dataLayer.get('browserId') : (storedValue || uuid.v4()));
             if(BUILD_BROWSER){
-                if(!model.getConfiguration('isLegacyPrivacy') && pa.consent.getMode() === 'opt-out'){
+                if(!pa._privacy.isLegacyPrivacy && pa.consent.getMode() === 'opt-out'){
                     model.visitorId = 'OPT-OUT';
                 }
             }
-            const isNotForcedValue = model.visitorId !== 'OPT-OUT' && model.visitorId !== 'no-consent' && model.visitorId !== 'no-storage' && model.visitorId !== model.getConfiguration('visitorId');
+            const isNotForcedValue = model.visitorId !== 'OPT-OUT' && model.visitorId !== 'no-consent' && model.visitorId !== 'no-storage' && model.visitorId !== pa._visitorId.value;
             if (BUILD_BROWSER) {
                 if (model.visitorId !== dataLayer.get('browserId')
                     && isNotForcedValue) {

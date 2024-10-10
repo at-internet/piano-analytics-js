@@ -38,7 +38,8 @@ var createBaseConsentStorage = function createBaseConsentStorage(storage2, itemT
     var checkProperty = createCheckConsentWrapper(config.dataLayer, {
         items: config.items,
         type: itemType,
-        getConsent: getConsent
+        getConsent: getConsent,
+        product: config.productName
     });
     var _init = function _init() {
         var removeOnInit = config.checkConsentOnInit === void 0 ? config.enableAutoRemove : false;
@@ -85,7 +86,8 @@ var createTTLChecker = function createTTLChecker(dataLayer) {
         var checker = createCheckConsentWrapper(config.dataLayer, {
             items: (_a = {}, _a[name] = "mandatory", _a),
             type: "localStorage",
-            getConsent: createConsentWrapper(config)
+            getConsent: createConsentWrapper(config),
+            product: config.productName
         });
         return function () {
             var result = checker(name);
@@ -158,7 +160,8 @@ var createCookie = function createCookie(config) {
     var checkProperty = createCheckConsentWrapper(config.dataLayer, {
         items: items,
         type: ITEM_TYPE,
-        getConsent: getConsent
+        getConsent: getConsent,
+        product: config.productName
     });
     var _init = function _init() {
         var removeOnInit = !!(config.checkConsentOnInit === void 0 ? config.enableAutoRemove : false);
@@ -205,7 +208,8 @@ var createBasePropertyWrapper = function createBasePropertyWrapper(itemType, con
         check: createCheckConsentWrapper(config.dataLayer, {
             items: config.items,
             type: itemType,
-            getConsent: createConsentWrapper(config)
+            getConsent: createConsentWrapper(config),
+            product: config.productName
         })
     };
 };
