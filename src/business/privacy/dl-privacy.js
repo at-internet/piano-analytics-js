@@ -41,7 +41,8 @@ function DlPrivacy(pa) {
     };
 
     this.isPAConsentDisabled = function () {
-        return typeof dataLayer.get('consent')['PA'] === 'undefined';
+        const _consent = dataLayer.get('consent');
+        return !(_consent && _consent['PA']);
     };
     this.init = function () {
         this.consentItems = getConsentItems();

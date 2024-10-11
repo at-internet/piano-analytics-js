@@ -1,4 +1,8 @@
 # Changelog
+## 6.15.1
+### Fixes
+- [browser] Fix a specific case when consent is disabled
+
 ## 6.15.0
 ### New
 - [browser] New AV Insights method (`media.playbackKill`) to technically stop a playback session

@@ -1,7 +1,7 @@
 {
   "name": "piano-analytics-js",
   "description": "JavaScript library for Piano Analytics",
-  "version": "6.15.0",
+  "version": "6.15.1",
   "main": "dist/browserless/piano-analytics.cjs.js",
   "module": "dist/browserless/piano-analytics.esm.js",
   "browser": "dist/browser/piano-analytics.umd.js",
