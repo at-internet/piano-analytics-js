@@ -1,4 +1,8 @@
 # Changelog
+## 6.15.2
+### Fixes
+- Fix the configuration `sendEventWhenOptout` (broken in versions 6.15.0 and 6.15.1)
+
 ## 6.15.1
 ### Fixes
 - [browser] Fix a specific case when consent is disabled

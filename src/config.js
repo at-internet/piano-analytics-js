@@ -23,7 +23,7 @@ export default {
     ],
     'storageVisitor': 'pa_vid',
     'storageUser': 'pa_user',
-    'version': '6.15.1',
+    'version': '6.15.2',
     'minHeartbeat': 5,
     'minBufferingHeartbeat': 1,
     'queueVarName': '_paq',

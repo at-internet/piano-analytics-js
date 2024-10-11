@@ -4,10 +4,8 @@ import {dataLayer} from '../ext/data-layer/data-layer';
 
 function Privacy(pa) {
     this.isLegacyPrivacy = true;
-    this.modeEnum = {
-        OPTOUT: (() => {
-            return this.isLegacyPrivacy ? 'optout' : 'opt-out';
-        })()
+    this.getOptoutValue = function () {
+        return this.isLegacyPrivacy ? 'optout' : 'opt-out';
     };
     this.call = function (method, ...paramsArray) {
         const privacy = this.isLegacyPrivacy ? 'privacy' : 'consent';
