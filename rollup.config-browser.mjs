@@ -24,9 +24,17 @@ export default {
             name: 'pianoAnalytics'
         },
         {
+            file: 'dist/browser/piano-analytics.esm.js',
+            format: 'es'
+        },
+        {
             file: 'dist/browser/piano-analytics.umd.js',
             format: 'umd',
             name: 'pianoAnalytics'
+        },
+        {
+            file: 'dist/browser/piano-analytics.esm.js',
+            format: 'es'
         }
     ]
 };

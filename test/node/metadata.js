@@ -31,13 +31,13 @@ describe('Metadata not in browser :', function () {
         });
     });
     it('Should add device_timestamp_utc', function (done) {
-        let currentTimestamp = new Date().getTime();
+        let currentTimestamp = new Date().getTime() / 1000;
         globalPA.sendEvent('toto', {test: 'test'}, {
             onBeforeSend: function (pianoanalytics, model) {
                 expect(model.build.data.events[0].data['device_timestamp_utc']).to.not.equal(undefined);
                 expect(typeof model.build.data.events[0].data['device_timestamp_utc']).to.equal('number');
                 expect(model.build.data.events[0].data['device_timestamp_utc']).to.greaterThanOrEqual(currentTimestamp);
-                expect(model.build.data.events[0].data['device_timestamp_utc']).to.lessThanOrEqual(new Date().getTime());
+                expect(model.build.data.events[0].data['device_timestamp_utc']).to.lessThanOrEqual(new Date().getTime() / 1000);
                 done();
             }
         });

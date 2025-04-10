@@ -8,14 +8,14 @@ function metadataStep(pa, model, nextSteps) {
     model.addEventsProperty('event_collection_platform', BUILD_BROWSER ? 'js' : 'js-browserless');
     model.addEventsProperty('event_collection_version', model.getConfiguration('version'));
     const date = new Date();
-    model.addEventsProperty('device_timestamp_utc', date.getTime());
+    model.addEventsProperty('device_timestamp_utc', date.getTime() / 1000);
     model.addEventsProperty('device_local_hour', date.getTime());
     model.addEventsProperty('device_hour', date.getHours());
     if (BUILD_BROWSER) {
         processPageViewId(pa, model);
         processContentProperties(model);
         try {
-            const cookieCreationDate = new Date((new Date(dataLayer.cookies._pcid.fixedAt[0])).setUTCHours(0, 0, 0, 0)).toISOString();
+            const cookieCreationDate = new Date((new Date(dataLayer.cookies._pcid.fixedAt[0])).setUTCSeconds(0, 0)).toISOString();
             model.addEventsProperty('cookie_creation_date', cookieCreationDate);
         } catch (e) {
             /* empty */

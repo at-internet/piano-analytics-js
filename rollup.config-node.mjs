@@ -30,6 +30,11 @@ export default {
             exports: 'auto'
         },
         {
+            file: 'dist/browserless/piano-analytics.cjs',
+            format: 'cjs',
+            exports: 'auto'
+        },
+        {
             file: 'dist/browserless/piano-analytics.esm.js',
             format: 'es'
         }

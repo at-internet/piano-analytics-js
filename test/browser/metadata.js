@@ -38,14 +38,14 @@ describe('Metadata in browser :', function () {
         });
     });
     it('Should add device_timestamp_utc', function (done) {
-        let currentTimestamp = new Date().getTime();
+        let currentTimestamp = new Date().getTime() / 1000;
         globalPA.sendEvent('toto', {test: 'test'}, {
             onBeforeSend: function (pianoanalytics, model) {
                 Utility.promiseThrowCatcher(done, function () {
                     expect(model.build.data.events[0].data['device_timestamp_utc']).to.not.equal(undefined);
                     expect(typeof model.build.data.events[0].data['device_timestamp_utc']).to.equal('number');
                     expect(model.build.data.events[0].data['device_timestamp_utc']).to.greaterThanOrEqual(currentTimestamp);
-                    expect(model.build.data.events[0].data['device_timestamp_utc']).to.lessThanOrEqual(new Date().getTime());
+                    expect(model.build.data.events[0].data['device_timestamp_utc']).to.lessThanOrEqual(new Date().getTime() / 1000);
                     done();
                 });
             }
@@ -169,11 +169,11 @@ describe('Metadata in browser :', function () {
             'ch_ua',
             'ch_ua_full_version_list',
             'ch_ua_mobile'
-        ]
+        ];
         globalPA.sendEvent('toto', {test: 'test'}, {
             onBeforeSend: function (pianoanalytics, model) {
                 Utility.promiseThrowCatcher(done, function () {
-                    checkAndForceDynamicPropertiesToStaticTestingValues(model.build.data.events, [], CHUA_LIST_PROPERTIES)
+                    checkAndForceDynamicPropertiesToStaticTestingValues(model.build.data.events, [], CHUA_LIST_PROPERTIES);
                     for (const event of model.build.data.events) {
                         for (const chuaProperty of CHUA_LIST_PROPERTIES) {
                             expect(event.data[chuaProperty]).to.equal('forced_value_for_test');
@@ -203,12 +203,12 @@ describe('Metadata in browser :', function () {
         const CHUA_LIST_PROPERTIES = [
             'ch_ua',
             'ch_ua_mobile'
-        ]
-        globalPA.setConfiguration('allowHighEntropyClientHints',false);
+        ];
+        globalPA.setConfiguration('allowHighEntropyClientHints', false);
         globalPA.sendEvent('toto', {test: 'test'}, {
             onBeforeSend: function (pianoanalytics, model) {
                 Utility.promiseThrowCatcher(done, function () {
-                    checkAndForceDynamicPropertiesToStaticTestingValues(model.build.data.events, ['ch_ua_full_version_list'], CHUA_LIST_PROPERTIES)
+                    checkAndForceDynamicPropertiesToStaticTestingValues(model.build.data.events, ['ch_ua_full_version_list'], CHUA_LIST_PROPERTIES);
                     for (const event of model.build.data.events) {
                         for (const chuaProperty of CHUA_LIST_PROPERTIES) {
                             expect(event.data[chuaProperty]).to.equal('forced_value_for_test');
@@ -220,7 +220,7 @@ describe('Metadata in browser :', function () {
         });
     });
     it('Should not add page_url when configuration addEventURL is false', function (done) {
-        globalPA.setConfiguration('addEventURL', 'false')
+        globalPA.setConfiguration('addEventURL', 'false');
         globalPA.sendEvent('toto', {test: 'test'}, {
             onBeforeSend: function (pianoanalytics, model) {
                 Utility.promiseThrowCatcher(done, function () {

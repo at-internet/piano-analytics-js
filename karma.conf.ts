@@ -14,7 +14,7 @@ module.exports = function (config) {
         },
         files: [
             'dist/browser/piano-analytics.js',
-            'test/utils.js',
+            'test/utils.cjs',
             'test/shared/*.js',
             'test/browser/*.js'
         ],

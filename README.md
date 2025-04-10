@@ -47,7 +47,7 @@ It also includes [Privacy tagging methods](https://developers.atinternet-solutio
    // in your initialization
     pianoAnalytics.setConfigurations({
         'site': 123456789,
-        'collectDomain': 'https://log.xiti.com'
+        'collectDomain': 'https://<xxxxxxx>.pa-cd.com'
     });
     ```
 
@@ -56,9 +56,9 @@ It also includes [Privacy tagging methods](https://developers.atinternet-solutio
     pianoAnalytics.sendEvent('page.display', // Event name
         {
             'page': 'page name', // Event properties
-            'page_chapter1': 'chapter 1' ,
-            'page_chapter2': 'chapter 2' ,
-            'page_chapter3': 'chapter 3'
+            'page_chapter1': 'level 1' ,
+            'page_chapter2': 'level 2' ,
+            'page_chapter3': 'level 3'
         }
     ); 
     ```
@@ -73,7 +73,7 @@ It also includes [Privacy tagging methods](https://developers.atinternet-solutio
         <script type="text/javascript">
             pa.setConfigurations({
                 site:123456789, 
-                collectDomain:'https://log.xiti.com'
+                collectDomain:'https://<xxxxxxx>.pa-cd.com'
             }); 
         </script>
     </head>
@@ -85,9 +85,9 @@ It also includes [Privacy tagging methods](https://developers.atinternet-solutio
         pa.sendEvent('page.display', // Event name
             {
                'page': 'page name', // Event properties
-               'page_chapter1': 'chapter 1' ,
-               'page_chapter2': 'chapter 2' ,
-               'page_chapter3': 'chapter 3'
+               'page_chapter1': 'level 1' ,
+               'page_chapter2': 'level 2' ,
+               'page_chapter3': 'level 3'
             }
         ); 
     </script>
@@ -111,7 +111,7 @@ It also includes [Privacy tagging methods](https://developers.atinternet-solutio
 3. Enter your site and collect domain in `src/config.js` (optionnal if you want to do it in your implementation)
    ```
     'site': 123456789,
-    'collectDomain': 'https://log.xiti.com'
+    'collectDomain': 'https://<xxxxxxx>.pa-cd.com'
    ```
 4. Build the file
       ```sh
@@ -130,9 +130,9 @@ It also includes [Privacy tagging methods](https://developers.atinternet-solutio
             pa.sendEvent('page.display', // Event name
                 {
                     'page': 'page name', // Event properties
-                    'page_chapter1': 'chapter 1' ,
-                    'page_chapter2': 'chapter 2' ,
-                    'page_chapter3': 'chapter 3'
+                    'page_chapter1': 'level 1' ,
+                    'page_chapter2': 'level 2' ,
+                    'page_chapter3': 'level 3'
                 }
             );
         </script>

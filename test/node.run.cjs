@@ -4,8 +4,8 @@ let Mocha = require('mocha'),
 let mocha = new Mocha({
     timeout: 5000
 });
-mocha.addFile('test/utils.js');
-mocha.addFile('test/node.tools.js');
+mocha.addFile('test/utils.cjs');
+mocha.addFile('test/node.tools.cjs');
 let testDirShared = 'test/shared';
 let testDirNode = 'test/node';
 fs.readdirSync(testDirShared).forEach(function (file) {
