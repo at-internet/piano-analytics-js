@@ -2,6 +2,17 @@ import {AtPrivacy} from './at-privacy';
 import {DlPrivacy} from './dl-privacy';
 import {dataLayer} from '../ext/data-layer/data-layer';
 
+const defaultConfig = {
+    migration: {
+        browserId: {
+            source: 'PA'
+        }
+    },
+    cookies: {
+        storageMode: 'fixed'
+    }
+};
+
 function Privacy(pa) {
     this.isLegacyPrivacy = true;
     this.getOptoutValue = function () {
@@ -13,24 +24,27 @@ function Privacy(pa) {
     };
 }
 
+function checkAndForceConsent(pa, isConsentForced) {
+    if (isConsentForced) {
+        pa._privacy.isLegacyPrivacy = false;
+        window.pdl.requireConsent = 'v2';
+        window.pdl.consent = {products: ['PA']};
+    }
+}
+
 function initPrivacy(pa) {
     // wrapper between legacy vs consent privacies for internal use
     pa._privacy = new Privacy(pa);
     if (BUILD_BROWSER) {
+        const isConsentForced = pa.getConfiguration('consentDefaultMode');
         if (typeof window.pdl === 'undefined') {
-            window.pdl = {
-                migration: {
-                    browserId: {
-                        source: 'PA'
-                    }
-                },
-                cookies: {
-                    storageMode: 'fixed'
-                }
-            };
+            window.pdl = defaultConfig;
+            checkAndForceConsent(pa, isConsentForced);
         } else {
             if (window.pdl.requireConsent) {
                 pa._privacy.isLegacyPrivacy = false;
+            } else {
+                checkAndForceConsent(pa, isConsentForced);
             }
             if (typeof window.pdl.cookies === 'undefined') {
                 window.pdl.cookies = {

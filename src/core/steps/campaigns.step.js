@@ -1,20 +1,10 @@
 import {nextStep} from './utils/index';
+import {getQueryStringParameters} from '../../utils/index';
 
-function _getQueryStringParameters(prefix, str, destPrefix) {
-    const campaign = {};
-    const regex = new RegExp('[&#?]{1}([^&=#?]*)=([^&#]*)?', 'g');
-    let match = regex.exec(str);
-    while (match !== null) {
-        if (match[1].indexOf(prefix) === 0) {
-            campaign[destPrefix + match[1].substring(prefix.length)] = match[2] === undefined ? '' : window.decodeURIComponent(match[2]);
-        }
-        match = regex.exec(str);
-    }
-    return campaign;
-}
+
 
 function _addCampaignParams(pa, model, href, prefix, destPrefix) {
-    const campaignParams = _getQueryStringParameters(prefix, href, destPrefix);
+    const campaignParams = getQueryStringParameters(prefix, href, destPrefix);
     let found = false;
     for (const param in campaignParams) {
         if (Object.prototype.hasOwnProperty.call(campaignParams, param) && !model.properties[param]) {

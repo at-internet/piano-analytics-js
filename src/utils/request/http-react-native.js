@@ -2,7 +2,7 @@ import {Platform} from 'react-native';
 import Config from '../../config.js';
 
 const http = {
-    post: function (url, data, callback) {
+    post: function (model, url, data, callback) {
         const params = {
             method: 'POST',
             headers: {

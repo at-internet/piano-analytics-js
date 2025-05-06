@@ -1,7 +1,7 @@
 /**
  * @license
- * Piano Browser SDK-DataLayer@2.11.0.
- * Copyright 2010-2022 Piano Software Inc.
+ * Piano Browser SDK-DataLayer@2.12.0.
+ * Copyright 2010-2024 Piano Software Inc.
  */
 import { cookie } from '@piano-sdk/storage';
 
@@ -245,7 +245,10 @@ var getProducts = (function () {
 var filterByProduct = function (value, prevValue, updateConfig) {
     var newData = getProducts().reduce(function (res, product) {
         var pid = product.id;
-        res[pid] = updateConfig(value === null || value === void 0 ? void 0 : value[pid], prevValue === null || prevValue === void 0 ? void 0 : prevValue[pid], pid);
+        var newConfig = updateConfig(value === null || value === void 0 ? void 0 : value[pid], prevValue === null || prevValue === void 0 ? void 0 : prevValue[pid], pid);
+        if (newConfig) {
+            res[pid] = newConfig;
+        }
         return res;
     }, {});
     if (shallowEqual(newData, prevValue)) {
@@ -270,6 +273,7 @@ var fillProductNameReduce = function (dataObj, reduce) {
     }, {});
 };
 
+var NOT_ACQUIRED_MODE = 'not-acquired';
 var OPT_IN_MODE = 'opt-in';
 var ESSENTIAL_MODE = 'essential';
 var OPT_OUT_MODE = 'opt-out';
@@ -280,7 +284,13 @@ var modeIdMap = modesList.reduce(function (res, mode, index) {
     var _a;
     return (__assign(__assign({}, res), (_a = {}, _a[index] = mode, _a)));
 }, {});
-var priorityList = [OPT_IN_MODE, CUSTOM_MODE, ESSENTIAL_MODE, OPT_OUT_MODE];
+var priorityList = [
+    NOT_ACQUIRED_MODE,
+    OPT_IN_MODE,
+    CUSTOM_MODE,
+    ESSENTIAL_MODE,
+    OPT_OUT_MODE
+];
 var getStrictMode = function (mode1, mode2) {
     var index1 = priorityList.indexOf(mode1);
     var index2 = priorityList.indexOf(mode2);
@@ -354,6 +364,7 @@ var purposes = __assign(__assign({}, createBaseParam(null, '_pprv')), { init: fu
 var getGlobalConfigModifiers = function () { return getGlobalConfig$1().consent_modifiers || null; };
 var getRequireConsent = function () { return !!getGlobalConfig$1().requireConsent; };
 var isRequireConsentV2 = function () { return getGlobalConfig$1().requireConsent === 'v2'; };
+var isConsentStrict = function () { return !!getGlobalConfig$1().strictConsent; };
 var isInvalidCustomMode = function (mode, product) { var _a; return mode === CUSTOM_MODE && !((_a = getGlobalConfigModifiers()) === null || _a === void 0 ? void 0 : _a[product]); };
 var RESERVED_PURPOSE = 'DL';
 var purposesMap = [
@@ -473,11 +484,14 @@ var getExtendedConsent = function (consent, purposes) {
     }
     var purposesLocal = purposes || initialPurposeMap;
     var purposesNames = fillProductNameReduce(purposesLocal);
+    var strictMode = isConsentStrict();
     return getProducts().reduce(function (res, _a) {
         var _b;
         var productName = _a.name;
         var purpose = purposesNames[productName];
-        var productMode = ((_b = consent[productName]) === null || _b === void 0 ? void 0 : _b.mode) || OPT_IN_MODE;
+        var reservedProducts = productName === RESERVED_PRODUCT;
+        var defaultMode = strictMode && !reservedProducts ? NOT_ACQUIRED_MODE : OPT_IN_MODE;
+        var productMode = ((_b = consent[productName]) === null || _b === void 0 ? void 0 : _b.mode) || defaultMode;
         if (!res[purpose]) {
             res[purpose] = {
                 mode: productMode,
@@ -495,7 +509,7 @@ var getNotAcquiredConsent = function () {
     return isRequireConsentV2()
         ? keys(purposeByProduct).reduce(function (res, purpose) {
             res[purpose] = {
-                mode: 'not-acquired',
+                mode: NOT_ACQUIRED_MODE,
                 products: purposeByProduct[purpose]
             };
             return res;
@@ -760,8 +774,14 @@ var convertToConsent = function (val) {
     }, null);
 };
 var filterByProductConsent = function (value, prevValue) {
+    var isStrict = isConsentStrict();
     return filterByProduct(value, prevValue, function (config, prevConfig, pid) {
-        var mode = (config === null || config === void 0 ? void 0 : config.mode) || (prevConfig === null || prevConfig === void 0 ? void 0 : prevConfig.mode) || getDefaultPreset()[pid].mode;
+        var reservedProduct = pid === PRODUCTS_MAP[RESERVED_PRODUCT];
+        var defaultValue = isStrict && !reservedProduct ? null : getDefaultPreset()[pid].mode;
+        var mode = (config === null || config === void 0 ? void 0 : config.mode) || (prevConfig === null || prevConfig === void 0 ? void 0 : prevConfig.mode) || defaultValue;
+        if (mode === null) {
+            return null;
+        }
         if (mode !== (prevConfig === null || prevConfig === void 0 ? void 0 : prevConfig.mode)) {
             return {
                 mode: mode
@@ -2957,7 +2977,7 @@ var validateConsent = function (_private) {
                 var newMode = currentConsent[key].mode;
                 currentConsent[key].products.forEach(function (productName) {
                     var _a;
-                    if (newMode !== ((_a = consent[productName]) === null || _a === void 0 ? void 0 : _a.mode)) {
+                    if (newMode !== NOT_ACQUIRED_MODE && newMode !== ((_a = consent[productName]) === null || _a === void 0 ? void 0 : _a.mode)) {
                         if (isInvalidCustomMode(newMode, productName)) {
                             if (!customInvalidProducts[productName]) {
                                 customInvalidProducts[productName] = true;

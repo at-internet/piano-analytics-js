@@ -1,11 +1,12 @@
 # Changelog
+## 6.16.0
+### New
+- [browser] New Instant Tracking feature
+
 ## 6.15.4
 ### Changes
 - `device_timestamp_utc` is no longer sent in milliseconds but in seconds (becoming a decimal number)
 - [browser] `cookie_creation_date` is now sent with hours and minutes details
-
-## 6.15.3
-### Changes
 - Updated the readme file
 - migrated rollup from v2 to v4
 - [browser] New esm file available : `dist/browser/piano-analytics.esm.js`

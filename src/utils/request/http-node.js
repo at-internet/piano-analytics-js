@@ -1,7 +1,7 @@
 import * as https from 'https';
 
 const http = {
-    post: function (url, data, callback) {
+    post: function (model, url, data, callback) {
         const bodyContent = data;
         const _url = new URL(url);
         const options = {
@@ -13,7 +13,7 @@ const http = {
                 'Content-Type': 'text/plain;charset=UTF-8'
             }
         };
-        const req = https.request(options, res => {
+        const req = https.request(options, function (res) {
             callback && callback(url, data, res);
         });
         req.write(bodyContent);

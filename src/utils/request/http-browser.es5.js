@@ -1,4 +1,4 @@
-function post(url, data) {
+function post(model, url, data) {
     if (window.XDomainRequest) {
         let xdr = new window.XDomainRequest();
         xdr.open('POST', url, true);

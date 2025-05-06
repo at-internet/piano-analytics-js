@@ -43,6 +43,17 @@ module.exports = function (grunt) {
             process.exit(1);
         }
     });
+    grunt.registerTask('remove-version', 'Remove version from default configuration', function() {
+        try {
+            const packageJsonVersion = JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
+            let configFile = fs.readFileSync('./src/config.js', 'utf8');
+            configFile = configFile.replace(/'version': '.*'/,`'version': ''`);
+            fs.writeFileSync('./src/config.js', configFile);
+        } catch (err) {
+            console.error(err);
+            process.exit(1);
+        }
+    });
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-concat');
 };

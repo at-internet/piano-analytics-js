@@ -1,5 +1,5 @@
 function getUserAgent(pa, model) {
-    return new Promise((resolve) => {
+    return new Promise(function (resolve) {
         try {
             if (pa.getConfiguration('allowHighEntropyClientHints')) {
                 window.navigator.userAgentData.getHighEntropyValues([

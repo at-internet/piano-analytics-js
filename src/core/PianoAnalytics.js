@@ -15,6 +15,8 @@ import {VisitorId} from '../business/visitor-id';
 import {initPageViewId} from '../business/pageview-id';
 import {initContentProperties} from '../business/content-properties';
 import {initPrivacy} from '../business/privacy/privacy';
+import {initInstantTracking} from '../business/instant/instant';
+import {configOverride} from '../business/config-override';
 
 function PianoAnalytics(configuration) {
     _initConfig(this, configuration);
@@ -32,6 +34,7 @@ function PianoAnalytics(configuration) {
         initPageViewId(this);
         initContentProperties(this);
         _runAsyncTagging(this);
+        initInstantTracking(this);
     }
 }
 
@@ -41,13 +44,7 @@ function _initConfig(pa, configuration) {
     pa.setConfigurations = pa.cfg.setConfigurations;
     pa.getConfiguration = pa.cfg.getConfiguration;
     if (BUILD_BROWSER) {
-        // overriding configurations tagging
-        window._pac = window._pac || {privacy: []};
-        for (const config in window._pac) {
-            if (Object.prototype.hasOwnProperty.call(window._pac, config) && config !== 'privacy') {
-                pa.setConfiguration(config, window._pac[config]);
-            }
-        }
+        configOverride(pa);
     }
 }
 

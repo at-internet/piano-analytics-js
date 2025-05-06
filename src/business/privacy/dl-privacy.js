@@ -3,7 +3,7 @@ import {dataLayer} from '../ext/data-layer/data-layer';
 import {getConsentItems} from './dl-privacy-configuration';
 
 function DlPrivacy(pa) {
-    const DEFAULT_MODE = 'opt-in';
+    const DEFAULT_MODE = pa.getConfiguration('consentDefaultMode') || 'opt-in';
     this.storageKeys = [
         'pa_vid',
         'pa_user',

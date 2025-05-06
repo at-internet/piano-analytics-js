@@ -3,6 +3,7 @@ import {dataLayer} from '../../business/ext/data-layer/data-layer';
 import {processPageViewId} from '../../business/pageview-id';
 import {processContentProperties} from '../../business/content-properties';
 import {getUserAgent} from '../../business/user-agent';
+import {getPageUrl, getPreviousPageUrl} from '../../business/page-management';
 
 function metadataStep(pa, model, nextSteps) {
     model.addEventsProperty('event_collection_platform', BUILD_BROWSER ? 'js' : 'js-browserless');
@@ -28,13 +29,14 @@ function metadataStep(pa, model, nextSteps) {
         const languageSplitted = _parseLanguage(['-', '_']);
         model.addEventsProperty('browser_language', languageSplitted[0]);
         model.addEventsProperty('browser_language_local', languageSplitted[1]);
-        model.addEventsProperty('previous_url', document.referrer || '');
+        model.addEventsProperty('previous_url', getPreviousPageUrl() || document.referrer || '');
         if (document.title) {
             model.addEventsProperty('page_title_html', document.title);
         }
         const eventUrlWithQueryString = model.getConfiguration('addEventURL').toString() === 'true';
         if (eventUrlWithQueryString || (model.getConfiguration('addEventURL') === 'withoutQS')) {
-            model.addEventsProperty('event_url_full', eventUrlWithQueryString ? window.location.href.split('#')[0] : `${window.location.protocol}//${window.location.host}${window.location.pathname}`);
+            let pageUrl = getPageUrl();
+            model.addEventsProperty('event_url_full', eventUrlWithQueryString ? pageUrl.href.split('#')[0] : `${pageUrl.protocol}//${pageUrl.host}${pageUrl.pathname}`);
         }
         getUserAgent(pa, model).finally(() => {
             nextStep(pa, model, nextSteps);

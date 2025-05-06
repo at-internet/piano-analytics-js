@@ -1,7 +1,7 @@
 {
   "name": "piano-analytics-js",
   "description": "JavaScript library for Piano Analytics",
-  "version": "6.15.4",
+  "version": "6.16.0",
   "main": "dist/browserless/piano-analytics.cjs.js",
   "module": "dist/browserless/piano-analytics.esm.js",
   "browser": "dist/browser/piano-analytics.umd.js",
@@ -25,7 +25,7 @@
     "prebuild:browser-es5": "grunt --gruntfile Gruntfile.cjs copy:http-browser-es5",
     "prebuild:node": "grunt --gruntfile Gruntfile.cjs copy:http-node",
     "prebuild:react-native": "grunt --gruntfile Gruntfile.cjs copy:http-react-native",
-    "clean": "grunt --gruntfile Gruntfile.cjs copy:http-clean",
+    "clean": "grunt --gruntfile Gruntfile.cjs copy:http-clean remove-version",
     "rollup:browser": "grunt --gruntfile Gruntfile.cjs get-version && npm run prebuild:browser && rollup --config rollup.config-browser.mjs && npm run clean",
     "rollup:browser-es5": "grunt --gruntfile Gruntfile.cjs get-version && npm run prebuild:browser-es5 && rollup --config rollup.config-browser-es5.mjs && grunt --gruntfile Gruntfile.cjs concat:es5polyfills && npm run clean",
     "rollup:node": "grunt --gruntfile Gruntfile.cjs get-version && npm run prebuild:node && rollup --config rollup.config-node.mjs && npm run clean",
