@@ -1,4 +1,8 @@
 # Changelog
+## 6.16.1
+### Fixes
+- [browser] requests with a payload larger than 64KiB might be cancelled in 6.16.0
+
 ## 6.16.0
 ### New
 - [browser] New Instant Tracking feature
