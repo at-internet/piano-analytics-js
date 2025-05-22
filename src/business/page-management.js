@@ -36,6 +36,9 @@ function setPageUrl(url) {
 }
 
 function getPageUrl() {
+    if(pageUrl.href !== window.location.href) {
+        pageUrl = new URL(window.location.href);
+    }
     return pageUrl;
 }
 

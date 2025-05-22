@@ -1,4 +1,8 @@
 # Changelog
+## 6.16.2
+### Fixes
+- [browser] event_url_full not updating in some SPA cases
+
 ## 6.16.1
 ### Fixes
 - [browser] requests with a payload larger than 64KiB might be cancelled in 6.16.0
