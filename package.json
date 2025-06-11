@@ -21,6 +21,7 @@
     "analytics"
   ],
   "scripts": {
+    "prepare": "npm run build",
     "prebuild:browser": "grunt --gruntfile Gruntfile.cjs copy:http-browser",
     "prebuild:browser-es5": "grunt --gruntfile Gruntfile.cjs copy:http-browser-es5",
     "prebuild:node": "grunt --gruntfile Gruntfile.cjs copy:http-node",
