@@ -2,7 +2,11 @@ import * as https from 'https';
 
 const http = {
     post: function (model, url, data, callback) {
-        const bodyContent = data;
+        let postData = data;
+        if (typeof data === 'object') {
+            postData = JSON.stringify(data);
+        }
+        const bodyContent = postData;
         const _url = new URL(url);
         const options = {
             hostname: _url.hostname,
@@ -14,7 +18,7 @@ const http = {
             }
         };
         const req = https.request(options, function (res) {
-            callback && callback(url, data, res);
+            callback && callback(url, postData, res);
         });
         req.write(bodyContent);
         req.end();
