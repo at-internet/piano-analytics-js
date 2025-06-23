@@ -1,4 +1,8 @@
 # Changelog
+## 6.16.3
+### New
+- Add the ability to stop sending heartbeats after a specified duration
+
 ## 6.16.2
 ### Fixes
 - [browser] event_url_full not updating in some SPA cases

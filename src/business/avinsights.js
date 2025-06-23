@@ -300,7 +300,7 @@ const AVInsights = function (pa) {
             };
             _thisTimers.initHeartbeatTimer = function (callback, buffering) {
                 const delayConfig = buffering ? _context.delayBufferingConfiguration : _context.delayConfiguration;
-                if (delayConfig.length > 0) {
+                if (delayConfig.length > 0 && delayConfig[0].refresh > 0) {
                     _updateDelayConfiguration(buffering);
                     clearTimeout(delayConfig[0].timeout);
                     delayConfig[0].timeout = setTimeout(function () {
@@ -374,9 +374,11 @@ const AVInsights = function (pa) {
             _context.previousCursorPosition = _context.currentCursorPosition; // event-1 Cursor Position  (usually HB)
             // event Cursor Position
             _context.currentCursorPosition = autoPosition ? (_context.previousCursorPosition + Math.floor(_context.playbackSpeed * _context.eventDuration)) : cursorPosition;
-            autoTimer && _timers.initHeartbeatTimer(function () {
-                _heartbeat(true, true);
-            }, false);
+            if (autoTimer && _context.delayConfiguration[0].refresh > 0) {
+                _timers.initHeartbeatTimer(function () {
+                    _heartbeat(true, true);
+                }, false);
+            }
             _sendEvent('av.heartbeat', true, eventOptions, extraProps);
         };
         const _bufferHeartbeat = function (autoTimer, eventOptions, extraProps) {
@@ -385,10 +387,11 @@ const AVInsights = function (pa) {
 
             _context.eventDuration = _timers.getEventDuration(); // duration since the last event
 
-            autoTimer && _timers.initHeartbeatTimer(function () {
-                _bufferHeartbeat(true);
-            }, true);
-
+            if (autoTimer && _context.delayBufferingConfiguration[0].refresh > 0) {
+                _timers.initHeartbeatTimer(function () {
+                    _bufferHeartbeat(true);
+                }, true);
+            }
             _sendEvent('av.buffer.heartbeat', true, eventOptions, extraProps);
 
         };
@@ -399,9 +402,11 @@ const AVInsights = function (pa) {
             _context.eventDuration = _timers.getEventDuration(); // duration since Rebuffer start or since the last rebuffer heartbeat
             _context.previousCursorPosition = _context.currentCursorPosition; // event-1 Cursor Position (rebuffer start or rebuffer HB)
 
-            autoTimer && _timers.initHeartbeatTimer(function () {
-                _rebufferHeartbeat(true);
-            }, true);
+            if (autoTimer && _context.delayBufferingConfiguration[0].refresh > 0) {
+                _timers.initHeartbeatTimer(function () {
+                    _rebufferHeartbeat(true);
+                }, true);
+            }
 
             _sendEvent('av.rebuffer.heartbeat', true, eventOptions, extraProps);
 
