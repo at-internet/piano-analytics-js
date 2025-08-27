@@ -15,7 +15,7 @@ It works on all javascript environments dedicated to browsers (mostly websites).
 
 This SDK makes the implementation of Piano Analytics as simple as possible, while keeping all the flexibility of the solution. By loading this small library on your platform, and using [dedicated and documented methods](https://developers.atinternet-solutions.com/piano-analytics/), you will be able to send powerful events.
 
-It also includes [Privacy tagging methods](https://developers.atinternet-solutions.com/piano-analytics/data-collection/privacy) that allow you a perfect management of your tagging depending on the regulation you refer to.
+It also includes [Privacy tagging methods](https://developers.atinternet-solutions.com/piano-analytics/data-collection/how-to-send-events/privacy) that allow you a perfect management of your tagging depending on the regulation you refer to.
 
 
 <!-- GETTING STARTED -->
