@@ -1,4 +1,11 @@
 # Changelog
+## 6.16.4
+### New
+- Add a module type definition to prevent import issues with typescript projects
+
+### Changes
+- Updated README from deprecated Privacy tagging to Consent management
+
 ## 6.16.3
 ### New
 - Add the ability to stop sending heartbeats after a specified duration
