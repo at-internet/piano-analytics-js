@@ -26,4 +26,4 @@ jobs:
         run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
 
       - name: Publish NPM package
-        run: npm publish npm-package/piano-analytics-js-${{ steps.package-version.outputs.version }}.tgz --provenance --access public
+        run: npm publish ./npm-package/piano-analytics-js-${{ steps.package-version.outputs.version }}.tgz --provenance --access public
