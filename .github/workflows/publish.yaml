@@ -1,0 +1,29 @@
+name: Publish Package
+on:
+  push:
+    tags:
+      - 'v*'
+permissions:
+  id-token: write  # OIDC
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Ensure npm 11.5.1 or later is installed
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Get package.json version
+        id: package-version
+        run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
+
+      - name: Publish NPM package
+        run: npm publish npm-package/piano-analytics-js-${{ steps.package-version.outputs.version }}.tgz --provenance --access public

@@ -1,6 +1,7 @@
 .project
 .settings
 .idea
+.npmrc
 *~
 *.diff
 *.patch
@@ -9,6 +10,7 @@
 yarn.lock
 package-lock.json
 npm-debug.log*
+.history/*
 
 # Ignore everything in dist folder except for eslint config
 /dist/*

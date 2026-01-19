@@ -27,7 +27,7 @@ module.exports = function (grunt) {
         },
         concat: {
             es5polyfills: {
-                src: ['polyfills/core-js-bundle-3.6.4.min.js', 'dist/browser/piano-analytics.es5.js'],
+                src: ['polyfills/core-js-bundle-3.47.0.min.js', 'dist/browser/piano-analytics.es5.js'],
                 dest: 'dist/browser/piano-analytics.es5.js',
             },
         },

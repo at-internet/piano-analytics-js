@@ -2,6 +2,7 @@ import dataLayer from './ext/data-layer/data-layer';
 
 const MAP_DL_PA = [
     ['createdAt', 'content_publication_date'],
+    ['modifiedAt', 'content_update_date'],
     ['tags', 'tags_array']
 ];
 
