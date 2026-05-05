@@ -1,9 +1,12 @@
 # Changelog
 
-## 6.18.0
+## 6.18.0 - 6.17.1
+
 ## Changes
-[browser] Default `useSendBeacon` to `false` (was `true`)
+
 - Updated README to new piano urls
+- [browser] Default `useSendBeacon` to `false` (was `true`)
+- Bump minor
 
 ## 6.17.0
 
