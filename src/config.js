@@ -33,7 +33,7 @@ export default {
     'sendEmptyProperties': true,
     'enableExtendedOptout': false,
     'instantTracking': false,
-    'useSendBeacon': true,
+    'useSendBeacon': false,
     'privacy': {
         'storageKey': 'pa_privacy',
         'legacyKeys': {
