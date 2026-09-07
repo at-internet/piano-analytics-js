@@ -53,7 +53,8 @@ It also includes [Consent management methods](https://developers.piano.io/analyt
    ```
 
 3. Send events !
-`js
+  
+   ```js
     pianoAnalytics.sendEvent('page.display', // Event name
         {
             'page': 'page name', // Event properties
@@ -62,7 +63,7 @@ It also includes [Consent management methods](https://developers.piano.io/analyt
             'page_chapter3': 'level 3'
         }
     ); 
-    `
+   ```
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Using the CDN (browser)
