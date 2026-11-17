@@ -1,5 +1,11 @@
 # Changelog
 
+## 6.18.1
+
+### Fixes
+
+- [browser] The browser SDK no longer uses the deprecated unload API
+
 ## 6.18.0 - 6.17.1
 
 ## Changes

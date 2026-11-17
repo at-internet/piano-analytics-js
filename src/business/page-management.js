@@ -22,9 +22,11 @@ function onPageView(callback) {
     };
     // get backward/forward navigation
     window.addEventListener('popstate', callbackWrapper);
-    window.addEventListener('unload', function () {
-        window.removeEventListener('popstate', callbackWrapper);
-    }, {once: true});
+    window.addEventListener('pagehide', function (event) {
+        if (event.persisted === false) {
+            window.removeEventListener('popstate', callbackWrapper);
+        }
+    });
 }
 
 function setPageUrl(url) {
